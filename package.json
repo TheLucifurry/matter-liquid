@@ -1,0 +1,45 @@
+{
+  "name": "matter-liquid",
+  "description": "",
+  "version": "0.0.1",
+  "main": "src/index.js",
+  "license": "",
+  "homepage": "https://github.com/Wexelus/matter-liquid",
+  "author": "Wexelus",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Wexelus/matter-liquid.git"
+  },
+  "keywords": [
+    "matter-js",
+    "matter",
+    "plugin",
+    "physics",
+    "liquid",
+    "water"
+  ],
+  "scripts": {
+    "dev": "webpack serve",
+    "build": "webpack"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/matter-js": "^0.14.8",
+    "@webpack-cli/serve": "^1.1.0",
+    "case": "^1.6.3",
+    "eslint": "^7.2.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-lodash": "^7.1.0",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.0.0",
+    "eslint-plugin-sonarjs": "^0.5.0",
+    "replace-in-file": "^6.1.0",
+    "ts-loader": "^8.0.12",
+    "typescript": "^4.1.3",
+    "webpack": "^5.11.0",
+    "webpack-cli": "^4.2.0",
+    "webpack-dev-server": "^3.11.0"
+  }
+}

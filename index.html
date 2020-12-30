@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,minimal-ui">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title></title>
+  <style type="text/css">
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/liabru/matter-js@0.14.2/build/matter.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.11.1/build/matter-tools.demo.min.js"></script>
+  <script src="./build/matter-liquid.js"></script>
+  <script src="./examples/basic.js"></script>
+  <script src="./examples/lib/utils.js"></script>
+  <script type="module">
+    var pluginName = 'matter-liquid'; // PLUGIN_NAME
+    var repoUrl = 'https://github.com/Wexelus/matter-liquid'; // PLUGIN_REPO_URL
+
+    document.title = pluginName.replace(/^\w/, l => l.toUpperCase());
+
+    MatterTools.Demo.create({
+      preventZoom: true,
+      resetOnOrientation: true,
+      toolbar: {
+        title: pluginName,
+        url: repoUrl,
+        reset: true,
+        source: true,
+        fullscreen: true,
+        exampleSelect: true
+      },
+      examples: [
+        {
+          name: 'Basic',
+          id: 'basic',
+          init: Example.basic,
+          sourceLink: repoUrl + '/blob/master/examples/basic.js'
+        }
+      ]
+    });
+  </script>
+</body>
+
+</html>
