@@ -1,3 +1,9 @@
+// import 'https://cdn.jsdelivr.net/gh/liabru/matter-js@0.15.0/build/matter.min.js';
+// import 'https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.11.1/build/matter-tools.demo.min.js';
+// import '../build/matter-liquid.js';
+
+// import {onpressedPointer} from './lib/utils.js';
+
 // install plugin
 Matter.use(
   'matter-liquid', // PLUGIN_NAME

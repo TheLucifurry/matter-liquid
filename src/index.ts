@@ -16,7 +16,7 @@ const MatterLiquid = {
   // Original
   name: pkg.name,
   version: pkg.version,
-  for: `matter-js@0.14.2`,
+  for: `matter-js@0.15.0`,
   // uses: [],
   // options: {
   //   something: true,
@@ -51,6 +51,8 @@ const MatterLiquid = {
         init();
       }, 1000);
     });
+    // matter.after('Engine.create', function(this: Matter.Engine) {
+    // })
     // matter.after('Engine.update', update)
 
   },

@@ -1,4 +1,4 @@
-function onpressedPointer(element, callback) {
+export function onpressedPointer(element, callback) {
   let isPressed = false;
   let e;
   element.addEventListener('mousedown', () => isPressed = true);
