@@ -2,16 +2,14 @@
 // import 'https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.11.1/build/matter-tools.demo.min.js';
 // import '../build/matter-liquid.js';
 
-// import {onpressedPointer} from './lib/utils.js';
+import * as Utils from './lib/utils.js';
 
 // install plugin
 Matter.use(
   'matter-liquid', // PLUGIN_NAME
 );
 
-var Example = Example || {};
-
-Example.basic = function () {
+export default function () {
   const { Engine, Render, Runner, MouseConstraint, Mouse, World, Bodies } = Matter;
 
   // create engine
@@ -35,22 +33,22 @@ Example.basic = function () {
   Runner.run(runner, engine);
 
   // add bodies
-  World.add(world, [
-    // walls
-    Bodies.rectangle(400, 0, 800, 20, { isStatic: true }),
-    Bodies.rectangle(400, 600, 800, 20, { isStatic: true }),
-    Bodies.rectangle(800, 300, 20, 600, { isStatic: true }),
-    Bodies.rectangle(0, 300, 20, 600, { isStatic: true }),
-    // Platforms
-    Bodies.rectangle(300, 180, 600, 20, { isStatic: true, angle: Math.PI * 0.06 }),
-    Bodies.rectangle(300, 350, 600, 20, { isStatic: true, angle: Math.PI * 0.06 }),
-    Bodies.rectangle(600, 500, 600, 20, { isStatic: true, angle: Math.PI * -0.03 }),
-    // Blocks
-    Bodies.rectangle(300, 70, 40, 40),
-    Bodies.rectangle(300, 250, 40, 40),
-    Bodies.rectangle(300, 430, 40, 40),
-    Bodies.circle(100, 100, 10)
-  ]);
+  // World.add(world, [
+  //   // walls
+  //   Bodies.rectangle(400, 0, 800, 20, { isStatic: true }),
+  //   Bodies.rectangle(400, 600, 800, 20, { isStatic: true }),
+  //   Bodies.rectangle(800, 300, 20, 600, { isStatic: true }),
+  //   Bodies.rectangle(0, 300, 20, 600, { isStatic: true }),
+  //   // Platforms
+  //   Bodies.rectangle(300, 180, 600, 20, { isStatic: true, angle: Math.PI * 0.06 }),
+  //   Bodies.rectangle(300, 350, 600, 20, { isStatic: true, angle: Math.PI * 0.06 }),
+  //   Bodies.rectangle(600, 500, 600, 20, { isStatic: true, angle: Math.PI * -0.03 }),
+  //   // Blocks
+  //   Bodies.rectangle(300, 70, 40, 40),
+  //   Bodies.rectangle(300, 250, 40, 40),
+  //   Bodies.rectangle(300, 430, 40, 40),
+  //   Bodies.circle(100, 100, 10)
+  // ]);
 
   // add mouse control
   const mouse = Mouse.create(render.canvas);
@@ -95,29 +93,36 @@ Example.basic = function () {
   };
 };
 
-function pluginUsingExample() {
-  const {
-    createLiquid,
-    fillZoneByLiquid,
-    setZone,
-    zoneType
-  } = Matter.liquid
-  const staticid = createLiquid({
+async function pluginUsingExample() {
+  await Utils.waitField(window, 'MIRROR_CANVAS');
+
+  const Liquid = Matter.liquid
+
+  const staticid = Liquid.createLiquid({
     isStatic: true,
     color: 'darkgray',
   });
-  const dynamicid = createLiquid({
+  const dynamicid = Liquid.createLiquid({
     color: 'cyan',
   });
-  fillZoneByLiquid(10, 10, 1000, 0, staticid)
-  fillZoneByLiquid(10, 770, 1000, 0, staticid)
-  fillZoneByLiquid(10, 10, 0, 750, staticid)
-  fillZoneByLiquid(1000, 10, 10, 750, staticid)
+  // Liquid.fillZoneByLiquid(10, 10, 1000, 0, staticid)
+  // Liquid.fillZoneByLiquid(10, 770, 1000, 0, staticid)
+  // Liquid.fillZoneByLiquid(10, 10, 0, 750, staticid)
+  // Liquid.fillZoneByLiquid(1000, 10, 10, 750, staticid)
 
-  fillZoneByLiquid(100, 100, 500, 500, dynamicid)
+  Liquid.fillZoneByLiquid(50, 50, 300, 300, dynamicid)
+  // Liquid.fillZoneByLiquid(100, 100, 1, 1, dynamicid)
 
-  const activeZoneParams = [50, 50, 600, 600];
+  const activeZoneParams = [10, 10, 800, 730];
   const renderZoneParams = [1, 1, 1000, 770];
-  setZone(zoneType.ACTIVE, ...activeZoneParams);
-  setZone(zoneType.RENDER, ...renderZoneParams);
+  Liquid.setZone(Liquid.zoneType.ACTIVE, ...activeZoneParams);
+  Liquid.setZone(Liquid.zoneType.RENDER, ...renderZoneParams);
+
+  Utils.onclick(window.MIRROR_CANVAS, function () {
+    const activeZoneParams2 = [10, 10, 800, 750];
+    Liquid.setZone(Liquid.zoneType.ACTIVE, ...activeZoneParams2);
+  })
+  Utils.onmove(window.MIRROR_CANVAS, function () {
+
+  })
 }

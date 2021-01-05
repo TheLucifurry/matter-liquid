@@ -8,7 +8,7 @@
   <meta name="msapplication-navbutton-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title></title>
+  <title>Liquid simulation JS</title>
   <style type="text/css">
     * {
       box-sizing: border-box;
@@ -26,12 +26,11 @@
   <script src="https://cdn.jsdelivr.net/gh/liabru/matter-js@0.15.0/build/matter.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.11.1/build/matter-tools.demo.min.js"></script>
   <script src="./build/matter-liquid.js"></script>
-  <script src="./examples/basic.js"></script>
   <script type="module">
-    var pluginName = 'matter-liquid'; // PLUGIN_NAME
-    var repoUrl = 'https://github.com/Wexelus/matter-liquid'; // PLUGIN_REPO_URL
+    import examBasic from './examples/basic.js';
 
-    document.title = pluginName.replace(/^\w/, l => l.toUpperCase());
+    let pluginName = 'matter-liquid'; // PLUGIN_NAME
+    let repoUrl = 'https://github.com/Wexelus/matter-liquid'; // PLUGIN_REPO_URL
 
     MatterTools.Demo.create({
       preventZoom: true,
@@ -48,7 +47,7 @@
         {
           name: 'Basic',
           id: 'basic',
-          init: Example.basic,
+          init: examBasic,
           sourceLink: repoUrl + '/blob/master/examples/basic.js'
         }
       ]
