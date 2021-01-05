@@ -88,10 +88,10 @@ export default class SpatialHash{
   getAroundCellsItems(fullX: number, fullY: number){
     const centerCellX = trunc(fullX, this.cellSize);
     const centerCellY = trunc(fullY, this.cellSize);
-    const selfItemId = getIndex(centerCellX, centerCellY, this._columns)
     const h = this.hash, c = this._columns;
+    const selfItemId = getIndex(centerCellX, centerCellY, c);
     const res: TItem[] = [
-      ...(h[getIndex(centerCellX, centerCellY, c)] || []).filter(v=>v!==selfItemId),
+      ...(h[selfItemId] || []).filter(v=>v!==selfItemId),
     ];
     for (const [dx, dy] of aroundCellRelatives) {
       res.push(...(h[getIndex(centerCellX + dx, centerCellY + dy, c)] || []))
