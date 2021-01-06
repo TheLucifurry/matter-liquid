@@ -7,6 +7,12 @@ function trunc(number: number, divider: number): number {
 function getIndex(x: number, y: number, columnCount: number): number {
   return y * columnCount + x;
 }
+function arrayDeleteItem(arr: any[], item: any) {
+  const ix = arr.indexOf(item);
+  if(ix !== -1)
+    arr.splice(ix, 1);
+  return arr;
+}
 
 const aroundCellRelatives: number[][] = [
   [-1,-1], [ 0,-1], [ 1,-1],
@@ -16,6 +22,7 @@ const aroundCellRelatives: number[][] = [
 
 export default class SpatialHash{
   hash: { [key: number]: TItem[] }
+  prevItemCell: { [key: number]: number }
   cellSize: number
   itemCount: number
   // cellCount: number = 0
@@ -30,6 +37,7 @@ export default class SpatialHash{
     this.cellSize = cellSize;
     this._columns = Math.ceil(worldWidth/cellSize);
     this.hash = {};
+    this.prevItemCell = {};
     this.itemCount = 0;
   }
 
@@ -37,51 +45,46 @@ export default class SpatialHash{
     return (this.hash[cellid] || []).indexOf(item)
   }
 
-  _save(item: TItem, cellX: number, cellY: number){
-    const cellid = getIndex(cellX, cellY, this._columns);
+  _save(item: TItem, cellid: number){
     const cell = this.hash[cellid];
-    if(this._find(cellid, item) === -1) {
-      if(cell !== undefined){
-        cell.push(item);
-      }else{
-        this.hash[cellid] = [item];
-      };
+    if(cell === undefined){ // Потестить вариант: typeof value === "undefined"
+      this.hash[cellid] = [item];
+      this.prevItemCell[item] = cellid;
+    }else if(this._find(cellid, item) === -1) { // потестить вариант с .includes, должен быть быстрее
+      cell.push(item);
       this.itemCount++;
+      this.prevItemCell[item] = cellid;
     }
   }
 
-  _delete(item: TItem, cellX: number, cellY: number){
-    const cellid = getIndex(cellX, cellY, this._columns);
+  _delete(item: TItem, cellid: number){
     const itemIndex = this._find(cellid, item);
-    // потестить вариант с .includes, должен быть быстрее
-    if(itemIndex !== -1) {
-      this.hash[cellid].splice(itemIndex, 1);
-      this.itemCount--;
-    }
+    this.hash[cellid].splice(itemIndex, 1);
+    this.itemCount--;
   }
 
-  insert(item: TItem, fullX: number, fullY: number) {
+  // insert(item: TItem, fullX: number, fullY: number) {
+  //   const cellX = trunc(fullX, this.cellSize);
+  //   const cellY = trunc(fullY, this.cellSize);
+  //   this._save(item, cellX, cellY)
+  // }
+
+  // remove(item: TItem, fullX: number, fullY: number) {
+  //   const cellX = trunc(fullX, this.cellSize);
+  //   const cellY = trunc(fullY, this.cellSize);
+  //   this._delete(item, cellX, cellY)
+  // }
+
+  update(item: TItem, fullX: number, fullY: number){
     const cellX = trunc(fullX, this.cellSize);
     const cellY = trunc(fullY, this.cellSize);
-    this._save(item, cellX, cellY)
-  }
-
-  remove(item: TItem, fullX: number, fullY: number) {
-    const cellX = trunc(fullX, this.cellSize);
-    const cellY = trunc(fullY, this.cellSize);
-    this._delete(item, cellX, cellY)
-  }
-
-  update(item: TItem, prevFullX: number, prevFullY: number, nextFullX: number, nextFullY: number){
-    const prevCellX = trunc(prevFullX, this.cellSize);
-    const prevCellY = trunc(prevFullY, this.cellSize);
-    const nextCellX = trunc(nextFullX, this.cellSize);
-    const nextCellY = trunc(nextFullY, this.cellSize);
-    if(prevCellX !== nextCellX || prevCellY !== nextCellY) {
-      this._delete(item, prevCellX, prevCellY);
-      this._save(item, nextCellX, nextCellY);
-      // console.log('update item:');
-      // console.dir({ prevCellX, prevCellY, nextCellX, nextCellY});
+    const prevCellid = this.prevItemCell[item];
+    const nextCellid = getIndex(cellX, cellY, this._columns);
+    if(prevCellid !== nextCellid) {
+      if(prevCellid !== undefined){ // Потестить вариант: typeof value === "undefined"
+        this._delete(item, prevCellid);
+      }
+      this._save(item, nextCellid);
     }
   }
 
@@ -91,7 +94,7 @@ export default class SpatialHash{
     const h = this.hash, c = this._columns;
     const selfItemId = getIndex(centerCellX, centerCellY, c);
     const res: TItem[] = [
-      ...(h[selfItemId] || []).filter(v=>v!==selfItemId),
+      ...arrayDeleteItem((h[selfItemId] || []), selfItemId),
     ];
     for (const [dx, dy] of aroundCellRelatives) {
       res.push(...(h[getIndex(centerCellX + dx, centerCellY + dy, c)] || []))
