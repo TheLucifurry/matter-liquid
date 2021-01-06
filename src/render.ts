@@ -1,5 +1,6 @@
-import { ParticleProps, spatialHash, TLiquidParticle } from './liquid';
+import { ParticleProps, particles, spatialHash, TLiquidParticle } from './liquid';
 import SpatialHash, { TItem } from './spatialHash';
+import { activeZone, renderZone } from './zones';
 
 function getIterableHash(spatialHash: SpatialHash): Array<[number, TItem[]]> {
   // @ts-ignore
@@ -9,7 +10,7 @@ function getCoordsFromCellid(spatialHash: SpatialHash, cellid: number): [number,
   return [cellid % spatialHash._columns, Math.trunc(cellid / spatialHash._columns)];
 }
 
-export function drawAtom(ctx: CanvasRenderingContext2D, x: number, y: number, color: string) {
+function drawAtom(ctx: CanvasRenderingContext2D, x: number, y: number, color: string) {
   const radius = 4;
   ctx.beginPath();
   ctx.fillStyle = color;
@@ -23,7 +24,7 @@ for (let i = 0; i < 1000; i++) {
   colors.push('#'+Math.floor(Math.random()*16777215).toString(16));
 }
 
-export function renderGrid(ctx: CanvasRenderingContext2D, particles: TLiquidParticle[]) {
+function renderGrid(ctx: CanvasRenderingContext2D, particles: TLiquidParticle[]) {
   const cellSize = spatialHash.cellSize;
 
   ctx.textAlign = 'center';
@@ -48,4 +49,31 @@ export function renderGrid(ctx: CanvasRenderingContext2D, particles: TLiquidPart
     ctx.strokeRect(fX, fY, cellSize, cellSize);
     i++;
   }
+}
+
+let canv: HTMLCanvasElement;
+let ctx: CanvasRenderingContext2D;
+
+export function init() {
+  const originalCanv = document.querySelector('.matter-demo canvas') as HTMLCanvasElement;
+  const mirrorCanv = document.createElement('canvas');
+  mirrorCanv.width = originalCanv.width;
+  mirrorCanv.height = originalCanv.height;
+  mirrorCanv.style.cssText = 'position: fixed; z-index: 100000;';
+  canv = mirrorCanv;
+  ctx = mirrorCanv.getContext('2d');
+  document.querySelector('.matter-demo').append(mirrorCanv);
+  //@ts-ignore
+  window.MIRROR_CANVAS = mirrorCanv;
+}
+
+export function update() {
+  ctx.clearRect(0, 0, canv.width, canv.height);
+  renderGrid(ctx, particles);
+  //   Draw active zone
+  ctx.strokeStyle = 'orange';
+  ctx.strokeRect(activeZone[0], activeZone[1], activeZone[4], activeZone[5]);
+  //   Draw render zone
+  ctx.strokeStyle = 'blue';
+  ctx.strokeRect(renderZone[0], renderZone[1], renderZone[4], renderZone[5]);
 }

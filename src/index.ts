@@ -7,7 +7,6 @@ import {
 } from './liquid';
 import {
   init,
-  // setRenderer,
   update
 } from './main';
 import { setZone, zoneType } from './zones';
@@ -33,14 +32,15 @@ const MatterLiquid = {
       spawnLiquid,
       fillZoneByLiquid,
     };
-    matter.after('Render.create', function(this: Matter.Render) {
-      // setRenderer.call(this);
 
+    matter.after('Render.create', function(this: Matter.Render) {
       setTimeout(() => {
         //@ts-ignore
         const stats = new Stats();
         stats.showPanel(0);
         document.body.append(stats.dom);
+
+        init();
 
         matter.after('Engine.update', function(){
           stats.begin();
@@ -48,7 +48,6 @@ const MatterLiquid = {
           stats.end();
         });
 
-        init();
       }, 1000);
     });
     // matter.after('Engine.create', function(this: Matter.Engine) {

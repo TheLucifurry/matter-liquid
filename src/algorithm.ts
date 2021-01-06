@@ -142,7 +142,7 @@ function resolveCollisions() {
 }
 
 
-export function updateParticles(dt: number) {
+export function update(dt: number) {
   const updatedParticleIds: number[] = [];
   foreach(particles, function(part, pid) {
     updatedParticleIds.push(pid)
