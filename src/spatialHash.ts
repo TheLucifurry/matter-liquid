@@ -1,5 +1,4 @@
-
-type TItem = number;
+export type TItem = number;
 
 function trunc(number: number, divider: number): number {
   return Math.trunc(number / divider);
@@ -24,21 +23,16 @@ export default class SpatialHash{
   hash: { [key: number]: TItem[] }
   prevItemCell: { [key: number]: number }
   cellSize: number
-  itemCount: number
+  // itemCount: number
   // cellCount: number = 0
   _columns: number
-
-  getIterableHash(): Array<[number, TItem[]]> {
-    // @ts-ignore
-    return Object.entries(this.hash);
-  };
 
   constructor(worldWidth: number, cellSize: number){
     this.cellSize = cellSize;
     this._columns = Math.ceil(worldWidth/cellSize);
     this.hash = {};
     this.prevItemCell = {};
-    this.itemCount = 0;
+    // this.itemCount = 0;
   }
 
   _find(cellid: number, item: TItem): number{
@@ -52,7 +46,7 @@ export default class SpatialHash{
       this.prevItemCell[item] = cellid;
     }else if(this._find(cellid, item) === -1) { // потестить вариант с .includes, должен быть быстрее
       cell.push(item);
-      this.itemCount++;
+      // this.itemCount++;
       this.prevItemCell[item] = cellid;
     }
   }
@@ -60,20 +54,8 @@ export default class SpatialHash{
   _delete(item: TItem, cellid: number){
     const itemIndex = this._find(cellid, item);
     this.hash[cellid].splice(itemIndex, 1);
-    this.itemCount--;
+    // this.itemCount--;
   }
-
-  // insert(item: TItem, fullX: number, fullY: number) {
-  //   const cellX = trunc(fullX, this.cellSize);
-  //   const cellY = trunc(fullY, this.cellSize);
-  //   this._save(item, cellX, cellY)
-  // }
-
-  // remove(item: TItem, fullX: number, fullY: number) {
-  //   const cellX = trunc(fullX, this.cellSize);
-  //   const cellY = trunc(fullY, this.cellSize);
-  //   this._delete(item, cellX, cellY)
-  // }
 
   update(item: TItem, fullX: number, fullY: number){
     const cellX = trunc(fullX, this.cellSize);
@@ -102,8 +84,24 @@ export default class SpatialHash{
     return res;
   }
 
-  // Dev
-  getCoordsFromCellid(cellid: number): [number, number] {
-    return [cellid % this._columns, Math.trunc(cellid / this._columns)];
-  }
+  // insert(item: TItem, fullX: number, fullY: number) {
+  //   const cellX = trunc(fullX, this.cellSize);
+  //   const cellY = trunc(fullY, this.cellSize);
+  //   this._save(item, cellX, cellY)
+  // }
+
+  // remove(item: TItem, fullX: number, fullY: number) {
+  //   const cellX = trunc(fullX, this.cellSize);
+  //   const cellY = trunc(fullY, this.cellSize);
+  //   this._delete(item, cellX, cellY)
+  // }
+
+  // getIterableHash(): Array<[number, TItem[]]> {
+  //   // @ts-ignore
+  //   return Object.entries(this.hash);
+  // };
+
+  // getCoordsFromCellid(cellid: number): [number, number] {
+  //   return [cellid % this._columns, Math.trunc(cellid / this._columns)];
+  // }
 }
