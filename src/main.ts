@@ -1,17 +1,12 @@
+import { updateParticles } from './algorythm';
 import {
-  checkParticleInRenerZone,
-  liquids,
-  particles,
-  PropsKeys,
-  updateParticles
+  init as initLiquid,
+  renderGrid
 } from './liquid';
-import { drawAtom } from './utils';
 import {
   activeZone,
-
   renderZone
 } from './zones';
-
 
 // export function setRenderer() {
 //   const render: Matter.Render = this;
@@ -57,32 +52,35 @@ export function init() {
   console.dir(mirrorCanv);
   canv = mirrorCanv;
   ctx = mirrorCanv.getContext('2d');
-  document.querySelector('.matter-demo').append(mirrorCanv)
+  document.querySelector('.matter-demo').append(mirrorCanv);
+  //@ts-ignore
+  window.MIRROR_CANVAS = mirrorCanv;
+
+  initLiquid(900, 64);
 }
 
+let deltaTime = 1;
 export function update() {
-  // Compute
-  updateParticles();
+  // console.log(`wegweg`);
 
+  // Compute
+  updateParticles(deltaTime);
 
   // Render
   ctx.clearRect(0, 0, canv.width, canv.height);
+  renderGrid(ctx);
 
   //   Draw particles
-  particles.forEach((parts, lid)=>{
-    const color = liquids[lid].color;
-    parts.forEach((part, pid)=>{
-      // Ignore nactive particles
-      if(!checkParticleInRenerZone(part)) return;
-      drawAtom(ctx, part[PropsKeys.x], part[PropsKeys.y], color);
-    });
-  });
-
+  // particles.forEach((part, pid)=>{
+  //   const color = liquids[part[PropsKeys.liquidid]].color;
+  //   // Ignore nactive particles
+  //   if(!checkParticleInRenerZone(part)) return;
+  // });
   //   Draw active zone
   ctx.strokeStyle = 'orange';
   ctx.strokeRect(activeZone[0], activeZone[1], activeZone[4], activeZone[5]);
 
   //   Draw render zone
-  ctx.strokeStyle = 'green';
+  ctx.strokeStyle = 'blue';
   ctx.strokeRect(renderZone[0], renderZone[1], renderZone[4], renderZone[5]);
 }
