@@ -1,6 +1,5 @@
 import { Config } from './config';
 import SpatialHash from './spatialHash';
-import { drawAtom } from './utils';
 import {
   checkPointInActiveZone, checkPointInRenderZone
 } from './zones';
@@ -21,7 +20,7 @@ const LiquidPropDefaults: Required<TLiquidProps> = {
 }
 
 export let spatialHash: SpatialHash;
-export const PropsKeys = { x: 0, y: 1, prevX: 2, prevY: 3, velX:4, velY: 5, liquidid: 6 };
+export const ParticleProps = { x: 0, y: 1, prevX: 2, prevY: 3, velX:4, velY: 5, liquidid: 6 };
 export const liquids:  Required<TLiquidProps>[] = [];
 export const particles: TLiquidParticle[] = [];
 export const disabledPartsSet: Set<number> = new Set();
@@ -48,50 +47,17 @@ export function fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number
 }
 
 export function checkParticleIsStatic(particle: TLiquidParticle) {
-  return liquids[particle[PropsKeys.liquidid]].isStatic;
+  return liquids[particle[ParticleProps.liquidid]].isStatic;
 }
 export function checkParticleInActiveZone(part: TLiquidParticle) {
-  return checkPointInActiveZone(part[PropsKeys.x], part[PropsKeys.y]);
+  return checkPointInActiveZone(part[ParticleProps.x], part[ParticleProps.y]);
 }
 export function checkParticleInRenerZone(part: TLiquidParticle) {
-  return checkPointInRenderZone(part[PropsKeys.x], part[PropsKeys.y]);
+  return checkPointInRenderZone(part[ParticleProps.x], part[ParticleProps.y]);
 }
 
 export function init(worldWidth: number, cellSize: number) {
   spatialHash = new SpatialHash(worldWidth, Config.h || cellSize);
   //@ts-ignore
   window.spatialHash = spatialHash;
-}
-
-// Dev
-const colors: string[] = [];
-for (let i = 0; i < 100; i++) {
-  colors.push('#'+Math.floor(Math.random()*16777215).toString(16));
-}
-
-export function renderGrid(ctx: CanvasRenderingContext2D) {
-  const cellSize = spatialHash.cellSize;
-
-  ctx.textAlign = 'center';
-  let i = 0;
-  for (let [cellid, cell] of spatialHash.getIterableHash()) {
-    const [cellX, cellY] = spatialHash.getCoordsFromCellid(cellid);
-    const fX = cellX * cellSize;
-    const fY = cellY * cellSize;
-    const csh = cellSize / 2;
-
-    if(cell.length !== 0){
-      ctx.strokeStyle = 'green';
-      ctx.fillStyle = 'white';
-      ctx.fillText('' + cell.length, fX+csh, fY+csh);
-      cell.forEach(pid=>{
-        const part = particles[pid];
-        drawAtom(ctx, part[PropsKeys.x], part[PropsKeys.y], colors[i]);
-      })
-    }else{
-      ctx.strokeStyle = 'gray';
-    }
-    ctx.strokeRect(fX, fY, cellSize, cellSize);
-    i++;
-  }
 }

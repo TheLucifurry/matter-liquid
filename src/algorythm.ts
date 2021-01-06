@@ -1,5 +1,5 @@
 import { Config } from './config';
-import { checkParticleInActiveZone, checkParticleIsStatic, particles, PropsKeys, spatialHash, TLiquidParticle } from './liquid';
+import { checkParticleInActiveZone, checkParticleIsStatic, ParticleProps, particles, spatialHash, TLiquidParticle } from './liquid';
 import { vectorLengthAdd } from './utils';
 
 const p0 = 10 // rest density
@@ -16,7 +16,7 @@ function foreach(arr: TLiquidParticle[], callback: (particle: TLiquidParticle, p
   });
 }
 function getNeighbors(part: TLiquidParticle) {
-  return spatialHash.getAroundCellsItems(part[PropsKeys.x], part[PropsKeys.y]);
+  return spatialHash.getAroundCellsItems(part[ParticleProps.x], part[ParticleProps.y]);
 }
 function eachNeighbors(neighbors: number[], cb: (neighbParticle: TLiquidParticle)=>void ) {
   neighbors.forEach(pid=>{
@@ -27,20 +27,20 @@ function eachNeighborsOf(part: TLiquidParticle, cb: (neighbParticle: TLiquidPart
   eachNeighbors(getNeighbors(part), cb);
 }
 function getR(a: TLiquidParticle, b: TLiquidParticle) {
-  return Math.sqrt(((b[PropsKeys.x] - a[PropsKeys.x]) ** 2) + ((b[PropsKeys.y] - a[PropsKeys.y]) ** 2));
+  return Math.sqrt(((b[ParticleProps.x] - a[ParticleProps.x]) ** 2) + ((b[ParticleProps.y] - a[ParticleProps.y]) ** 2));
 }
 function getVel(a: TLiquidParticle) {
-  return Math.sqrt((a[PropsKeys.velX] ** 2) + (a[PropsKeys.velY] ** 2));
+  return Math.sqrt((a[ParticleProps.velX] ** 2) + (a[ParticleProps.velY] ** 2));
 }
 function addVel(part: TLiquidParticle, num: number) {
-  const vecAdded = vectorLengthAdd([part[PropsKeys.velX], part[PropsKeys.velY]], num)
-  part[PropsKeys.velX] = vecAdded[0];
-  part[PropsKeys.velY] = vecAdded[1];
+  const vecAdded = vectorLengthAdd([part[ParticleProps.velX], part[ParticleProps.velY]], num)
+  part[ParticleProps.velX] = vecAdded[0];
+  part[ParticleProps.velY] = vecAdded[1];
 }
 
 function savePrevPosition(part: TLiquidParticle) {
-  part[PropsKeys.prevX] = part[PropsKeys.x];
-  part[PropsKeys.prevY] = part[PropsKeys.y];
+  part[ParticleProps.prevX] = part[ParticleProps.x];
+  part[ParticleProps.prevY] = part[ParticleProps.y];
 }
 function applyViscosity(cfg: typeof Config, i: TLiquidParticle, dt: number) {
   eachNeighborsOf(i, j=>{
@@ -126,16 +126,16 @@ function doubleDensityRelaxation(cfg: typeof Config, i: TLiquidParticle, dt: num
       const D = dt**2 * (P*(1 - q) + PNear * (1 - q)**2) ** r
       // xj += D/2;
       // ?
-        j[PropsKeys.x] += D/2;
-        j[PropsKeys.y] += D/2;
+        j[ParticleProps.x] += D/2;
+        j[ParticleProps.y] += D/2;
       // ?
       dx -= D/2;
     }
   });
   // xi += dx;
   // ?
-    i[PropsKeys.x] += dx;
-    i[PropsKeys.y] += dx;
+    i[ParticleProps.x] += dx;
+    i[ParticleProps.y] += dx;
   // ?
 }
 function resolveCollisions() {
@@ -147,8 +147,8 @@ export function updateParticles(dt: number) {
   foreach(particles, function(part, pid) {
     updatedParticleIds.push(pid)
     // vi ← vi + ∆tg
-    part[PropsKeys.velX] += dt * Config.g[0];
-    part[PropsKeys.velY] += dt * Config.g[1];
+    part[ParticleProps.velX] += dt * Config.g[0];
+    part[ParticleProps.velY] += dt * Config.g[1];
   });
   foreach(particles, function(part) {
     applyViscosity(Config, part, dt);
@@ -157,8 +157,8 @@ export function updateParticles(dt: number) {
     // xi^prev ← xi
     savePrevPosition(part);
     // xi ← xi + ∆tvi
-    part[PropsKeys.x] += dt * part[PropsKeys.velX];
-    part[PropsKeys.y] += dt * part[PropsKeys.velY];
+    part[ParticleProps.x] += dt * part[ParticleProps.velX];
+    part[ParticleProps.y] += dt * part[ParticleProps.velY];
   });
   // adjustSprings();
   // foreach(particles, function(part) {
@@ -170,13 +170,13 @@ export function updateParticles(dt: number) {
   // resolveCollisions();
   foreach(particles, function(part) {
     // vi ← (xi − xi^prev )/∆t
-    part[PropsKeys.velX] = (part[PropsKeys.x] - part[PropsKeys.prevX]) / dt;
-    part[PropsKeys.velY] = (part[PropsKeys.y] - part[PropsKeys.prevY]) / dt;
+    part[ParticleProps.velX] = (part[ParticleProps.x] - part[ParticleProps.prevX]) / dt;
+    part[ParticleProps.velY] = (part[ParticleProps.y] - part[ParticleProps.prevY]) / dt;
   });
   // const [cellX, cellY] = updateParticlePool()
   updatedParticleIds.forEach(function(pid) {
     const part = particles[pid];
-    spatialHash.update(pid, part[PropsKeys.x], part[PropsKeys.y]);
+    spatialHash.update(pid, part[ParticleProps.x], part[ParticleProps.y]);
   });
   // console.log(`Ignored particles count: ${particles.length - updatedParticleIds.length}`);
 }

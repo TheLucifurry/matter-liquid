@@ -1,8 +1,9 @@
 import { updateParticles } from './algorythm';
 import {
   init as initLiquid,
-  renderGrid
+  particles
 } from './liquid';
+import { renderGrid } from './render';
 import {
   activeZone,
   renderZone
@@ -68,7 +69,7 @@ export function update() {
 
   // Render
   ctx.clearRect(0, 0, canv.width, canv.height);
-  renderGrid(ctx);
+  renderGrid(ctx, particles);
 
   //   Draw particles
   // particles.forEach((part, pid)=>{
