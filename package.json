@@ -19,7 +19,7 @@
     "water"
   ],
   "scripts": {
-    "dev": "webpack serve",
+    "dev": "webpack serve --mode=development",
     "build": "webpack"
   },
   "dependencies": {},
