@@ -113,14 +113,15 @@ async function pluginUsingExample() {
   Liquid.fillZoneByLiquid(50, 50, 300, 300, dynamicid)
   // Liquid.fillZoneByLiquid(100, 100, 1, 1, dynamicid)
 
-  const activeZoneParams = [10, 10, 800, 730];
+  const activeZoneParams = [10, 10, 400, 400];
   const renderZoneParams = [1, 1, 1000, 770];
   Liquid.setZone(Liquid.zoneType.ACTIVE, ...activeZoneParams);
   Liquid.setZone(Liquid.zoneType.RENDER, ...renderZoneParams);
 
   Utils.onclick(window.MIRROR_CANVAS, function () {
-    const activeZoneParams2 = [10, 10, 800, 750];
-    Liquid.setZone(Liquid.zoneType.ACTIVE, ...activeZoneParams2);
+    activeZoneParams[2] += 15;
+    activeZoneParams[3] += 10;
+    Liquid.setZone(Liquid.zoneType.ACTIVE, ...activeZoneParams);
   })
   Utils.onmove(window.MIRROR_CANVAS, function () {
 

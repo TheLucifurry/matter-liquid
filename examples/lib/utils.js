@@ -12,3 +12,21 @@ export function onpressedPointer(element, callback) {
   }
   loop();
 }
+
+export function onmove(element, callback) {
+  element.addEventListener('mousemove', callback);
+}
+
+export function onclick(element, callback) {
+  element.addEventListener('click', callback);
+}
+
+export function waitField(object, key, interval = 100) {
+  return new Promise(next => {
+    const intervalid = setInterval(function () {
+      if (object[key] === undefined) return;
+      clearInterval(intervalid);
+      next();
+    }, interval)
+  })
+}
