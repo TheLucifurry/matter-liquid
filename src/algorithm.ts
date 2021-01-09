@@ -1,6 +1,6 @@
 import { Config } from './config';
 import { checkParticleInActiveZone, checkParticleIsStatic, ParticleProps, particles, spatialHash, TLiquidParticle } from './liquid';
-import { vectorLengthAdd } from './utils';
+import { vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorNormal } from './utils';
 
 const p0 = 10 // rest density
 const k = 0.004 // stiffness
@@ -15,6 +15,11 @@ function foreach(arr: TLiquidParticle[], callback: (particle: TLiquidParticle, p
     callback(part, id);
   });
 }
+function foreachIds(pids: number[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
+  pids.forEach((pid)=>{
+    callback(particles[pid], pid);
+  });
+}
 function getNeighbors(part: TLiquidParticle) {
   return spatialHash.getAroundCellsItems(part[ParticleProps.x], part[ParticleProps.y]);
 }
@@ -26,16 +31,28 @@ function eachNeighbors(neighbors: number[], cb: (neighbParticle: TLiquidParticle
 function eachNeighborsOf(part: TLiquidParticle, cb: (neighbParticle: TLiquidParticle)=>void ) {
   eachNeighbors(getNeighbors(part), cb);
 }
+function limitMoving(part: TLiquidParticle) {
+  const limit = 2;
+  const dX = Math.abs(part[ParticleProps.velX]);
+  const dY = Math.abs(part[ParticleProps.velY]);
+  part[ParticleProps.velX] = Math.min(dX, limit) * Math.sign(part[ParticleProps.velX]);
+  part[ParticleProps.velY] = Math.min(dY, limit) * Math.sign(part[ParticleProps.velY]);
+  // debugger
+}
 function getR(a: TLiquidParticle, b: TLiquidParticle) {
-  return Math.sqrt(((b[ParticleProps.x] - a[ParticleProps.x]) ** 2) + ((b[ParticleProps.y] - a[ParticleProps.y]) ** 2));
+  return vectorFromTwo([a[ParticleProps.x], a[ParticleProps.y]], [b[ParticleProps.x], b[ParticleProps.y]]);
 }
 function getVel(a: TLiquidParticle) {
-  return Math.sqrt((a[ParticleProps.velX] ** 2) + (a[ParticleProps.velY] ** 2));
+  return Math.hypot(a[ParticleProps.velX], a[ParticleProps.velY]);
 }
-function addVel(part: TLiquidParticle, num: number) {
-  const vecAdded = vectorLengthAdd([part[ParticleProps.velX], part[ParticleProps.velY]], num)
-  part[ParticleProps.velX] = vecAdded[0];
-  part[ParticleProps.velY] = vecAdded[1];
+function addVel(part: TLiquidParticle, vec: [number, number]) {
+  part[ParticleProps.velX] += vec[0];
+  part[ParticleProps.velY] += vec[1];
+}
+function addPos(part: TLiquidParticle, num: number) {
+  const vecAdded = vectorLengthAdd([part[ParticleProps.x], part[ParticleProps.y]], num)
+  part[ParticleProps.x] = vecAdded[0];
+  part[ParticleProps.y] = vecAdded[1];
 }
 
 function savePrevPosition(part: TLiquidParticle) {
@@ -45,13 +62,17 @@ function savePrevPosition(part: TLiquidParticle) {
 function applyViscosity(cfg: typeof Config, i: TLiquidParticle, dt: number) {
   eachNeighborsOf(i, j=>{
     const r = getR(i, j)
-    const q = r/cfg.h;
+    const rNormal = vectorNormal(r);
+    const q = vectorLength(vectorDiv(r, cfg.h));
     if (q < 1) {
-      const u = (getVel(i) - getVel(j)) ** r;
+      const u = vectorLength(vectorMul(r, getVel(i) - getVel(j)));
       if (u > 0) {
-        const I = dt * (1 - q) * (sigma * u + (beta * u)**2 )**r;
-        addVel(i, -I/2); // vi -= I/2;
-        addVel(j, I/2); // vj += I/2;
+        const I = vectorDiv(vectorMul(rNormal, dt * (1 - q) * (sigma * u + (beta * u)**2 )), 2);
+        addVel(i, [-I[0], -I[1]]); // vi -= I/2;
+        addVel(j, I); // vj += I/2;
+        // if(isAnomaly(i[ParticleProps.velX])){
+        //   debugger
+        // }
       }
     }
   });
@@ -90,70 +111,87 @@ function adjustSprings() {
 function applySpringDisplacements(cfg: typeof Config, i: TLiquidParticle, dt: number) {
   // const L = 23321423;
   // const r = getR(i, j);
-  // const D = dt**2 * kSpring * (1-L/h) * (L - r) ** r;
+  // const D = dt**2 * kSpring * (1-L/h) * (L - r) * r;
   eachNeighborsOf(i, j=>{
     // ?
-      const L = 23321423;
+      const L = 1;
     // ?
-    const r = getR(i, j);
-    const D = dt**2 * kSpring * (1-L/cfg.h) * (L - r) ** r;
-    // ?
-      // xi -= D/2;
-      // xj += D/2;
+    // const r = getR(i, j);
+    // const D = dt**2 * kSpring * (1-L/cfg.h) * (L - r) * r;
+    // // ?
+    //   addPos(i, -D/2) // xi -= D/2;
+    //   addPos(j, D/2) // xj += D/2;
     // ?
   });
 }
 function doubleDensityRelaxation(cfg: typeof Config, i: TLiquidParticle, dt: number) {
   // Алгоритм №2 Релаксация двойной плотности
-  let p = 0;
-  let pNear = 0;
-  const ngbrs = getNeighbors(i);
-  eachNeighbors(ngbrs, j=>{
-    let q = getR(i, j) / cfg.h;
-    if(q < 1){
-      p += (1-q)**2;
-      pNear += (1-q)**3;
-    }
-  });
-  let P = k * (p - p0);
-  let PNear = kNear * pNear;
-  let dx = 0;
+  // let p = 0;
+  // let pNear = 0;
+  // const ngbrs = getNeighbors(i);
+  // eachNeighbors(ngbrs, j=>{
+  //   let q = getR(i, j) / cfg.h;
+  //   if(q < 1){
+  //     p += (1-q)**2;
+  //     pNear += (1-q)**3;
+  //   }
+  // });
+  // let P = k * (p - p0);
+  // let PNear = kNear * pNear;
+  // let dx = 0;
 
-  eachNeighbors(ngbrs, j=>{
-    const r = getR(i, j);
-    let q = r / cfg.h;
-    if(q < 1){
-      const D = dt**2 * (P*(1 - q) + PNear * (1 - q)**2) ** r
-      // xj += D/2;
-      // ?
-        j[ParticleProps.x] += D/2;
-        j[ParticleProps.y] += D/2;
-      // ?
-      dx -= D/2;
-    }
-  });
-  // xi += dx;
-  // ?
-    i[ParticleProps.x] += dx;
-    i[ParticleProps.y] += dx;
-  // ?
+  // eachNeighbors(ngbrs, j=>{
+  //   const r = getR(i, j);
+  //   let q = r / cfg.h;
+  //   if(q < 1){
+  //     const D = dt**2 * (P*(1 - q) + PNear * (1 - q)**2) * r
+  //     // xj += D/2;
+  //     // ?
+  //       j[ParticleProps.x] += D/2;
+  //       j[ParticleProps.y] += D/2;
+  //     // ?
+  //     dx -= D/2;
+  //   }
+  // });
+  // // xi += dx;
+  // // ?
+  //   i[ParticleProps.x] += dx;
+  //   i[ParticleProps.y] += dx;
+  // // ?
 }
 function resolveCollisions() {
 }
+export function insertPartToSpace(part: TLiquidParticle, pid: number) {
+  spatialHash.update(pid, part[ParticleProps.x], part[ParticleProps.y]);
+}
 
+// DEBUG
+function isAnomaly(vari: number) {
+  return isNaN(vari) || vari === Number.POSITIVE_INFINITY || vari === Number.NEGATIVE_INFINITY;
+}
+function checkAnomaly(part: TLiquidParticle, caption: string) {
+  if(isAnomaly(part[ParticleProps.x]) || isAnomaly(part[ParticleProps.y])){
+    console.log(`[ ${caption} ] position is anomal`);
+  }
+  if(isAnomaly(part[ParticleProps.velX]) || isAnomaly(part[ParticleProps.velY])){
+    console.log(`[ ${caption} ] velocity is anomal`);
+  }
+}
 
 export function update(dt: number) {
-  const updatedParticleIds: number[] = [];
+  const updatablePids: number[] = [];
   foreach(particles, function(part, pid) {
-    updatedParticleIds.push(pid)
+    updatablePids.push(pid)
     // vi ← vi + ∆tg
     part[ParticleProps.velX] += dt * Config.g[0];
     part[ParticleProps.velY] += dt * Config.g[1];
+    // console.log(`part: vX-${part[ParticleProps.velX]} vY-${part[ParticleProps.velY]}`);
   });
-  foreach(particles, function(part) {
+  foreachIds(updatablePids, function(part) {
     applyViscosity(Config, part, dt);
   });
-  foreach(particles, function(part) {
+  foreachIds(updatablePids, function(part) {
+    limitMoving(part); // Custom
     // xi^prev ← xi
     savePrevPosition(part);
     // xi ← xi + ∆tvi
@@ -161,21 +199,21 @@ export function update(dt: number) {
     part[ParticleProps.y] += dt * part[ParticleProps.velY];
   });
   // adjustSprings();
-  // foreach(particles, function(part) {
+  // foreachIds(updatablePids, function(part) {
   //   applySpringDisplacements(Config, part, dt);
   // });
-  // foreach(particles, function(part) {
+  // foreachIds(updatablePids, function(part) {
   //   doubleDensityRelaxation(part, dt);
   // });
   // resolveCollisions();
-  foreach(particles, function(part) {
+  foreachIds(updatablePids, function(part) {
     // vi ← (xi − xi^prev )/∆t
     part[ParticleProps.velX] = (part[ParticleProps.x] - part[ParticleProps.prevX]) / dt;
     part[ParticleProps.velY] = (part[ParticleProps.y] - part[ParticleProps.prevY]) / dt;
   });
   // const [cellX, cellY] = updateParticlePool()
-  updatedParticleIds.forEach(function(pid) {
-    const part = particles[pid];
+  foreachIds(updatablePids, function(part, pid) {
+    // checkAnomaly(part, 'all')
     spatialHash.update(pid, part[ParticleProps.x], part[ParticleProps.y]);
   });
   // console.log(`Ignored particles count: ${particles.length - updatedParticleIds.length}`);
