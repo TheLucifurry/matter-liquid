@@ -1,5 +1,6 @@
 import Matter from 'matter-js';
 import pkg from '../package.json';
+import { setGravity } from './config';
 import {
   createLiquid,
   fillZoneByLiquid,
@@ -34,13 +35,19 @@ const MatterLiquid = {
     };
 
     matter.after('Render.create', function(this: Matter.Render) {
+      console.log('Render:');
+      console.dir(this);
+      setZone(zoneType.ACTIVE, this.bounds.min.x, this.bounds.min.y, this.bounds.max.x, this.bounds.max.y);
+      setZone(zoneType.RENDER, this.bounds.min.x, this.bounds.min.y, this.bounds.max.x, this.bounds.max.y);
       setTimeout(() => {
         //@ts-ignore
         const stats = new Stats();
         stats.showPanel(0);
         document.body.append(stats.dom);
 
-        init();
+        const worldWidth = 1500;
+
+        init(worldWidth);
 
         matter.after('Engine.update', function(){
           stats.begin();
@@ -50,8 +57,11 @@ const MatterLiquid = {
 
       }, 1000);
     });
-    // matter.after('Engine.create', function(this: Matter.Engine) {
-    // })
+    matter.after('World.create', function(this: Matter.World) {
+      console.log('World:');
+      console.dir(this);
+      setGravity(this.gravity.y, this.gravity.x)
+    })
     // matter.after('Engine.update', update)
 
   },
