@@ -1,3 +1,4 @@
+import { insertPartToSpace } from './algorithm';
 import { Config } from './config';
 import SpatialHash from './spatialHash';
 import {
@@ -32,7 +33,11 @@ export function createLiquid(props: TLiquidProps) {
 }
 
 export function spawnLiquid(liquidid: number, x: number, y: number) {
-  particles[particles.length] = [ x, y, Infinity, Infinity, 0, 0, liquidid];
+  const pid = particles.length;
+  particles[pid] = [ x, y, Infinity, Infinity, 0, 0, liquidid];
+  if(liquids[liquidid].isStatic){
+    insertPartToSpace(particles[pid], pid);
+  }
 }
 
 export function fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number) {
@@ -60,4 +65,6 @@ export function init(worldWidth: number, cellSize: number) {
   spatialHash = new SpatialHash(worldWidth, Config.h || cellSize);
   //@ts-ignore
   window.spatialHash = spatialHash;
+  //@ts-ignore
+  window.particles = particles;
 }
