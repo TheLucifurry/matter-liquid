@@ -1,6 +1,6 @@
-import { ParticleProps, particles, spatialHash, TLiquidParticle } from './liquid';
+import { liquids, ParticleProps, particles, spatialHash, TLiquidParticle } from './liquid';
 import SpatialHash, { TItem } from './spatialHash';
-import { activeZone, renderZone } from './zones';
+import { renderZone } from './zones';
 
 function getIterableHash(spatialHash: SpatialHash): Array<[number, TItem[]]> {
   // @ts-ignore
@@ -39,10 +39,10 @@ function renderGrid(ctx: CanvasRenderingContext2D, particles: TLiquidParticle[])
       ctx.strokeStyle = 'green';
       ctx.fillStyle = 'white';
       ctx.fillText('' + cell.length, fX+csh, fY+csh);
-      cell.forEach(pid=>{
-        const part = particles[pid];
-        drawAtom(ctx, part[ParticleProps.x], part[ParticleProps.y], colors[i]);
-      })
+      // cell.forEach(pid=>{
+      //   // const part = particles[pid];
+      //   // drawAtom(ctx, part[ParticleProps.x], part[ParticleProps.y], colors[i]);
+      // })
     }else{
       ctx.strokeStyle = 'gray';
     }
@@ -70,10 +70,16 @@ export function init() {
 export function update() {
   ctx.clearRect(0, 0, canv.width, canv.height);
   renderGrid(ctx, particles);
+
+  particles.forEach(part=>{
+    const color = liquids[part[ParticleProps.liquidid]].color;
+    drawAtom(ctx, part[ParticleProps.x], part[ParticleProps.y], color);
+  })
+
   //   Draw active zone
-  ctx.strokeStyle = 'orange';
-  ctx.strokeRect(activeZone[0], activeZone[1], activeZone[4], activeZone[5]);
+  // ctx.strokeStyle = 'orange';
+  // ctx.strokeRect(activeZone[0], activeZone[1], activeZone[4], activeZone[5]);
   //   Draw render zone
-  ctx.strokeStyle = 'blue';
+  ctx.strokeStyle = 'cyan';
   ctx.strokeRect(renderZone[0], renderZone[1], renderZone[4], renderZone[5]);
 }
