@@ -1,22 +1,21 @@
 import Matter from 'matter-js';
 import pkg from '../package.json';
-import { setGravity } from './config';
+import * as Algorithm from './algorithm';
+import * as Config from './config';
+import * as Liquid from './liquid';
 import {
   createLiquid,
   fillZoneByLiquid,
   spawnLiquid
 } from './liquid';
-import {
-  init,
-  update
-} from './main';
-import { setZone, zoneType } from './zones';
+import * as Render from './render';
+import * as Zone from './zones';
 
 const MatterLiquid = {
   // Original
   name: pkg.name,
   version: pkg.version,
-  for: `matter-js@0.15.0`,
+  for: `matter-js@0.16.0`,
   // uses: [],
   // options: {
   //   something: true,
@@ -27,43 +26,46 @@ const MatterLiquid = {
     console.dir({ MatterLiquid });
 
     matter.liquid = {
-      zoneType,
-      setZone,
+      Zone,
+      Config,
       createLiquid,
       spawnLiquid,
       fillZoneByLiquid,
     };
 
+    // TODO: change hardcode to spatialHash's adaptivity by
+    const worldWidth = 5000;
+    const deltaTime = 1;
+
+    //@ts-ignore
+    const stats = new Stats();
+    stats.showPanel(0);
+    document.body.append(stats.dom);
+
     matter.after('Render.create', function(this: Matter.Render) {
       console.log('Render:');
       console.dir(this);
-      setZone(zoneType.ACTIVE, this.bounds.min.x, this.bounds.min.y, this.bounds.max.x, this.bounds.max.y);
-      setZone(zoneType.RENDER, this.bounds.min.x, this.bounds.min.y, this.bounds.max.x, this.bounds.max.y);
-      setTimeout(() => {
-        //@ts-ignore
-        const stats = new Stats();
-        stats.showPanel(0);
-        document.body.append(stats.dom);
+      Zone.setZone(Zone.types.ACTIVE, this.bounds.min.x, this.bounds.min.y, this.bounds.max.x, this.bounds.max.y);
+      Zone.setZone(Zone.types.RENDER, this.bounds.min.x, this.bounds.min.y, this.bounds.max.x, this.bounds.max.y);
 
-        const worldWidth = 1500;
+      Liquid.init(worldWidth, 64);
+      Render.init(this);
 
-        init(worldWidth);
-
-        matter.after('Engine.update', function(){
-          stats.begin();
-          update();
-          stats.end();
-        });
-
-      }, 1000);
+      matter.after('Engine.update', function(){
+        stats.begin();
+        Algorithm.update(deltaTime);
+        Render.update();
+        stats.end();
+      });
+      // matter.after('Render.update', function () {
+      //   rendererUpdate();
+      // })
     });
     matter.after('World.create', function(this: Matter.World) {
-      console.log('World:');
-      console.dir(this);
-      setGravity(this.gravity.y, this.gravity.x)
+      Config.setWorld(this);
+      Config.setGravity(this.gravity.y, this.gravity.x);
     })
     // matter.after('Engine.update', update)
-
   },
 };
 
