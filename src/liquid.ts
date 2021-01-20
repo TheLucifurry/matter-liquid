@@ -34,19 +34,16 @@ export function createLiquid(props: TLiquidProps) {
 
 export function spawnLiquid(liquidid: number, x: number, y: number) {
   const pid = particles.length;
-  particles[pid] = [ x, y, Infinity, Infinity, 0, 0, liquidid];
-  if(liquids[liquidid].isStatic){
-    insertPartToSpace(particles[pid], pid);
-  }
+  particles[pid] = [ x, y, x-1, y-1, 0, 0, liquidid];
+  insertPartToSpace(particles[pid], pid);
 }
 
-export function fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number) {
-  const partSpace = 20;
-  const columns = Math.max(1, Math.trunc(zoneWidth / partSpace));
-  const rows = Math.max(1, Math.trunc(zoneHeight / partSpace));
+export function fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number, interval: number = Config.h) {
+  const columns = Math.max(1, Math.trunc(zoneWidth / interval));
+  const rows = Math.max(1, Math.trunc(zoneHeight / interval));
   for (let c = 0; c < columns; c++) {
     for (let r = 0; r < rows; r++) {
-      spawnLiquid(liquidid, zoneX+c*partSpace, zoneY+r*partSpace);
+      spawnLiquid(liquidid, zoneX+c*interval, zoneY+r*interval);
     }
   }
 }
