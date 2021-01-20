@@ -23,8 +23,9 @@
 
 <body>
   <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/liabru/matter-js@0.15.0/build/matter.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.11.1/build/matter-tools.demo.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/gh/liabru/matter-js@0.16.0/build/matter.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/gh/liabru/matter-js@0.16.0/build/matter.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.12.3/build/matter-tools.demo.min.js"></script>
   <script src="./build/matter-liquid.js"></script>
   <script type="module">
     import examBasic from './examples/basic.js';
@@ -32,16 +33,21 @@
     let pluginName = 'matter-liquid'; // PLUGIN_NAME
     let repoUrl = 'https://github.com/Wexelus/matter-liquid'; // PLUGIN_REPO_URL
 
+    // install plugin
+    Matter.use(pluginName);
+
     MatterTools.Demo.create({
+      fullPage: true,
       preventZoom: true,
-      resetOnOrientation: true,
+      // resetOnOrientation: true,
       toolbar: {
         title: pluginName,
         url: repoUrl,
         reset: true,
         source: true,
         fullscreen: true,
-        exampleSelect: true
+        exampleSelect: true,
+        inspector: true,
       },
       examples: [
         {
