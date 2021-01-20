@@ -1,12 +1,12 @@
 import { checkPointInRect } from './utils';
 
-type TRect = [ x: number, y: number, x2: number, y2: number, w: number, h: number];
+export type TZone = [ x: number, y: number, x2: number, y2: number, w: number, h: number];
 
-export let activeZone: TRect = [ null, null, null, null, null, null ];
-export let renderZone: TRect = [ null, null, null, null, null, null ];
+export let activeZone: TZone = [ null, null, null, null, null, null ];
+export let renderZone: TZone = [ null, null, null, null, null, null ];
 const zones = [activeZone, renderZone];
 
-export const zoneType = {
+export const types = {
   ACTIVE: 0,
   RENDER: 1,
 };
