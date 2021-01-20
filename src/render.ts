@@ -1,11 +1,7 @@
-import { liquids, ParticleProps, particles, spatialHash, TLiquidParticle } from './liquid';
+import { liquids, ParticleProps, particles, spatialHash } from './liquid';
 import SpatialHash, { TItem } from './spatialHash';
 import { renderZone } from './zones';
 
-function getIterableHash(spatialHash: SpatialHash): Array<[number, TItem[]]> {
-  // @ts-ignore
-  return Object.entries(spatialHash.hash);
-}
 function getCoordsFromCellid(spatialHash: SpatialHash, cellid: number): [number, number] {
   return [cellid % spatialHash._columns, Math.trunc(cellid / spatialHash._columns)];
 }
@@ -24,12 +20,14 @@ for (let i = 0; i < 1000; i++) {
   colors.push('#'+Math.floor(Math.random()*16777215).toString(16));
 }
 
-function renderGrid(ctx: CanvasRenderingContext2D, particles: TLiquidParticle[]) {
+function renderGrid(ctx: CanvasRenderingContext2D) {
   const cellSize = spatialHash.cellSize;
 
+  // @ts-ignore
+  const hashCells: Array<[number, TItem[]]> = Object.entries(spatialHash.hash)
+
   ctx.textAlign = 'center';
-  let i = 0;
-  for (let [cellid, cell] of getIterableHash(spatialHash)) {
+  for (let [cellid, cell] of hashCells) {
     const [cellX, cellY] = getCoordsFromCellid(spatialHash, cellid);
     const fX = cellX * cellSize;
     const fY = cellY * cellSize;
@@ -39,37 +37,23 @@ function renderGrid(ctx: CanvasRenderingContext2D, particles: TLiquidParticle[])
       ctx.strokeStyle = 'green';
       ctx.fillStyle = 'white';
       ctx.fillText('' + cell.length, fX+csh, fY+csh);
-      // cell.forEach(pid=>{
-      //   // const part = particles[pid];
-      //   // drawAtom(ctx, part[ParticleProps.x], part[ParticleProps.y], colors[i]);
-      // })
     }else{
       ctx.strokeStyle = 'gray';
     }
     ctx.strokeRect(fX, fY, cellSize, cellSize);
-    i++;
   }
 }
 
-let canv: HTMLCanvasElement;
+// let canv: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
 
-export function init() {
-  const originalCanv = document.querySelector('.matter-demo canvas') as HTMLCanvasElement;
-  const mirrorCanv = document.createElement('canvas');
-  mirrorCanv.width = originalCanv.width;
-  mirrorCanv.height = originalCanv.height;
-  mirrorCanv.style.cssText = 'position: fixed; z-index: 100000;';
-  canv = mirrorCanv;
-  ctx = mirrorCanv.getContext('2d');
-  document.querySelector('.matter-demo').append(mirrorCanv);
-  //@ts-ignore
-  window.MIRROR_CANVAS = mirrorCanv;
+export function init(renderer: Matter.Render) {
+  // canv = renderer.canvas;
+  ctx = renderer.context;
 }
-
+let n = 0;
 export function update() {
-  ctx.clearRect(0, 0, canv.width, canv.height);
-  renderGrid(ctx, particles);
+  // renderGrid(ctx);
 
   particles.forEach(part=>{
     const color = liquids[part[ParticleProps.liquidid]].color;
