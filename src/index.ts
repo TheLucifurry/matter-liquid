@@ -16,7 +16,7 @@ const MatterLiquid = {
   // Original
   name: pkg.name,
   version: pkg.version,
-  for: `matter-js@0.16.0`,
+  for: `matter-js@0.16.1`,
   // uses: [],
   // options: {
   //   something: true,
