@@ -2,6 +2,7 @@ import Matter from 'matter-js';
 import pkg from '../package.json';
 import * as Algorithm from './algorithm';
 import * as Config from './config';
+import * as Events from './events';
 import * as Liquid from './liquid';
 import {
   createLiquid,
@@ -28,6 +29,7 @@ const MatterLiquid = {
     matter.liquid = {
       Zone,
       Config,
+      Events,
       createLiquid,
       spawnLiquid,
       fillZoneByLiquid,
@@ -36,11 +38,6 @@ const MatterLiquid = {
     // TODO: change hardcode to spatialHash's adaptivity by
     const worldWidth = 5000;
     const deltaTime = 1;
-
-    //@ts-ignore
-    const stats = new Stats();
-    stats.showPanel(0);
-    document.body.append(stats.dom);
 
     matter.after('Render.create', function(this: Matter.Render) {
       console.log('Render:');
@@ -52,16 +49,18 @@ const MatterLiquid = {
       Render.init(this);
 
       matter.after('Engine.update', function(){
-        stats.begin();
+        Events.emit(Events.types.BEFORE_UPDATE);
         Algorithm.update(deltaTime);
         Render.update();
-        stats.end();
+        Events.emit(Events.types.AFTER_UPDATE);
       });
       // matter.after('Render.update', function () {
       //   rendererUpdate();
       // })
     });
     matter.after('World.create', function(this: Matter.World) {
+      console.log('World:');
+      console.dir(this);
       Config.setWorld(this);
       Config.setGravity(this.gravity.y, this.gravity.x);
     })
