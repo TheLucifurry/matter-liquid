@@ -40,14 +40,9 @@
     const stats = new Stats();
     stats.showPanel(0);
     document.body.append(stats.dom);
-
-    const Liquid = Matter.liquid;
-    Liquid.Events.on(Liquid.Events.types.BEFORE_UPDATE, () => {
-      stats.begin();
-    })
-    Liquid.Events.on(Liquid.Events.types.AFTER_UPDATE, () => {
-      stats.end();
-    })
+    const LEvents = Matter.liquid.Events;
+    LEvents.on(LEvents.types.BEFORE_UPDATE, stats.begin);
+    LEvents.on(LEvents.types.AFTER_UPDATE, stats.end);
 
     // Init
     MatterTools.Demo.create({
