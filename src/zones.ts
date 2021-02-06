@@ -1,3 +1,4 @@
+import { State } from './state';
 import { checkPointInRect } from './utils';
 
 export type TZone = [ x: number, y: number, x2: number, y2: number, w: number, h: number];
@@ -31,4 +32,11 @@ export function checkPointInActiveZone(x: number, y: number) {
 export function checkPointInRenderZone(x: number, y: number) {
   const [x1, y1, x2, y2] = renderZone;
   return checkPointInRect(x, y, x1, y1, x2, y2);
+}
+
+/* State dependent */
+export function updateBounds() {
+  const { bounds } = State.r;
+  setZone(types.ACTIVE, bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y);
+  setZone(types.RENDER, bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y);
 }
