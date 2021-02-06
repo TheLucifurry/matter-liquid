@@ -36,6 +36,20 @@
     // install plugin
     Matter.use(pluginName);
 
+    // Stats
+    const stats = new Stats();
+    stats.showPanel(0);
+    document.body.append(stats.dom);
+
+    const Liquid = Matter.liquid;
+    Liquid.Events.on(Liquid.Events.types.BEFORE_UPDATE, () => {
+      stats.begin();
+    })
+    Liquid.Events.on(Liquid.Events.types.AFTER_UPDATE, () => {
+      stats.end();
+    })
+
+    // Init
     MatterTools.Demo.create({
       fullPage: true,
       preventZoom: true,
