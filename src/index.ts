@@ -1,7 +1,6 @@
 import Matter from 'matter-js';
 import pkg from '../package.json';
 import * as Algorithm from './algorithm';
-import * as Config from './config';
 import * as Events from './events';
 import * as Liquid from './liquid';
 import {
@@ -10,6 +9,7 @@ import {
   spawnLiquid
 } from './liquid';
 import * as Render from './render';
+import * as State from './state';
 import * as Zone from './zones';
 
 const MatterLiquid = {
@@ -28,7 +28,7 @@ const MatterLiquid = {
 
     matter.liquid = {
       Zone,
-      Config,
+      Config: State,
       Events,
       createLiquid,
       spawnLiquid,
@@ -42,6 +42,7 @@ const MatterLiquid = {
     matter.after('Render.create', function(this: Matter.Render) {
       console.log('Render:');
       console.dir(this);
+      Zone.setZonesParamsFromRenderer(this);
       Zone.setZone(Zone.types.ACTIVE, this.bounds.min.x, this.bounds.min.y, this.bounds.max.x, this.bounds.max.y);
       Zone.setZone(Zone.types.RENDER, this.bounds.min.x, this.bounds.min.y, this.bounds.max.x, this.bounds.max.y);
 
@@ -61,8 +62,8 @@ const MatterLiquid = {
     matter.after('World.create', function(this: Matter.World) {
       console.log('World:');
       console.dir(this);
-      Config.setWorld(this);
-      Config.setGravity(this.gravity.y, this.gravity.x);
+      State.setWorld(this);
+      State.setGravity(this.gravity.y, this.gravity.x);
     })
     // matter.after('Engine.update', update)
   },
