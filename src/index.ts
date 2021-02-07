@@ -1,5 +1,5 @@
 import Matter from 'matter-js';
-import pkg from '../package.json';
+import Package from '../package.json';
 import * as Algorithm from './algorithm';
 import * as Events from './events';
 import * as Liquid from './liquid';
@@ -11,8 +11,8 @@ const { State } = StateManager;
 
 const MatterLiquid = {
   // Original
-  name: pkg.name,
-  version: pkg.version,
+  name: Package.name,
+  version: Package.version,
   for: `matter-js@0.16.1`,
   // uses: [],
   // options: {
@@ -49,11 +49,11 @@ const MatterLiquid = {
       StateManager.setWorld(this);
       StateManager.setGravity(this.gravity.y, this.gravity.x);
       starter.next();
-    })
+    });
     matter.after('Engine.create', function(this: Matter.Engine) {
       StateManager.setEngine(this);
       starter.next();
-    })
+    });
 
     function* start() {
       yield 0;
@@ -62,13 +62,12 @@ const MatterLiquid = {
       console.log('State:');
       console.dir(State);
       Matter.Events.on(State.e, 'afterUpdate', function(){
-        Events.emit(Events.types.BEFORE_UPDATE);
         Algorithm.update(deltaTime);
-        Events.emit(Events.types.AFTER_UPDATE);
       })
       Matter.Events.on(State.r, 'afterRender', function(){
         Render.update();
       })
+      Events.emit(Events.types.STARTED);
     }
   },
 };

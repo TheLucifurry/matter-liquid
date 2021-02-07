@@ -3,8 +3,7 @@ import EventEmitter from 'eventemitter3';
 const events = new EventEmitter();
 
 export const types = {
-  BEFORE_UPDATE: '0',
-  AFTER_UPDATE: '1',
+  STARTED: '0',
 }
 
 export function on(eventType: string, fn: (...args: any[]) => void, context?: any) {

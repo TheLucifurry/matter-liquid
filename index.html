@@ -39,14 +39,17 @@
 
     // install plugin
     Matter.use(pluginName);
+    const Liquid = Matter.liquid;
 
     // Stats
     const stats = new Stats();
     stats.showPanel(0);
     document.body.append(stats.dom);
-    const LEvents = Matter.liquid.Events;
-    LEvents.on(LEvents.types.BEFORE_UPDATE, stats.begin);
-    LEvents.on(LEvents.types.AFTER_UPDATE, stats.end);
+    Liquid.Events.on(Liquid.Events.types.STARTED, () => {
+      console.log(`\n\tEvent: STARTED\n\n`);
+      Matter.Events.on(Liquid.State.e, 'beforeUpdate', stats.begin);
+      Matter.Events.on(Liquid.State.e, 'afterUpdate', stats.end);
+    });
 
     // Init
     MatterTools.Demo.create({
