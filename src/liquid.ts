@@ -2,7 +2,7 @@ import { insertPartToSpace } from './algorithm';
 import SpatialHash from './spatialHash';
 import { State } from './state';
 import {
-    checkPointInActiveZone, checkPointInRenderZone
+  checkPointInActiveZone, checkPointInRenderZone
 } from './zones';
 
 type TLiquidProps = {
@@ -38,7 +38,7 @@ export function spawnLiquid(liquidid: number, x: number, y: number) {
   insertPartToSpace(particles[pid], pid);
 }
 
-export function fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number, interval: number = State.h) {
+export function fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number, interval: number = State.radius) {
   const columns = Math.max(1, Math.trunc(zoneWidth / interval));
   const rows = Math.max(1, Math.trunc(zoneHeight / interval));
   for (let c = 0; c < columns; c++) {
@@ -59,7 +59,7 @@ export function checkParticleInRenerZone(part: TLiquidParticle) {
 }
 
 export function init(worldWidth: number, cellSize: number) {
-  spatialHash = new SpatialHash(worldWidth, State.h || cellSize);
+  spatialHash = new SpatialHash(worldWidth, State.radius || cellSize);
   //@ts-ignore
   window.spatialHash = spatialHash;
   //@ts-ignore

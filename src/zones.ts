@@ -36,7 +36,7 @@ export function checkPointInRenderZone(x: number, y: number) {
 
 /* State dependent */
 export function updateBounds() {
-  const { bounds } = State.r;
+  const { bounds } = State.render;
   setZone(types.ACTIVE, bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y);
   setZone(types.RENDER, bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y);
 }

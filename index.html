@@ -47,8 +47,8 @@
     document.body.append(stats.dom);
     Liquid.Events.on(Liquid.Events.types.STARTED, () => {
       console.log(`\n\tEvent: STARTED\n\n`);
-      Matter.Events.on(Liquid.State.e, 'beforeUpdate', stats.begin);
-      Matter.Events.on(Liquid.State.e, 'afterUpdate', stats.end);
+      Matter.Events.on(Liquid.State.engine, 'beforeUpdate', stats.begin);
+      Matter.Events.on(Liquid.State.engine, 'afterUpdate', stats.end);
     });
 
     // Init

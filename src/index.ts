@@ -61,10 +61,10 @@ const MatterLiquid = {
 
       console.log('State:');
       console.dir(State);
-      Matter.Events.on(State.e, 'afterUpdate', function(){
+      Matter.Events.on(State.engine, 'afterUpdate', function(){
         Algorithm.update(deltaTime);
       })
-      Matter.Events.on(State.r, 'afterRender', function(){
+      Matter.Events.on(State.render, 'afterRender', function(){
         Render.update();
       })
       Events.emit(Events.types.STARTED);

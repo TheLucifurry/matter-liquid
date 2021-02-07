@@ -1,35 +1,35 @@
 import * as Render from './render';
 
 type TState = {
-  w: Matter.World,
-  r: Matter.Render,
-  e: Matter.Engine,
-  g: [number, number],
-  h: number,
+  world: Matter.World,
+  render: Matter.Render,
+  engine: Matter.Engine,
+  gravity: [number, number],
+  radius: number,             // Interaction radius
 }
 
 export const State: TState = {
-  w: null,
-  r: null,
-  e: null,
-  g: [0, 0.01],
-  h: 30,
+  world: null,
+  render: null,
+  engine: null,
+  gravity: [0, 0.01],
+  radius: 30,
 };
 
 export function setWorld(world: Matter.World) {
-  State.w = world;
+  State.world = world;
 }
 export function setRender(render: Matter.Render) {
-  State.r = render;
+  State.render = render;
   Render.init(render);
 }
 export function setEngine(engine: Matter.Engine) {
-  State.e = engine;
+  State.engine = engine;
 }
 export function setGravity(vertical: number, horizontal: number) {
   const divider = 10;
-  State.g = [horizontal / divider, vertical / divider];
+  State.gravity = [horizontal / divider, vertical / divider];
 }
 export function setInteractionRadius(value: number) {
-  State.h = value;
+  State.radius = value;
 }
