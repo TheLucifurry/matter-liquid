@@ -1,4 +1,3 @@
-import * as Render from './render';
 
 type TState = {
   world: Matter.World,
@@ -21,7 +20,6 @@ export function setWorld(world: Matter.World) {
 }
 export function setRender(render: Matter.Render) {
   State.render = render;
-  Render.init(render);
 }
 export function setEngine(engine: Matter.Engine) {
   State.engine = engine;

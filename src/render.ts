@@ -1,5 +1,7 @@
 import { liquids, ParticleProps, particles, spatialHash } from './liquid';
 import SpatialHash, { TItem } from './spatialHash';
+import { State } from './state';
+import { startViewTransform } from './utils';
 import { renderZone } from './zones';
 
 function getCoordsFromCellid(spatialHash: SpatialHash, cellid: number): [number, number] {
@@ -44,19 +46,15 @@ function renderGrid(ctx: CanvasRenderingContext2D) {
   }
 }
 
-// let canv: HTMLCanvasElement;
-let ctx: CanvasRenderingContext2D;
+export const partColors: Map<number, string> = new Map();
 
-export function init(renderer: Matter.Render) {
-  // canv = renderer.canvas;
-  ctx = renderer.context;
-}
-let n = 0;
 export function update() {
+  const ctx = State.render.context;
+  startViewTransform(State.render);
   // renderGrid(ctx);
 
-  particles.forEach(part=>{
-    const color = liquids[part[ParticleProps.liquidid]].color;
+  particles.forEach((part, id) => {
+    const color = partColors.get(id) || liquids[part[ParticleProps.liquidid]].color;
     drawAtom(ctx, part[ParticleProps.x], part[ParticleProps.y], color);
   })
 
