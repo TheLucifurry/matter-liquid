@@ -1,3 +1,5 @@
+import { ParticleProps, TLiquidParticle } from './liquid';
+
 export type TItem = number;
 
 function trunc(number: number, divider: number): number {
@@ -101,6 +103,13 @@ export default class SpatialHash{
     return res;
   }
 
+  // Special
+  fill(particles: TLiquidParticle[]){
+    particles.forEach((part, pid)=>{
+      const x = part[ParticleProps.x], y = part[ParticleProps.y];
+      this.insert(pid, x, y);
+    })
+  }
   // getItemsNearBody(body: Matter.Body){
   //   const ewf = body.bounds
   // }
