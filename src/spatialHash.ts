@@ -72,11 +72,19 @@ export default class SpatialHash{
 
   clear(){
     this.hash = {};
+    this.prevItemCell = {};
   }
 
   insert(item: TItem, x: number, y: number) {
-    const сellid = getIndex(x, y, this._columns);
+    const cellX = trunc(x, this.cellSize);
+    const cellY = trunc(y, this.cellSize);
+    const сellid = getIndex(cellX, cellY, this._columns);
     this._save(item, сellid);
+  }
+
+  remove(item: TItem) {
+    // const сellid = getIndex(x, y, this._columns);
+    // this._delete(item, cellX, cellY)
   }
 
   getAroundCellsItems(fullX: number, fullY: number){
@@ -96,18 +104,6 @@ export default class SpatialHash{
   // getItemsNearBody(body: Matter.Body){
   //   const ewf = body.
 
-  // }
-
-  // insert(item: TItem, fullX: number, fullY: number) {
-  //   const cellX = trunc(fullX, this.cellSize);
-  //   const cellY = trunc(fullY, this.cellSize);
-  //   this._save(item, cellX, cellY)
-  // }
-
-  // remove(item: TItem, fullX: number, fullY: number) {
-  //   const cellX = trunc(fullX, this.cellSize);
-  //   const cellY = trunc(fullY, this.cellSize);
-  //   this._delete(item, cellX, cellY)
   // }
 
   // getIterableHash(): Array<[number, TItem[]]> {
