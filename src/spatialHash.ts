@@ -20,18 +20,16 @@ const aroundCellRelatives: number[][] = [
 ];
 
 export default class SpatialHash{
-  hash: { [key: number]: TItem[] }
-  prevItemCell: { [key: number]: number }
+  hash: { [key: number]: TItem[] } = {}
+  prevItemCell: { [key: number]: number }= {}
   cellSize: number
   // itemCount: number
   // cellCount: number = 0
   _columns: number
 
-  constructor(worldWidth: number, cellSize: number){
+  init(worldWidth: number, cellSize: number){
     this.cellSize = cellSize;
     this._columns = Math.ceil(worldWidth/cellSize);
-    this.hash = {};
-    this.prevItemCell = {};
     // this.itemCount = 0;
   }
 
