@@ -83,8 +83,8 @@ export default class SpatialHash{
   }
 
   remove(item: TItem) {
-    // const сellid = getIndex(x, y, this._columns);
-    // this._delete(item, cellX, cellY)
+    const cellid = this.prevItemCell[item];
+    this._delete(item, cellid);
   }
 
   getAroundCellsItems(fullX: number, fullY: number){
