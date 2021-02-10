@@ -1,4 +1,3 @@
-import SpatialHash from './spatialHash';
 import { State } from './state';
 import {
   checkPointInActiveZone, checkPointInRenderZone
@@ -19,7 +18,6 @@ const LiquidPropDefaults: Required<TLiquidProps> = {
   // stiffness: 0.004,
 }
 
-export let spatialHash: SpatialHash;
 export const ParticleProps = { x: 0, y: 1, prevX: 2, prevY: 3, velX:4, velY: 5, liquidid: 6 };
 export const liquids:  Required<TLiquidProps>[] = [];
 export const particles: TLiquidParticle[] = [];
@@ -34,7 +32,7 @@ export function createLiquid(props: TLiquidProps) {
 export function spawnLiquid(liquidid: number, x: number, y: number) {
   const pid = particles.length;
   particles[pid] = [ x, y, x-1, y-1, 0, 0, liquidid];
-  spatialHash.insert(pid, x, y);
+  State.spatialHash.insert(pid, x, y);
 }
 
 export function fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number, interval: number = State.radius) {
@@ -58,9 +56,9 @@ export function checkParticleInRenerZone(part: TLiquidParticle) {
 }
 
 export function init(worldWidth: number, cellSize: number) {
-  spatialHash = new SpatialHash(worldWidth, State.radius || cellSize);
+  State.spatialHash.init(worldWidth, State.radius || cellSize);
   //@ts-ignore
-  window.spatialHash = spatialHash;
+  window.spatialHash = State.spatialHash;
   //@ts-ignore
   window.particles = particles;
 }

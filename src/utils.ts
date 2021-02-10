@@ -115,7 +115,7 @@ export function checkBodyContainsPoint(body: Matter.Body, x: number, y: number):
 }
 export function getParticlesInsideBodyIds(particles: TLiquidParticle[], body: Matter.Body, spatialHash: SpatialHash, _test_particleIds: number[]): number[] {
   const res: number[] = [];
-  // const nearParticlesIds: number[] = spatialHash.getItemsNearBody(body);
+  // const nearParticlesIds: number[] = State.spatialHash.getItemsNearBody(body);
   const nearParticlesIds: number[] = _test_particleIds;
   for (let i = 0; i < nearParticlesIds.length; i++) {
     const pid = nearParticlesIds[i];

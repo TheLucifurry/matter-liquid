@@ -1,3 +1,4 @@
+import SpatialHash from './spatialHash';
 
 type TState = {
   world: Matter.World,
@@ -5,6 +6,7 @@ type TState = {
   engine: Matter.Engine,
   gravity: [number, number],
   radius: number,             // Interaction radius
+  spatialHash: SpatialHash
 }
 
 export const State: TState = {
@@ -13,6 +15,7 @@ export const State: TState = {
   engine: null,
   gravity: [0, 0.01],
   radius: 30,
+  spatialHash: new SpatialHash,
 };
 
 export function setWorld(world: Matter.World) {

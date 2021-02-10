@@ -1,8 +1,8 @@
-import { liquids, ParticleProps, particles, spatialHash } from './liquid';
+import { liquids, ParticleProps, particles } from './liquid';
 import SpatialHash, { TItem } from './spatialHash';
 import { State } from './state';
 import { startViewTransform } from './utils';
-import { renderZone } from './zones';
+import { activeZone, renderZone } from './zones';
 
 function getCoordsFromCellid(spatialHash: SpatialHash, cellid: number): [number, number] {
   return [cellid % spatialHash._columns, Math.trunc(cellid / spatialHash._columns)];
@@ -23,14 +23,14 @@ for (let i = 0; i < 1000; i++) {
 }
 
 function renderGrid(ctx: CanvasRenderingContext2D) {
-  const cellSize = spatialHash.cellSize;
+  const cellSize = State.spatialHash.cellSize;
 
   // @ts-ignore
-  const hashCells: Array<[number, TItem[]]> = Object.entries(spatialHash.hash)
+  const hashCells: Array<[number, TItem[]]> = Object.entries(State.spatialHash.hash)
 
   ctx.textAlign = 'center';
   for (let [cellid, cell] of hashCells) {
-    const [cellX, cellY] = getCoordsFromCellid(spatialHash, cellid);
+    const [cellX, cellY] = getCoordsFromCellid(State.spatialHash, cellid);
     const fX = cellX * cellSize;
     const fY = cellY * cellSize;
     const csh = cellSize / 2;
@@ -51,7 +51,8 @@ export const partColors: Map<number, string> = new Map();
 export function update() {
   const ctx = State.render.context;
   startViewTransform(State.render);
-  // renderGrid(ctx);
+
+  renderGrid(ctx);
 
   particles.forEach((part, id) => {
     const color = partColors.get(id) || liquids[part[ParticleProps.liquidid]].color;
@@ -59,8 +60,8 @@ export function update() {
   })
 
   //   Draw active zone
-  // ctx.strokeStyle = 'orange';
-  // ctx.strokeRect(activeZone[0], activeZone[1], activeZone[4], activeZone[5]);
+  ctx.strokeStyle = 'orange';
+  ctx.strokeRect(activeZone[0], activeZone[1], activeZone[4], activeZone[5]);
   //   Draw render zone
   ctx.strokeStyle = 'cyan';
   ctx.strokeRect(renderZone[0], renderZone[1], renderZone[4], renderZone[5]);
