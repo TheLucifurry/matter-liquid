@@ -74,6 +74,11 @@ export default class SpatialHash{
     this.hash = {};
   }
 
+  insert(item: TItem, x: number, y: number) {
+    const сellid = getIndex(x, y, this._columns);
+    this._save(item, сellid);
+  }
+
   getAroundCellsItems(fullX: number, fullY: number){
     const centerCellX = trunc(fullX, this.cellSize);
     const centerCellY = trunc(fullY, this.cellSize);
@@ -87,6 +92,11 @@ export default class SpatialHash{
     }
     return res;
   }
+
+  // getItemsNearBody(body: Matter.Body){
+  //   const ewf = body.
+
+  // }
 
   // insert(item: TItem, fullX: number, fullY: number) {
   //   const cellX = trunc(fullX, this.cellSize);
