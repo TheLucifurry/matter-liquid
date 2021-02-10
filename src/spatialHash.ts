@@ -44,22 +44,24 @@ export default class SpatialHash{
     if(cell === undefined){ // Потестить вариант: typeof value === "undefined"
       this.hash[cellid] = [item];
       this.prevItemCell[item] = cellid;
+      // this.itemCount++;
     }else if(this._find(cellid, item) === -1) { // потестить вариант с .includes, должен быть быстрее
       cell.push(item);
-      // this.itemCount++;
       this.prevItemCell[item] = cellid;
+      // this.itemCount++;
     }
   }
 
   _delete(item: TItem, cellid: number){
     const itemIndex = this._find(cellid, item);
     this.hash[cellid].splice(itemIndex, 1);
+    this.prevItemCell[item] = undefined;
     // this.itemCount--;
   }
 
-  update(item: TItem, fullX: number, fullY: number){
-    const cellX = trunc(fullX, this.cellSize);
-    const cellY = trunc(fullY, this.cellSize);
+  update(item: TItem, x: number, y: number){
+    const cellX = trunc(x, this.cellSize);
+    const cellY = trunc(y, this.cellSize);
     const prevCellid = this.prevItemCell[item];
     const nextCellid = getIndex(cellX, cellY, this._columns);
     if(prevCellid !== nextCellid) {
@@ -87,9 +89,9 @@ export default class SpatialHash{
     this._delete(item, cellid);
   }
 
-  getAroundCellsItems(fullX: number, fullY: number){
-    const centerCellX = trunc(fullX, this.cellSize);
-    const centerCellY = trunc(fullY, this.cellSize);
+  getAroundCellsItems(x: number, y: number){
+    const centerCellX = trunc(x, this.cellSize);
+    const centerCellY = trunc(y, this.cellSize);
     const h = this.hash, c = this._columns;
     const selfItemId = getIndex(centerCellX, centerCellY, c);
     const res: TItem[] = [
@@ -102,15 +104,8 @@ export default class SpatialHash{
   }
 
   // getItemsNearBody(body: Matter.Body){
-  //   const ewf = body.
-
+  //   const ewf = body.bounds
   // }
-
-  // getIterableHash(): Array<[number, TItem[]]> {
-  //   // @ts-ignore
-  //   return Object.entries(this.hash);
-  // };
-
   // getCoordsFromCellid(cellid: number): [number, number] {
   //   return [cellid % this._columns, Math.trunc(cellid / this._columns)];
   // }
