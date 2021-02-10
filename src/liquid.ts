@@ -1,4 +1,3 @@
-import { insertPartToSpace } from './algorithm';
 import SpatialHash from './spatialHash';
 import { State } from './state';
 import {
@@ -35,7 +34,7 @@ export function createLiquid(props: TLiquidProps) {
 export function spawnLiquid(liquidid: number, x: number, y: number) {
   const pid = particles.length;
   particles[pid] = [ x, y, x-1, y-1, 0, 0, liquidid];
-  insertPartToSpace(particles[pid], pid);
+  spatialHash.insert(pid, x, y);
 }
 
 export function fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number, interval: number = State.radius) {
