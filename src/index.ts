@@ -42,7 +42,6 @@ const MatterLiquid = {
     matter.after('Render.create', function(this: Matter.Render) {
       StateManager.setRender(this);
       Zone.updateBounds();
-      Liquid.init(worldWidth, 64);
       starter.next();
     });
     matter.after('World.create', function(this: Matter.World) {
@@ -61,6 +60,7 @@ const MatterLiquid = {
 
       console.log('State:');
       console.dir(State);
+      Liquid.init(worldWidth, 64);
       Matter.Events.on(State.engine, 'afterUpdate', function(){
         Algorithm.update(deltaTime);
       })
