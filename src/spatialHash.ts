@@ -70,6 +70,10 @@ export default class SpatialHash{
     }
   }
 
+  clear(){
+    this.hash = {};
+  }
+
   getAroundCellsItems(fullX: number, fullY: number){
     const centerCellX = trunc(fullX, this.cellSize);
     const centerCellY = trunc(fullY, this.cellSize);
