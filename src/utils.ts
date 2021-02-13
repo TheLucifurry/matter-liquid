@@ -89,7 +89,7 @@ function hasAnomal(vec: TVector) {
   return !isFinite(vec[0]) || !isFinite(vec[1]);
 }
 
-export function getBodiesInZone(world: Matter.World, zone: TRect): Matter.Body[] {
+export function getBodiesInRect(world: Matter.World, zone: TRect): Matter.Body[] {
   return Matter.Query.region(world.bodies, {
     min: {x: zone[0], y: zone[1]},
     max: {x: zone[2], y: zone[3]},
