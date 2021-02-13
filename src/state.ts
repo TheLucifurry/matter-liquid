@@ -1,14 +1,5 @@
 import SpatialHash from './spatialHash';
 
-type TState = {
-  world: Matter.World,
-  render: Matter.Render,
-  engine: Matter.Engine,
-  gravity: [number, number],
-  radius: number,             // Interaction radius
-  spatialHash: SpatialHash
-}
-
 export const State: TState = {
   world: null,
   render: null,
@@ -16,6 +7,7 @@ export const State: TState = {
   gravity: [0, 0.01],
   radius: 30,
   spatialHash: new SpatialHash,
+  renderBoundsPadding: [0, 0, 0, 0],
 };
 
 export function setWorld(world: Matter.World) {
@@ -23,6 +15,13 @@ export function setWorld(world: Matter.World) {
 }
 export function setRender(render: Matter.Render) {
   State.render = render;
+}
+export function setRenderBoundsPadding(padding: number | TPadding) {
+  if(typeof padding === 'number'){
+    Object.assign(State.renderBoundsPadding, [padding, padding, padding, padding]);
+  }else{
+    Object.assign(State.renderBoundsPadding, [padding[0], padding[1], padding[2] || padding[0], padding[3] || padding[1]]);
+  }
 }
 export function setEngine(engine: Matter.Engine) {
   State.engine = engine;
