@@ -41,6 +41,7 @@ const MatterLiquid = {
     matter.after('Render.create', function(this: Matter.Render) {
       StateManager.setRender(this);
       StateManager.setRenderBoundsPadding(-100)
+      StateManager.setActiveBoundsPadding(-200)
       starter.next();
     });
     matter.after('World.create', function(this: Matter.World) {

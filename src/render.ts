@@ -52,6 +52,7 @@ export function update() {
 
   renderGrid(ctx);
 
+  const activeRect = getRectWithPaddingsFromBounds(State.render.bounds, State.activeBoundsPadding);
   const renderRect = getRectWithPaddingsFromBounds(State.render.bounds, State.renderBoundsPadding);
 
   particles.forEach((part, id) => {
@@ -62,8 +63,8 @@ export function update() {
   })
 
   //   Draw active zone
-  // ctx.strokeStyle = 'orange';
-  // ctx.strokeRect(activeZone[0], activeZone[1], activeZone[4], activeZone[5]);
+  ctx.strokeStyle = 'orange';
+  ctx.strokeRect(activeRect[0], activeRect[1], activeRect[2]-activeRect[0], activeRect[3]-activeRect[1]);
   //   Draw render zone
   ctx.strokeStyle = 'cyan';
   ctx.strokeRect(renderRect[0], renderRect[1], renderRect[2]-renderRect[0], renderRect[3]-renderRect[1]);

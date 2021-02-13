@@ -1,7 +1,7 @@
 import { checkParticleIsStatic, checkRectContainsParticle, ParticleProps, particles } from './liquid';
 import { partColors } from './render';
 import { State } from './state';
-import { arrayEach, getBodiesInZone, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal } from './utils';
+import { arrayEach, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal } from './utils';
 
 const p0 = 10 // rest density
 const k = 0.004 // stiffness
@@ -10,15 +10,14 @@ const kSpring = 0.3 //
 const sigma = 1; //
 const beta = 1; // 0 - вязкая жидкость
 
-function foreach(arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
-  const activeRect = getRectWithPaddingsFromBounds(State.render.bounds, State.activeBoundsPadding);
+function foreachActive(activeRect: TRect, arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
   // @ts-ignore
   arrayEach(arr, (part, id)=>{
     if(checkParticleIsStatic(part) || !checkRectContainsParticle(activeRect, part)) return; // Ignore static or inactive particles
     callback(part, id);
   })
   // arr.forEach((part, id)=>{
-  //   if(checkParticleIsStatic(part) || !checkParticleInActiveZone(part)) return; // Ignore static or inactive particles
+  //   if(checkParticleIsStatic(part) || !checkRectContainsParticle(activeRect, part)) return; // Ignore static or inactive particles
   //   callback(part, id);
   // });
 }
@@ -184,9 +183,9 @@ function doubleDensityRelaxation(cfg: typeof State, i: TLiquidParticle, dt: numb
   //   i[ParticleProps.y] += dx;
   // // ?
 }
-function resolveCollisions(updatablePids: number[]) {
+function resolveCollisions(activeZone: TRect, updatablePids: number[]) {
   //@ts-ignore
-  const bodies = getBodiesInZone(State.world, activeZone);
+  const bodies = getBodiesInRect(State.world, activeZone);
   bodies.forEach(b=>{
     const originalPos = {...b.position};
     // advance body using V and ω
@@ -257,9 +256,10 @@ const partturjherIds = particles.map((v, ix)=>ix);
 };
 
 export function update(dt: number) {
+  const activeRect = getRectWithPaddingsFromBounds(State.render.bounds, State.activeBoundsPadding);
   const updatablePids: number[] = [];
 
-  foreach(particles, function(part, pid) {
+  foreachActive(activeRect, particles, function(part, pid) {
     updatablePids.push(pid)
     // vi ← vi + ∆tg
     part[ParticleProps.velX] += dt * State.gravity[0];
@@ -283,7 +283,7 @@ export function update(dt: number) {
   // foreachIds(updatablePids, function(part) {
   //   doubleDensityRelaxation(part, dt);
   // });
-  resolveCollisions(updatablePids);
+  resolveCollisions(activeRect, updatablePids);
   foreachIds(updatablePids, function(part) {
     // vi ← (xi − xi^prev )/∆t
     part[ParticleProps.velX] = (part[ParticleProps.x] - part[ParticleProps.prevX]) / dt;
