@@ -1,7 +1,5 @@
 import { State } from './state';
-import {
-  checkPointInActiveZone, checkPointInRenderZone
-} from './zones';
+import { checkPointInRect } from './utils';
 
 const LiquidPropDefaults: Required<TLiquidProps> = {
   isStatic: false,
@@ -40,11 +38,8 @@ export function fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number
 export function checkParticleIsStatic(particle: TLiquidParticle) {
   return liquids[particle[ParticleProps.liquidid]].isStatic;
 }
-export function checkParticleInActiveZone(part: TLiquidParticle) {
-  return checkPointInActiveZone(part[ParticleProps.x], part[ParticleProps.y]);
-}
-export function checkParticleInRenerZone(part: TLiquidParticle) {
-  return checkPointInRenderZone(part[ParticleProps.x], part[ParticleProps.y]);
+export function checkRectContainsParticle(rect: TRect, particle: TLiquidParticle) {
+  return checkPointInRect(particle[ParticleProps.x], particle[ParticleProps.y], ...rect);
 }
 
 export function init(worldWidth: number, cellSize: number) {

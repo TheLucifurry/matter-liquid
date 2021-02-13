@@ -5,7 +5,8 @@ type TState = {
   gravity: [number, number],
   radius: number,             // Interaction radius
   spatialHash: CSpatialHash
-  renderBoundsPadding: [number, number, number, number]
+  renderBoundsPadding: TFourNumbers
+  activeBoundsPadding: TFourNumbers
 }
 
 type TLiquidProps = {
@@ -24,3 +25,5 @@ type TVector = [number, number];
 type TSpatialHashItem = number;
 
 type TRect = [ x1: number, y1: number, x2: number, y2: number ];
+
+type TFourNumbers = [ number, number, number, number ];

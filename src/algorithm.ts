@@ -1,8 +1,7 @@
-import { checkParticleInActiveZone, checkParticleIsStatic, ParticleProps, particles } from './liquid';
+import { checkParticleIsStatic, checkRectContainsParticle, ParticleProps, particles } from './liquid';
 import { partColors } from './render';
 import { State } from './state';
-import { arrayEach, getBodiesInZone, getParticlesInsideBodyIds, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal } from './utils';
-import { activeZone } from './zones';
+import { arrayEach, getBodiesInZone, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal } from './utils';
 
 const p0 = 10 // rest density
 const k = 0.004 // stiffness
@@ -12,9 +11,10 @@ const sigma = 1; //
 const beta = 1; // 0 - вязкая жидкость
 
 function foreach(arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
+  const activeRect = getRectWithPaddingsFromBounds(State.render.bounds, State.activeBoundsPadding);
   // @ts-ignore
   arrayEach(arr, (part, id)=>{
-    if(checkParticleIsStatic(part) || !checkParticleInActiveZone(part)) return; // Ignore static or inactive particles
+    if(checkParticleIsStatic(part) || !checkRectContainsParticle(activeRect, part)) return; // Ignore static or inactive particles
     callback(part, id);
   })
   // arr.forEach((part, id)=>{
@@ -185,6 +185,7 @@ function doubleDensityRelaxation(cfg: typeof State, i: TLiquidParticle, dt: numb
   // // ?
 }
 function resolveCollisions(updatablePids: number[]) {
+  //@ts-ignore
   const bodies = getBodiesInZone(State.world, activeZone);
   bodies.forEach(b=>{
     const originalPos = {...b.position};

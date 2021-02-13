@@ -1,6 +1,6 @@
-import { liquids, ParticleProps, particles } from './liquid';
+import { checkRectContainsParticle, liquids, ParticleProps, particles } from './liquid';
 import { State } from './state';
-import { checkPointInRect, getRectWithPaddingsFromBounds, startViewTransform } from './utils';
+import { getRectWithPaddingsFromBounds, startViewTransform } from './utils';
 
 function getCoordsFromCellid(spatialHash: CSpatialHash, cellid: number): [number, number] {
   return [cellid % spatialHash._columns, Math.trunc(cellid / spatialHash._columns)];
@@ -56,7 +56,7 @@ export function update() {
 
   particles.forEach((part, id) => {
     const x = part[ParticleProps.x], y = part[ParticleProps.y];
-    if(!checkPointInRect(x, y, ...renderRect))return;
+    if(!checkRectContainsParticle(renderRect, part))return;
     const color = partColors.get(id) || liquids[part[ParticleProps.liquidid]].color;
     drawAtom(ctx, x, y, color);
   })
