@@ -95,6 +95,9 @@ export function getBodiesInRect(world: Matter.World, zone: TRect): Matter.Body[]
     max: {x: zone[2], y: zone[3]},
   })
 }
+export function getBodiesByPoint(bodies: Matter.Body[], x: number, y: number): Matter.Body[] {
+  return Matter.Query.point(bodies, { x, y });
+}
 export function checkBodyContainsPoint(body: Matter.Body, x: number, y: number): boolean {
   const point = { x, y };
   // for (let i = 0; i < bodies.length; i++) {
