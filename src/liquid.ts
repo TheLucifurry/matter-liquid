@@ -3,14 +3,6 @@ import {
   checkPointInActiveZone, checkPointInRenderZone
 } from './zones';
 
-type TLiquidProps = {
-  isStatic?: boolean
-  color?: string
-  plasticity?: number // a
-  // stiffness?: number // k
-};
-export type TLiquidParticle = [ x: number, y: number, px: number, py: number, vx: number, vy: number, lid: number ];
-
 const LiquidPropDefaults: Required<TLiquidProps> = {
   isStatic: false,
   color: '#fff',

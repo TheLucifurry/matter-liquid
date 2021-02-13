@@ -1,4 +1,4 @@
-import { checkParticleInActiveZone, checkParticleIsStatic, ParticleProps, particles, TLiquidParticle } from './liquid';
+import { checkParticleInActiveZone, checkParticleIsStatic, ParticleProps, particles } from './liquid';
 import { partColors } from './render';
 import { State } from './state';
 import { arrayEach, getBodiesInZone, getParticlesInsideBodyIds, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal } from './utils';

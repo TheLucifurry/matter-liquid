@@ -1,6 +1,4 @@
-import { ParticleProps, TLiquidParticle } from './liquid';
-
-export type TItem = number;
+import { ParticleProps } from './liquid';
 
 function trunc(number: number, divider: number): number {
   return Math.trunc(number / divider);
@@ -22,7 +20,7 @@ const aroundCellRelatives: number[][] = [
 ];
 
 export default class SpatialHash{
-  hash: { [key: number]: TItem[] } = {}
+  hash: { [key: number]: TSpatialHashItem[] } = {}
   prevItemCell: { [key: number]: number }= {}
   cellSize: number
   // itemCount: number
@@ -35,11 +33,11 @@ export default class SpatialHash{
     // this.itemCount = 0;
   }
 
-  _find(cellid: number, item: TItem): number{
+  _find(cellid: number, item: TSpatialHashItem): number{
     return (this.hash[cellid] || []).indexOf(item)
   }
 
-  _save(item: TItem, cellid: number){
+  _save(item: TSpatialHashItem, cellid: number){
     const cell = this.hash[cellid];
     if(cell === undefined){ // Потестить вариант: typeof value === "undefined"
       this.hash[cellid] = [item];
@@ -52,14 +50,14 @@ export default class SpatialHash{
     }
   }
 
-  _delete(item: TItem, cellid: number){
+  _delete(item: TSpatialHashItem, cellid: number){
     const itemIndex = this._find(cellid, item);
     this.hash[cellid].splice(itemIndex, 1);
     this.prevItemCell[item] = undefined;
     // this.itemCount--;
   }
 
-  update(item: TItem, x: number, y: number){
+  update(item: TSpatialHashItem, x: number, y: number){
     const cellX = trunc(x, this.cellSize);
     const cellY = trunc(y, this.cellSize);
     const prevCellid = this.prevItemCell[item];
@@ -77,14 +75,14 @@ export default class SpatialHash{
     this.prevItemCell = {};
   }
 
-  insert(item: TItem, x: number, y: number) {
+  insert(item: TSpatialHashItem, x: number, y: number) {
     const cellX = trunc(x, this.cellSize);
     const cellY = trunc(y, this.cellSize);
     const сellid = getIndex(cellX, cellY, this._columns);
     this._save(item, сellid);
   }
 
-  remove(item: TItem) {
+  remove(item: TSpatialHashItem) {
     const cellid = this.prevItemCell[item];
     this._delete(item, cellid);
   }
@@ -94,7 +92,7 @@ export default class SpatialHash{
     const centerCellY = trunc(y, this.cellSize);
     const c = this._columns;
     const selfItemId = getIndex(centerCellX, centerCellY, c);
-    const res: TItem[] = [
+    const res: TSpatialHashItem[] = [
       ...arrayDeleteItem(this.hash[selfItemId], selfItemId),
     ];
     for (const [dx, dy] of aroundCellRelatives) {
@@ -116,4 +114,8 @@ export default class SpatialHash{
   // getCoordsFromCellid(cellid: number): [number, number] {
   //   return [cellid % this._columns, Math.trunc(cellid / this._columns)];
   // }
+}
+
+declare global {
+  class CSpatialHash extends SpatialHash {}
 }

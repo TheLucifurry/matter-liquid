@@ -1,10 +1,9 @@
 import { liquids, ParticleProps, particles } from './liquid';
-import SpatialHash, { TItem } from './spatialHash';
 import { State } from './state';
 import { startViewTransform } from './utils';
 import { activeZone, renderZone } from './zones';
 
-function getCoordsFromCellid(spatialHash: SpatialHash, cellid: number): [number, number] {
+function getCoordsFromCellid(spatialHash: CSpatialHash, cellid: number): [number, number] {
   return [cellid % spatialHash._columns, Math.trunc(cellid / spatialHash._columns)];
 }
 
@@ -26,7 +25,7 @@ function renderGrid(ctx: CanvasRenderingContext2D) {
   const cellSize = State.spatialHash.cellSize;
 
   // @ts-ignore
-  const hashCells: Array<[number, TItem[]]> = Object.entries(State.spatialHash.hash)
+  const hashCells: Array<[number, TSpatialHashItem[]]> = Object.entries(State.spatialHash.hash)
 
   ctx.textAlign = 'center';
   for (let [cellid, cell] of hashCells) {
