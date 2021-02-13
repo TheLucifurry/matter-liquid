@@ -8,7 +8,7 @@ function trunc(number: number, divider: number): number {
 function getIndex(x: number, y: number, columnCount: number): number {
   return y * columnCount + x;
 }
-function arrayDeleteItem(arr: any[], item: any) {
+function arrayDeleteItem(arr: any[] = [], item: any) {
   const ix = arr.indexOf(item);
   if(ix !== -1)
     arr.splice(ix, 1);
@@ -92,13 +92,13 @@ export default class SpatialHash{
   getAroundCellsItems(x: number, y: number){
     const centerCellX = trunc(x, this.cellSize);
     const centerCellY = trunc(y, this.cellSize);
-    const h = this.hash, c = this._columns;
+    const c = this._columns;
     const selfItemId = getIndex(centerCellX, centerCellY, c);
     const res: TItem[] = [
-      ...arrayDeleteItem((h[selfItemId] || []), selfItemId),
+      ...arrayDeleteItem(this.hash[selfItemId], selfItemId),
     ];
     for (const [dx, dy] of aroundCellRelatives) {
-      res.push(...(h[getIndex(centerCellX + dx, centerCellY + dy, c)] || []))
+      res.push(...(this.hash[getIndex(centerCellX + dx, centerCellY + dy, c)] || []))
     }
     return res;
   }
