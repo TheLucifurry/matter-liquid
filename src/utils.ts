@@ -1,9 +1,6 @@
 import Matter from 'matter-js';
-import { ParticleProps, TLiquidParticle } from './liquid';
+import { ParticleProps } from './liquid';
 import SpatialHash from './spatialHash';
-import { TZone } from './zones';
-
-type TVector = [number, number];
 
 export function checkPointInRect(pointX: number, pointY: number, rectX1: number, rectY1: number, rectX2: number, rectY2: number) {
   return (pointX > rectX1 && pointX < rectX2) && (pointY > rectY1 && pointY < rectY2)
@@ -92,7 +89,7 @@ function hasAnomal(vec: TVector) {
   return !isFinite(vec[0]) || !isFinite(vec[1]);
 }
 
-export function getBodiesInZone(world: Matter.World, zone: TZone): Matter.Body[] {
+export function getBodiesInZone(world: Matter.World, zone: TRect): Matter.Body[] {
   return Matter.Query.region(world.bodies, {
     min: {x: zone[0], y: zone[1]},
     max: {x: zone[2], y: zone[3]},
@@ -112,6 +109,15 @@ export function checkBodyContainsPoint(body: Matter.Body, x: number, y: number):
     }
   // }
   return false;
+}
+export function getRectWithPaddingsFromBounds(bounds: Matter.Bounds, paddings: TPadding): TRect {
+  const [top, right, bottom, left] = paddings;
+  return [
+    bounds.min.x - left,
+    bounds.min.y - top,
+    bounds.max.x + right,
+    bounds.max.y + bottom,
+  ]
 }
 export function getParticlesInsideBodyIds(particles: TLiquidParticle[], body: Matter.Body, spatialHash: SpatialHash, _test_particleIds: number[]): number[] {
   const res: number[] = [];

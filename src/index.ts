@@ -5,7 +5,6 @@ import * as Events from './events';
 import * as Liquid from './liquid';
 import * as Render from './render';
 import * as StateManager from './state';
-import * as Zone from './zones';
 
 const { State } = StateManager;
 
@@ -41,7 +40,7 @@ const MatterLiquid = {
 
     matter.after('Render.create', function(this: Matter.Render) {
       StateManager.setRender(this);
-      Zone.updateBounds();
+      StateManager.setRenderBoundsPadding(-100)
       starter.next();
     });
     matter.after('World.create', function(this: Matter.World) {

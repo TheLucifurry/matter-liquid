@@ -1,7 +1,6 @@
 import { liquids, ParticleProps, particles } from './liquid';
 import { State } from './state';
-import { startViewTransform } from './utils';
-import { activeZone, renderZone } from './zones';
+import { checkPointInRect, getRectWithPaddingsFromBounds, startViewTransform } from './utils';
 
 function getCoordsFromCellid(spatialHash: CSpatialHash, cellid: number): [number, number] {
   return [cellid % spatialHash._columns, Math.trunc(cellid / spatialHash._columns)];
@@ -53,15 +52,19 @@ export function update() {
 
   renderGrid(ctx);
 
+  const renderRect = getRectWithPaddingsFromBounds(State.render.bounds, State.renderBoundsPadding);
+
   particles.forEach((part, id) => {
+    const x = part[ParticleProps.x], y = part[ParticleProps.y];
+    if(!checkPointInRect(x, y, ...renderRect))return;
     const color = partColors.get(id) || liquids[part[ParticleProps.liquidid]].color;
-    drawAtom(ctx, part[ParticleProps.x], part[ParticleProps.y], color);
+    drawAtom(ctx, x, y, color);
   })
 
   //   Draw active zone
-  ctx.strokeStyle = 'orange';
-  ctx.strokeRect(activeZone[0], activeZone[1], activeZone[4], activeZone[5]);
+  // ctx.strokeStyle = 'orange';
+  // ctx.strokeRect(activeZone[0], activeZone[1], activeZone[4], activeZone[5]);
   //   Draw render zone
   ctx.strokeStyle = 'cyan';
-  ctx.strokeRect(renderZone[0], renderZone[1], renderZone[4], renderZone[5]);
+  ctx.strokeRect(renderRect[0], renderRect[1], renderRect[2]-renderRect[0], renderRect[3]-renderRect[1]);
 }
