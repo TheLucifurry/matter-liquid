@@ -20,7 +20,7 @@
     }
 
     /* matter-tools dependent */
-    .matter-header {
+    header.matter-header {
       padding-left: 100px;
     }
 
@@ -33,7 +33,7 @@
 <body>
   <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/liabru/matter-js@0.16.1/build/matter.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.13.0/build/matter-tools.demo.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.14.0/build/matter-tools.min.js"></script>
   <script src="./build/matter-liquid.js"></script>
   <script type="module">
     import examBasic from './examples/basic.js';
@@ -60,6 +60,7 @@
       fullPage: true,
       preventZoom: true,
       // resetOnOrientation: true,
+      // routing: true,
       toolbar: {
         title: pluginName,
         url: repoUrl,
@@ -67,7 +68,12 @@
         source: true,
         fullscreen: true,
         exampleSelect: true,
-        inspector: true,
+        // inspector: true,
+        // tools: true,
+      },
+      tools: {
+        // inspector: true,
+        gui: true
       },
       examples: [
         {
