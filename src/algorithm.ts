@@ -1,8 +1,9 @@
 import { checkParticleIsStatic, checkRectContainsParticle, ParticleProps, particles } from './liquid';
 import { partColors } from './render';
-import { Store } from './state';
+import * as State from './state';
 import { arrayEach, checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './utils';
 
+const { Store } = State;
 const p0 = 10 // rest density
 const k = 0.004 // stiffness
 const kNear = 0.01 // stiffness near
@@ -266,12 +267,13 @@ function addParticlePositionByVel(part: TLiquidParticle, deltaTime: number) {
 export function update(dt: number) {
   const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
   const updatablePids: number[] = [];
+  const gravity = State.getGravity();
 
   foreachActive(activeRect, particles, function(part, pid) {
     updatablePids.push(pid)
     // vi ← vi + ∆tg
-    part[ParticleProps.velX] += dt * Store.gravity[0];
-    part[ParticleProps.velY] += dt * Store.gravity[1];
+    part[ParticleProps.velX] += dt * gravity[0];
+    part[ParticleProps.velY] += dt * gravity[1];
   });
   foreachIds(updatablePids, function(part) {
     applyViscosity(Store, part, dt);

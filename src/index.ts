@@ -47,7 +47,7 @@ const MatterLiquid = {
     });
     matter.after('World.create', function(this: Matter.World) {
       State.setWorld(this);
-      State.setGravity(this.gravity.y, this.gravity.x);
+      State.setGravityRatio(0.1);
       starter.next();
     });
     matter.after('Engine.create', function(this: Matter.Engine) {

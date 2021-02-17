@@ -6,7 +6,7 @@ export const Store: TState = {
   render: null,
   engine: null,
   isPaused: false,
-  gravity: [0, 0.01],
+  gravityRatio: 1,
   radius: 30,
   spatialHash: new SpatialHash,
   renderBoundsPadding: [0, 0, 0, 0],
@@ -40,9 +40,11 @@ export function setActiveBoundsPadding(padding: number | TPadding) {
 export function setEngine(engine: Matter.Engine) {
   Store.engine = engine;
 }
-export function setGravity(vertical: number, horizontal: number) {
-  const divider = 10;
-  Store.gravity = [horizontal / divider, vertical / divider];
+export function setGravityRatio(ratio: number) {
+  Store.gravityRatio = ratio;
+}
+export function getGravity(): TVector {
+  return [Store.world.gravity.x * Store.gravityRatio, Store.world.gravity.y * Store.gravityRatio];
 }
 export function setInteractionRadius(value: number) {
   Store.radius = value;

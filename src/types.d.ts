@@ -3,7 +3,7 @@ type TState = {
   render: Matter.Render,
   engine: Matter.Engine,
   isPaused: boolean,
-  gravity: [number, number],
+  gravityRatio: number,
   radius: number,             // Interaction radius
   spatialHash: CSpatialHash
   renderBoundsPadding: TFourNumbers
