@@ -4,6 +4,8 @@ const events = new EventEmitter();
 
 export const types = {
   STARTED: '0',
+  PAUSED: '1',
+  CONTINUE: '2',
 }
 
 export function on(eventType: string, fn: (...args: any[]) => void, context?: any) {

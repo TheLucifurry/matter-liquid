@@ -2,6 +2,7 @@ type TState = {
   world: Matter.World,
   render: Matter.Render,
   engine: Matter.Engine,
+  isPaused: boolean,
   gravity: [number, number],
   radius: number,             // Interaction radius
   spatialHash: CSpatialHash

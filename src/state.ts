@@ -1,9 +1,11 @@
+import * as Events from './events';
 import SpatialHash from './spatialHash';
 
 export const State: TState = {
   world: null,
   render: null,
   engine: null,
+  isPaused: false,
   gravity: [0, 0.01],
   radius: 30,
   spatialHash: new SpatialHash,
@@ -21,6 +23,10 @@ function setPaddings(data: TFourNumbers, padding: number | TPadding) {
 
 export function setWorld(world: Matter.World) {
   State.world = world;
+}
+export function setPause(value = true) {
+  State.isPaused = value;
+  Events.emit(value ? Events.types.PAUSED : Events.types.CONTINUE);
 }
 export function setRender(render: Matter.Render) {
   State.render = render;

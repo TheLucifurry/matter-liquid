@@ -25,7 +25,7 @@ const MatterLiquid = {
     const { createLiquid, spawnLiquid, fillZoneByLiquid } = Liquid;
 
     matter.liquid = {
-      State,
+      State: StateManager,
       Events,
       createLiquid,
       spawnLiquid,
@@ -54,6 +54,13 @@ const MatterLiquid = {
       starter.next();
     });
 
+    function updateComputing(){
+      Algorithm.update(deltaTime);
+    }
+    function updateRender(){
+      Render.update();
+    }
+
     function* start() {
       yield 0;
       yield 0;
@@ -61,12 +68,10 @@ const MatterLiquid = {
       console.log('State:');
       console.dir(State);
       Liquid.init(worldWidth, 64);
-      Matter.Events.on(State.engine, 'afterUpdate', function(){
-        Algorithm.update(deltaTime);
-      })
-      Matter.Events.on(State.render, 'afterRender', function(){
-        Render.update();
-      })
+      Events.on(Events.types.PAUSED, ()=>Matter.Events.off(State.engine, 'afterUpdate', updateComputing));
+      Events.on(Events.types.CONTINUE, ()=>Matter.Events.on(State.engine, 'afterUpdate', updateComputing));
+      StateManager.setPause(false);
+      Matter.Events.on(State.render, 'afterRender', updateRender)
       Events.emit(Events.types.STARTED);
     }
   },
