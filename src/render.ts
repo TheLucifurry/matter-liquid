@@ -1,5 +1,4 @@
-import { checkRectContainsParticle, liquids, ParticleProps, particles } from './liquid';
-import { Store } from './state';
+import { PARTICLE_PROPS } from './enums';
 import { getRectWithPaddingsFromBounds, startViewTransform } from './utils';
 
 function getCoordsFromCellid(spatialHash: CSpatialHash, cellid: number): [number, number] {
@@ -20,15 +19,16 @@ for (let i = 0; i < 1000; i++) {
   colors.push('#'+Math.floor(Math.random()*16777215).toString(16));
 }
 
-function renderGrid(ctx: CanvasRenderingContext2D) {
-  const cellSize = Store.spatialHash.cellSize;
+function renderGrid(store: TStore) {
+  const ctx = store.render.context
+  const cellSize = store.spatialHash.cellSize;
 
   // @ts-ignore
-  const hashCells: Array<[number, TSpatialHashItem[]]> = Object.entries(Store.spatialHash.hash)
+  const hashCells: Array<[number, TSpatialHashItem[]]> = Object.entries(store.spatialHash.hash)
 
   ctx.textAlign = 'center';
   for (let [cellid, cell] of hashCells) {
-    const [cellX, cellY] = getCoordsFromCellid(Store.spatialHash, cellid);
+    const [cellX, cellY] = getCoordsFromCellid(store.spatialHash, cellid);
     const fX = cellX * cellSize;
     const fY = cellY * cellSize;
     const csh = cellSize / 2;
@@ -46,19 +46,22 @@ function renderGrid(ctx: CanvasRenderingContext2D) {
 
 export const partColors: Map<number, string> = new Map();
 
-export function update() {
+export default function update(liquid: CLiquid) {
+  const Store = liquid.store;
+  const { particles, liquids } = Store;
+
   const ctx = Store.render.context;
   startViewTransform(Store.render);
 
-  // renderGrid(ctx);
+  // renderGrid(Store);
 
   const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
   const renderRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.renderBoundsPadding);
 
   particles.forEach((part, id) => {
-    const x = part[ParticleProps.x], y = part[ParticleProps.y];
-    if(!checkRectContainsParticle(renderRect, part))return;
-    const color = partColors.get(id) || liquids[part[ParticleProps.liquidid]].color;
+    const x = part[PARTICLE_PROPS.X], y = part[PARTICLE_PROPS.Y];
+    if(!liquid.checkRectContainsParticle(renderRect, part))return;
+    const color = partColors.get(id) || liquids[part[PARTICLE_PROPS.LIQUID_ID]].color;
     drawAtom(ctx, x, y, color);
   })
 

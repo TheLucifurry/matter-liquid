@@ -43,17 +43,18 @@
 
     // install plugin
     Matter.use(pluginName);
-    const Liquid = Matter.liquid;
 
     // Stats
     const stats = new Stats();
     stats.showPanel(0);
     document.body.append(stats.dom);
-    Liquid.Events.on(Liquid.Events.types.STARTED, () => {
-      console.log(`\n\tEvent: STARTED\n\n`);
-      Matter.Events.on(Liquid.Store.engine, 'beforeUpdate', stats.begin);
-      Matter.Events.on(Liquid.Store.engine, 'afterUpdate', stats.end);
-    });
+    window.ON_LIQUID_STARTED = (liquid) => {
+      const engine = liquid.state.store.engine;
+      Matter.Events.on(engine, 'beforeUpdate', stats.begin);
+      Matter.Events.on(engine, 'afterUpdate', stats.end);
+      window.onblur = () => liquid.state.setPause();
+      window.onfocus = () => liquid.state.setPause(false);
+    };
 
     // Init
     MatterTools.Demo.create({
@@ -84,9 +85,6 @@
         }
       ]
     });
-
-    window.onblur = () => Liquid.State.setPause();
-    window.onfocus = () => Liquid.State.setPause(false);
   </script>
 </body>
 

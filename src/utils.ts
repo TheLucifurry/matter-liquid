@@ -1,6 +1,5 @@
 import Matter from 'matter-js';
-import { ParticleProps } from './liquid';
-import SpatialHash from './spatialHash';
+import { PARTICLE_PROPS } from './enums';
 
 export function checkPointInRect(pointX: number, pointY: number, rectX1: number, rectY1: number, rectX2: number, rectY2: number) {
   return (pointX > rectX1 && pointX < rectX2) && (pointY > rectY1 && pointY < rectY2)
@@ -128,14 +127,14 @@ export function getRectWithPaddingsFromBounds(bounds: Matter.Bounds, paddings: T
     bounds.max.y + bottom,
   ]
 }
-export function getParticlesInsideBodyIds(particles: TLiquidParticle[], body: Matter.Body, spatialHash: SpatialHash, _test_particleIds: number[]): number[] {
+export function getParticlesInsideBodyIds(particles: TLiquidParticle[], body: Matter.Body, spatialHash: CSpatialHash, _test_particleIds: number[]): number[] {
   const res: number[] = [];
   // const nearParticlesIds: number[] = State.spatialHash.getItemsNearBody(body);
   const nearParticlesIds: number[] = _test_particleIds;
   for (let i = 0; i < nearParticlesIds.length; i++) {
     const pid = nearParticlesIds[i];
     const part = particles[pid];
-    const x = part[ParticleProps.x], y = part[ParticleProps.y];
+    const x = part[PARTICLE_PROPS.X], y = part[PARTICLE_PROPS.Y];
     if(checkBodyContainsPoint(body, x, y)){
       res.push(pid)
     }

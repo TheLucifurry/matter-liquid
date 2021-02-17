@@ -1,13 +1,15 @@
-type TState = {
-  world: Matter.World,
-  render: Matter.Render,
-  engine: Matter.Engine,
-  isPaused: boolean,
-  gravityRatio: number,
-  radius: number,             // Interaction radius
+type TStore = {
+  world: Matter.World
+  render: Matter.Render
+  engine: Matter.Engine
+  isPaused: boolean
+  gravityRatio: number
+  radius: number             // Interaction radius
   spatialHash: CSpatialHash
   renderBoundsPadding: TFourNumbers
   activeBoundsPadding: TFourNumbers
+  liquids:  Required<TLiquidProps>[]
+  particles: TLiquidParticle[]
 }
 
 type TLiquidProps = {

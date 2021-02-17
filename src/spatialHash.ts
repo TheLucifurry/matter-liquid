@@ -1,4 +1,4 @@
-import { ParticleProps } from './liquid';
+import { PARTICLE_PROPS } from './enums';
 
 function trunc(number: number, divider: number): number {
   return Math.trunc(number / divider);
@@ -104,7 +104,7 @@ export default class SpatialHash{
   // Special
   fill(particles: TLiquidParticle[]){
     particles.forEach((part, pid)=>{
-      const x = part[ParticleProps.x], y = part[ParticleProps.y];
+      const x = part[PARTICLE_PROPS.X], y = part[PARTICLE_PROPS.Y];
       this.insert(pid, x, y);
     })
   }

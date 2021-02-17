@@ -1,4 +1,4 @@
-import SpatialHash from './spatialHash';
+import { EVENT_TYPES } from './enums';
 
 function setPaddings(data: TFourNumbers, padding: number | TPadding) {
   if(typeof padding === 'number'){
@@ -9,19 +9,12 @@ function setPaddings(data: TFourNumbers, padding: number | TPadding) {
 }
 
 export default class State {
-  store: TStore = {
-    world: null,
-    render: null,
-    engine: null,
-    isPaused: false,
-    gravityRatio: 1,
-    radius: 30,
-    spatialHash: new SpatialHash,
-    renderBoundsPadding: [0, 0, 0, 0],
-    activeBoundsPadding: [0, 0, 0, 0],
-  }
+  store: TStore
+  liquid: CLiquid
 
-  constructor(engine: Matter.Engine, render: Matter.Render){
+  constructor(liquid: CLiquid, engine: Matter.Engine, render: Matter.Render){
+    this.liquid = liquid;
+    this.store = liquid.store;
     this.store.engine = engine;
     this.store.world = engine.world;
     this.store.render = render;
@@ -29,7 +22,7 @@ export default class State {
 
   setPause(value = true) {
     this.store.isPaused = value;
-    // Events.emit(value ? Events.types.PAUSED : Events.types.CONTINUE);
+    this.liquid.emit(value ? EVENT_TYPES.PAUSED : EVENT_TYPES.CONTINUE);
   }
   setRenderBoundsPadding(padding: number | TPadding) {
     setPaddings(this.store.renderBoundsPadding, padding)

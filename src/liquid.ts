@@ -1,5 +1,12 @@
-import { Store } from './state';
+import EventEmitter from 'eventemitter3';
+import Matter from 'matter-js';
+import updateCompute from './algorithm';
+import { EVENT_TYPES, PARTICLE_PROPS } from './enums';
+import updateRender from './render';
+import SpatialHash from './spatialHash';
+import State from './state';
 import { checkPointInRect } from './utils';
+
 
 const LiquidPropDefaults: Required<TLiquidProps> = {
   isStatic: false,
@@ -8,44 +15,98 @@ const LiquidPropDefaults: Required<TLiquidProps> = {
   // stiffness: 0.004,
 }
 
-export const ParticleProps = { x: 0, y: 1, prevX: 2, prevY: 3, velX:4, velY: 5, liquidid: 6 };
-export const liquids:  Required<TLiquidProps>[] = [];
-export const particles: TLiquidParticle[] = [];
-export const disabledPartsSet: Set<number> = new Set();
+export default class Liquid {
+  store: TStore = {
+    world: null,
+    render: null,
+    engine: null,
+    isPaused: false,
+    gravityRatio: 0.1,
+    radius: 30,
+    spatialHash: new SpatialHash,
+    renderBoundsPadding: [0, 0, 0, 0],
+    activeBoundsPadding: [0, 0, 0, 0],
+    liquids: [],
+    particles: [],
+  }
+  state: State
+  events = new EventEmitter()
 
-export function createLiquid(props: TLiquidProps) {
-  const lid = liquids.length;
-  liquids[lid] = { ...LiquidPropDefaults, ...props };
-  return lid;
-}
+  constructor(engine: Matter.Engine, render: Matter.Render){
+    // TODO: change hardcode to spatialHash's adaptivity by
+    const _worldWidth = 5000;
+    const _cellSize = 30;
 
-export function spawnLiquid(liquidid: number, x: number, y: number) {
-  const pid = particles.length;
-  particles[pid] = [ x, y, x-1, y-1, 0, 0, liquidid];
-  Store.spatialHash.insert(pid, x, y);
-}
+    this.state = new State(this, engine, render);
+    this.store.spatialHash.init(_worldWidth, _cellSize);
 
-export function fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number, interval: number = Store.radius) {
-  const columns = Math.max(1, Math.trunc(zoneWidth / interval));
-  const rows = Math.max(1, Math.trunc(zoneHeight / interval));
-  for (let c = 0; c < columns; c++) {
-    for (let r = 0; r < rows; r++) {
-      spawnLiquid(liquidid, zoneX+c*interval, zoneY+r*interval);
+    // Set compute updater
+    const updateCompute = this.updateCompute.bind(this);
+    this.events.on(EVENT_TYPES.PAUSED, () => Matter.Events.off(engine, 'afterUpdate', updateCompute));
+    this.events.on(EVENT_TYPES.CONTINUE, () => Matter.Events.on(engine, 'afterUpdate', updateCompute));
+    this.state.setPause(false);
+
+    // Set render updater
+    Matter.Events.on(render, 'afterRender', this.updateRender.bind(this))
+
+    // DEV
+    console.log('Liquid:'); console.dir(this);
+    //@ts-ignore
+    window.Liquid = this;
+  }
+
+  on(eventType: string, fn: (...args: any[]) => void, context?: any) {
+    this.events.on(eventType, fn, context);
+  }
+  off(eventType: string, fn?: (...args: any[]) => void, context?: any, once?: boolean) {
+    this.events.off(eventType, fn, context, once);
+  }
+  emit(eventType: string, ...args: any[]) {
+    this.events.emit(eventType, ...args);
+  }
+
+
+  updateCompute(){
+    // TODO: change hardcode
+    const deltaTime = 1;
+    updateCompute(this, deltaTime);
+  }
+  updateRender(){
+    updateRender(this);
+  }
+
+
+  createLiquid(props: TLiquidProps) {
+    const lid = this.store.liquids.length;
+    this.store.liquids[lid] = { ...LiquidPropDefaults, ...props };
+    return lid;
+  }
+
+  spawnLiquid(liquidid: number, x: number, y: number) {
+    const pid = this.store.particles.length;
+    this.store.particles[pid] = [ x, y, x-1, y-1, 0, 0, liquidid];
+    this.store.spatialHash.insert(pid, x, y);
+  }
+
+  fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number, interval: number = this.store.radius) {
+    const columns = Math.max(1, Math.trunc(zoneWidth / interval));
+    const rows = Math.max(1, Math.trunc(zoneHeight / interval));
+    for (let c = 0; c < columns; c++) {
+      for (let r = 0; r < rows; r++) {
+        this.spawnLiquid(liquidid, zoneX+c*interval, zoneY+r*interval);
+      }
     }
+  }
+
+  checkParticleIsStatic(particle: TLiquidParticle) {
+    return this.store.liquids[particle[PARTICLE_PROPS.LIQUID_ID]].isStatic;
+  }
+
+  checkRectContainsParticle(rect: TRect, particle: TLiquidParticle) {
+    return checkPointInRect(particle[PARTICLE_PROPS.X], particle[PARTICLE_PROPS.Y], ...rect);
   }
 }
 
-export function checkParticleIsStatic(particle: TLiquidParticle) {
-  return liquids[particle[ParticleProps.liquidid]].isStatic;
-}
-export function checkRectContainsParticle(rect: TRect, particle: TLiquidParticle) {
-  return checkPointInRect(particle[ParticleProps.x], particle[ParticleProps.y], ...rect);
-}
-
-export function init(worldWidth: number, cellSize: number) {
-  Store.spatialHash.init(worldWidth, Store.radius || cellSize);
-  //@ts-ignore
-  window.spatialHash = Store.spatialHash;
-  //@ts-ignore
-  window.particles = particles;
+declare global {
+  class CLiquid extends Liquid {}
 }
