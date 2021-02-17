@@ -10,52 +10,37 @@ const beta = 1; // 0 - вязкая жидкость
 const mu = .5; // friction, 0 - скольжение, 1 - цепкость
 
 function foreachActive(liquid: CLiquid, activeRect: TRect, arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
-  // @ts-ignore
   arrayEach(arr, (part, id)=>{
     if(liquid.checkParticleIsStatic(part) || !liquid.checkRectContainsParticle(activeRect, part)) return; // Ignore static or inactive particles
     callback(part, id);
   })
-  // arr.forEach((part, id)=>{
-  //   if(checkParticleIsStatic(part) || !checkRectContainsParticle(activeRect, part)) return; // Ignore static or inactive particles
-  //   callback(part, id);
-  // });
 }
 function foreachIds(particles: TLiquidParticle[], pids: number[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
-  // @ts-ignore
   arrayEach(pids, (pid)=>{
     callback(particles[pid], pid);
   })
-  // pids.forEach((pid)=>{
-  //   callback(particles[pid], pid);
-  // });
 }
 function getNeighbors(store: TStore, part: TLiquidParticle) {
   return store.spatialHash.getAroundCellsItems(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
 }
 function eachNeighbors(particles: TLiquidParticle[], neighbors: number[], cb: (neighbParticle: TLiquidParticle)=>void ) {
-  // @ts-ignore
   arrayEach(neighbors, (pid)=>{
     cb(particles[pid]);
   })
-  // neighbors.forEach(pid=>{
-  //   cb(particles[pid]);
-  // });
 }
 function eachNeighborsOf(store: TStore, part: TLiquidParticle, cb: (neighbParticle: TLiquidParticle)=>void ) {
   eachNeighbors(store.particles, getNeighbors(store, part), cb);
 }
-function _limitMoving(part: TLiquidParticle) {
-  const limit = 4;
-  part[PARTICLE_PROPS.VEL_X] = Math.min(Math.max(part[PARTICLE_PROPS.VEL_X], -limit), limit);
-  part[PARTICLE_PROPS.VEL_Y] = Math.min(Math.max(part[PARTICLE_PROPS.VEL_Y], -limit), limit);
-  // debugger
-}
-function limit(val: number) {
-  const limi = .5;
-  return Math.min(Math.max(val, -limi), limi);
-}
 function getR(a: TLiquidParticle, b: TLiquidParticle) {
   return vectorFromTwo([a[PARTICLE_PROPS.X], a[PARTICLE_PROPS.Y]], [b[PARTICLE_PROPS.X], b[PARTICLE_PROPS.Y]]);
+}
+function computeI(part: TLiquidParticle, body: Matter.Body) {
+  const bodyVelVector: TVector = [body.velocity.x, body.velocity.y];
+  const v_ = vectorSubVector([part[PARTICLE_PROPS.VEL_X], part[PARTICLE_PROPS.VEL_Y]], bodyVelVector);  // vi − vp
+  const n_ = vectorNormal(bodyVelVector);
+  const vNormal = vectorMulVector(vectorMulVector(v_, n_), n_); // = (v¯ * nˆ)nˆ
+  const vTangent = vectorSubVector(v_, vNormal); // v¯ − v¯normal
+  return vectorSubVector(vNormal, vectorMul(vTangent, mu)); // v¯normal - µ * v¯tangent
 }
 function getVelDiff(a: TLiquidParticle, b: TLiquidParticle): [number, number] {
   return [a[PARTICLE_PROPS.VEL_X]-b[PARTICLE_PROPS.VEL_X], a[PARTICLE_PROPS.VEL_Y]-b[PARTICLE_PROPS.VEL_Y]];
@@ -74,6 +59,9 @@ function savePrevPosition(part: TLiquidParticle) {
   part[PARTICLE_PROPS.PREV_X] = part[PARTICLE_PROPS.X];
   part[PARTICLE_PROPS.PREV_Y] = part[PARTICLE_PROPS.Y];
 }
+
+
+
 function applyViscosity(store: TStore, i: TLiquidParticle, dt: number) {
   eachNeighborsOf(store, i, j=>{
     // const copy = {iVel: [...i], jVel: [...j]};
@@ -88,8 +76,6 @@ function applyViscosity(store: TStore, i: TLiquidParticle, dt: number) {
       if (u > 0) {
         // const halfI = vectorDiv(vectorMul(rNormal, dt * (1 - q) * (sigma * u + (beta * u)**2 )), 2);
         const halfI = vectorDiv(vectorMul(rNormal, dt * (1 - q) * (sigma * u + (beta * u) )), 2);
-        // halfI[0] = limit(halfI[0]);
-        // halfI[1] = limit(halfI[1]);
         addVel(i, [-halfI[0], -halfI[1]]); // vi -= I/2;
         addVel(j, halfI); // vj += I/2;
         // if(!isAnomalInBegining && isAnomaly(i[PARTICLE_PROPS.VEL_X]) || isAnomaly(i[PARTICLE_PROPS.VEL_X])){
@@ -148,7 +134,6 @@ function applySpringDisplacements(store: TStore, i: TLiquidParticle, dt: number)
   });
 }
 function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) {
-  // Алгоритм №2 Релаксация двойной плотности
   // let p = 0;
   // let pNear = 0;
   // const ngbrs = getNeighbors(i);
@@ -182,15 +167,6 @@ function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) 
   //   i[PARTICLE_PROPS.Y] += dx;
   // // ?
 }
-function computeI(part: TLiquidParticle, body: Matter.Body) {
-  const bodyVelVector: TVector = [body.velocity.x, body.velocity.y];
-  const v_ = vectorSubVector([part[PARTICLE_PROPS.VEL_X], part[PARTICLE_PROPS.VEL_Y]], bodyVelVector);  // vi − vp
-  const n_ = vectorNormal(bodyVelVector);
-  const vNormal = vectorMulVector(vectorMulVector(v_, n_), n_); // = (v¯ * nˆ)nˆ
-  const vTangent = vectorSubVector(v_, vNormal); // v¯ − v¯normal
-  return vectorSubVector(vNormal, vectorMul(vTangent, mu)); // v¯normal - µ * v¯tangent
-}
-
 function resolveCollisions(store: TStore, particles: TLiquidParticle[], activeZone: TRect, updatablePids: number[]) {
   const bodies = getBodiesInRect(store.world.bodies, activeZone);
   const originalBodiesData: TOriginalBodyData[] = [];
@@ -226,6 +202,8 @@ function resolveCollisions(store: TStore, particles: TLiquidParticle[], activeZo
   })
 }
 
+
+
 // DEBUG
 function isAnomaly(vari: number) {
   return !isFinite(vari) || Math.abs(vari) >= 2.1e+100;
@@ -238,7 +216,11 @@ function checkAnomaly(part: TLiquidParticle, caption: string) {
     console.log(`[ ${caption} ] velocity is anomal`);
   }
 }
-
+function _limitMoving(part: TLiquidParticle) {
+  const limit = 10;
+  part[PARTICLE_PROPS.VEL_X] = Math.min(Math.max(part[PARTICLE_PROPS.VEL_X], -limit), limit);
+  part[PARTICLE_PROPS.VEL_Y] = Math.min(Math.max(part[PARTICLE_PROPS.VEL_Y], -limit), limit);
+}
 // @ts-ignore
 // window.TEST_MOUSE_MOVE = function(mouseConstraint: Matter.MouseConstraint) {
 //   var mouse = mouseConstraint.mouse,
@@ -297,14 +279,9 @@ export default function update(liquid: CLiquid, dt: number) {
     part[PARTICLE_PROPS.VEL_X] = (part[PARTICLE_PROPS.X] - part[PARTICLE_PROPS.PREV_X]) / dt;
     part[PARTICLE_PROPS.VEL_Y] = (part[PARTICLE_PROPS.Y] - part[PARTICLE_PROPS.PREV_Y]) / dt;
   });
-  // const [cellX, cellY] = updateParticlePool()
   foreachIds(particles, updatedPids, function(part, pid) {
-    // checkAnomaly(part, 'all')
     Store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
   });
-  // console.log(`Ignored particles count: ${particles.length - updatedParticleIds.length}`);
-  // const p = particles[100];
-  // console.log(`Particle: vx=${p[PARTICLE_PROPS.VEL_X]} vy=${p[PARTICLE_PROPS.VEL_Y]}`);
 }
 /*
   foreach particle i
