@@ -42,6 +42,9 @@ export function vectorNormal(vec: TVector): TVector {
 export function vectorFromTwo(vec1: TVector, vec2: TVector): TVector {
   return [vec2[0] - vec1[0], vec2[1] - vec1[1]];
 }
+export function vectorSub(vec1: TVector, subtracter: number): TVector {
+  return [vec1[0] - subtracter, vec1[1] - subtracter];
+}
 export function vectorMul(vec: TVector, multiplier: number): TVector {
   return [vec[0] * multiplier, vec[1] * multiplier];
 }
@@ -50,6 +53,9 @@ export function vectorDiv(vec: TVector, divider: number): TVector {
 }
 export function vectorMulVector(vec1: TVector, vec2: TVector): TVector {
   return [vec1[0] * vec2[0], vec1[1] * vec2[1]];
+}
+export function vectorSubVector(vec1: TVector, vec2: TVector): TVector {
+  return [vec1[0] - vec2[0], vec1[1] - vec2[1]];
 }
 
 // export function vectorFromTwo(vec1: TVector, vec2: TVector): TVector {
@@ -89,8 +95,8 @@ function hasAnomal(vec: TVector) {
   return !isFinite(vec[0]) || !isFinite(vec[1]);
 }
 
-export function getBodiesInRect(world: Matter.World, zone: TRect): Matter.Body[] {
-  return Matter.Query.region(world.bodies, {
+export function getBodiesInRect(bodies: Matter.Body[], zone: TRect): Matter.Body[] {
+  return Matter.Query.region(bodies, {
     min: {x: zone[0], y: zone[1]},
     max: {x: zone[2], y: zone[3]},
   })
