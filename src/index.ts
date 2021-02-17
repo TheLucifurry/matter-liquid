@@ -1,5 +1,6 @@
 import Matter from 'matter-js';
 import Package from '../package.json';
+import { EVENT_TYPES } from './enums';
 import Liquid from './liquid';
 
 const MatterLiquid = {
@@ -19,7 +20,8 @@ const MatterLiquid = {
     matter.Liquid = {
       create(engine: Matter.Engine, render: Matter.Render) {
         return new Liquid(engine, render);
-      }
+      },
+      EVENT_TYPES,
     }
   },
 };
