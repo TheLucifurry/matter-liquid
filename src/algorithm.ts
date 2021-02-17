@@ -1,7 +1,7 @@
 import { checkParticleIsStatic, checkRectContainsParticle, ParticleProps, particles } from './liquid';
 import { partColors } from './render';
 import { State } from './state';
-import { arrayEach, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal } from './utils';
+import { arrayEach, checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './utils';
 
 const p0 = 10 // rest density
 const k = 0.004 // stiffness
@@ -9,6 +9,7 @@ const kNear = 0.01 // stiffness near
 const kSpring = 0.3 //
 const sigma = 1; //
 const beta = 1; // 0 - вязкая жидкость
+const mu = .5; // friction, 0 - скольжение, 1 - цепкость
 
 function foreachActive(activeRect: TRect, arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
   // @ts-ignore
@@ -75,10 +76,10 @@ function savePrevPosition(part: TLiquidParticle) {
   part[ParticleProps.prevX] = part[ParticleProps.x];
   part[ParticleProps.prevY] = part[ParticleProps.y];
 }
-function applyViscosity(cfg: typeof State, i: TLiquidParticle, dt: number) {
+function applyViscosity(cfg: TState, i: TLiquidParticle, dt: number) {
   eachNeighborsOf(i, j=>{
-    const copy = {iVel: [...i], jVel: [...j]};
-    let isAnomalInBegining = isAnomaly(i[ParticleProps.velX]) || isAnomaly(i[ParticleProps.velY]) || isAnomaly(j[ParticleProps.velX]) || isAnomaly(j[ParticleProps.velY]);
+    // const copy = {iVel: [...i], jVel: [...j]};
+    // let isAnomalInBegining = isAnomaly(i[ParticleProps.velX]) || isAnomaly(i[ParticleProps.velY]) || isAnomaly(j[ParticleProps.velX]) || isAnomaly(j[ParticleProps.velY]);
     // let isNaNInBegining = isNaN(i[ParticleProps.velX]) || isNaN(i[ParticleProps.velY]) || isNaN(j[ParticleProps.velX]) || isNaN(j[ParticleProps.velY]);
     const r = getR(i, j)
     const rNormal = vectorNormal(r);
@@ -93,14 +94,14 @@ function applyViscosity(cfg: typeof State, i: TLiquidParticle, dt: number) {
         // halfI[1] = limit(halfI[1]);
         addVel(i, [-halfI[0], -halfI[1]]); // vi -= I/2;
         addVel(j, halfI); // vj += I/2;
-        if(!isAnomalInBegining && isAnomaly(i[ParticleProps.velX]) || isAnomaly(i[ParticleProps.velX])){
-          console.dir({isAnomalInBegining,copy,r,rNormal,q,velDiff,u,halfI});
-          console.dir({
-            copy,
-            q, sigma, u, beta,
-          });
-          // debugger
-        }
+        // if(!isAnomalInBegining && isAnomaly(i[ParticleProps.velX]) || isAnomaly(i[ParticleProps.velX])){
+        //   console.dir({isAnomalInBegining,copy,r,rNormal,q,velDiff,u,halfI});
+        //   console.dir({
+        //     copy,
+        //     q, sigma, u, beta,
+        //   });
+        //   // debugger
+        // }
         // if(!isAnomalInBegining && isAnomaly(i[ParticleProps.velX])){
         //   console.dir({isAnomalInBegining,copy,r,rNormal,q,velDiff,u,halfI});
         //   debugger
@@ -132,7 +133,7 @@ function adjustSprings() {
       remove spring i j
 */
 }
-function applySpringDisplacements(cfg: typeof State, i: TLiquidParticle, dt: number) {
+function applySpringDisplacements(cfg: TState, i: TLiquidParticle, dt: number) {
   // const L = 23321423;
   // const r = getR(i, j);
   // const D = dt**2 * kSpring * (1-L/h) * (L - r) * r;
@@ -148,7 +149,7 @@ function applySpringDisplacements(cfg: typeof State, i: TLiquidParticle, dt: num
     // ?
   });
 }
-function doubleDensityRelaxation(cfg: typeof State, i: TLiquidParticle, dt: number) {
+function doubleDensityRelaxation(cfg: TState, i: TLiquidParticle, dt: number) {
   // Алгоритм №2 Релаксация двойной плотности
   // let p = 0;
   // let pNear = 0;
@@ -183,29 +184,48 @@ function doubleDensityRelaxation(cfg: typeof State, i: TLiquidParticle, dt: numb
   //   i[ParticleProps.y] += dx;
   // // ?
 }
-function resolveCollisions(activeZone: TRect, updatablePids: number[]) {
-  //@ts-ignore
-  const bodies = getBodiesInRect(State.world, activeZone);
-  bodies.forEach(b=>{
-    const originalPos = {...b.position};
+function computeI(part: TLiquidParticle, body: Matter.Body) {
+  const bodyVelVector: TVector = [body.velocity.x, body.velocity.y];
+  const v_ = vectorSubVector([part[ParticleProps.velX], part[ParticleProps.velY]], bodyVelVector);  // vi − vp
+  const n_ = vectorNormal(bodyVelVector);
+  const vNormal = vectorMulVector(vectorMulVector(v_, n_), n_); // = (v¯ * nˆ)nˆ
+  const vTangent = vectorSubVector(v_, vNormal); // v¯ − v¯normal
+  return vectorSubVector(vNormal, vectorMul(vTangent, mu)); // v¯normal - µ * v¯tangent
+}
+
+function resolveCollisions(particles: TLiquidParticle[], activeZone: TRect, updatablePids: number[]) {
+  const bodies = getBodiesInRect(State.world.bodies, activeZone);
+  const originalBodiesData: TOriginalBodyData[] = [];
+  const bodiesContainsParticleIds: number[][] = [];
+  bodies.forEach((body, ix)=>{
+    // originalBodiesData[ix] = {...body.position, a: body.angle} // save original body position and orientation
     // advance body using V and ω
     // clear force and torque buffers
-    // foreach particle inside the body
-    //   compute collision impulse I
-    //   add I contribution to force and torque buffers
+    const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, State.spatialHash, updatablePids);
+    bodiesContainsParticleIds[ix] = particlesInBodyIds;
+    // foreachIds(particlesInBodyIds, function(part) { // foreach particle inside the body
+    //   const I = computeI(part, body); // compute collision impulse I
+    //   // add I contribution to force and torque buffers
+    // })
   })
-  bodies.forEach(b=>{  // foreach body
-    // modify V with force and ω with torque
-    // advance from original position using V and ω
-  })
+  // bodies.forEach(body=>{  // foreach body
+  //   // modify V with force and ω with torque
+  //   // advance from original position using V and ω
+  // })
   // resolve collisions and contacts between bodies
-  // foreach particle inside a body
-  //   compute collision impulse I
-  //   apply I to the particle
-  //   extract the particle if still inside the body
-
-  // foreachIds(updatablePids, function(part) {
-  // });
+  bodiesContainsParticleIds.forEach((particlesInBodyIds, bodyid)=>{
+    const body = bodies[bodyid];
+    foreachIds(particlesInBodyIds, function(part) { // foreach particle inside the body
+      const I = computeI(part, body); // compute collision impulse I
+      part[ParticleProps.x] -= I[0]; // apply I to the particle
+      part[ParticleProps.y] -= I[1];
+      if(checkBodyContainsPoint(body, part[ParticleProps.x], part[ParticleProps.y])){
+        // extract the particle if still inside the body
+        // part[ParticleProps.x] += -part[ParticleProps.velX]*1.5;
+        // part[ParticleProps.y] += -part[ParticleProps.velY]*1.5;
+      }
+    })
+  })
 }
 
 // DEBUG
@@ -220,23 +240,6 @@ function checkAnomaly(part: TLiquidParticle, caption: string) {
     console.log(`[ ${caption} ] velocity is anomal`);
   }
 }
-
-// function worldWrapParticle(part: TLiquidParticle) {
-//   const zone = activeZone;
-//   if(
-//     (part[ParticleProps.x] < zone[0] && part[ParticleProps.velX] < 0)
-//     || (part[ParticleProps.x] > zone[2] && part[ParticleProps.velX] > 0)
-//   ){
-//     part[ParticleProps.velX] *= -1;
-//   }
-//   if(
-//     (part[ParticleProps.y] < zone[1] && part[ParticleProps.velY] < 0)
-//     || (part[ParticleProps.y] > zone[3] && part[ParticleProps.velY] > 0)
-//   ){
-//     debugger
-//     part[ParticleProps.velY] *= -1;
-//   }
-// }
 
 // @ts-ignore
 window.TEST_MOUSE_MOVE = function(mouseConstraint: Matter.MouseConstraint) {
@@ -254,6 +257,11 @@ const partturjherIds = particles.map((v, ix)=>ix);
     partColors.set(pid, '#0af')
   })
 };
+
+function addParticlePositionByVel(part: TLiquidParticle, deltaTime: number) {
+  part[ParticleProps.x] += deltaTime * part[ParticleProps.velX];
+  part[ParticleProps.y] += deltaTime * part[ParticleProps.velY];
+}
 
 export function update(dt: number) {
   const activeRect = getRectWithPaddingsFromBounds(State.render.bounds, State.activeBoundsPadding);
@@ -273,8 +281,7 @@ export function update(dt: number) {
     // xi^prev ← xi
     savePrevPosition(part);
     // xi ← xi + ∆tvi
-    part[ParticleProps.x] += dt * part[ParticleProps.velX];
-    part[ParticleProps.y] += dt * part[ParticleProps.velY];
+    addParticlePositionByVel(part, dt)
   });
   // adjustSprings();
   // foreachIds(updatablePids, function(part) {
@@ -283,7 +290,7 @@ export function update(dt: number) {
   // foreachIds(updatablePids, function(part) {
   //   doubleDensityRelaxation(part, dt);
   // });
-  resolveCollisions(activeRect, updatablePids);
+  resolveCollisions(particles, activeRect, updatablePids);
   foreachIds(updatablePids, function(part) {
     // vi ← (xi − xi^prev )/∆t
     part[ParticleProps.velX] = (part[ParticleProps.x] - part[ParticleProps.prevX]) / dt;
