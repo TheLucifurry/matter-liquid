@@ -1,4 +1,4 @@
-import { State } from './state';
+import { Store } from './state';
 import { checkPointInRect } from './utils';
 
 const LiquidPropDefaults: Required<TLiquidProps> = {
@@ -22,10 +22,10 @@ export function createLiquid(props: TLiquidProps) {
 export function spawnLiquid(liquidid: number, x: number, y: number) {
   const pid = particles.length;
   particles[pid] = [ x, y, x-1, y-1, 0, 0, liquidid];
-  State.spatialHash.insert(pid, x, y);
+  Store.spatialHash.insert(pid, x, y);
 }
 
-export function fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number, interval: number = State.radius) {
+export function fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number, interval: number = Store.radius) {
   const columns = Math.max(1, Math.trunc(zoneWidth / interval));
   const rows = Math.max(1, Math.trunc(zoneHeight / interval));
   for (let c = 0; c < columns; c++) {
@@ -43,9 +43,9 @@ export function checkRectContainsParticle(rect: TRect, particle: TLiquidParticle
 }
 
 export function init(worldWidth: number, cellSize: number) {
-  State.spatialHash.init(worldWidth, State.radius || cellSize);
+  Store.spatialHash.init(worldWidth, Store.radius || cellSize);
   //@ts-ignore
-  window.spatialHash = State.spatialHash;
+  window.spatialHash = Store.spatialHash;
   //@ts-ignore
   window.particles = particles;
 }

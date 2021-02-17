@@ -1,5 +1,5 @@
 import { checkRectContainsParticle, liquids, ParticleProps, particles } from './liquid';
-import { State } from './state';
+import { Store } from './state';
 import { getRectWithPaddingsFromBounds, startViewTransform } from './utils';
 
 function getCoordsFromCellid(spatialHash: CSpatialHash, cellid: number): [number, number] {
@@ -21,14 +21,14 @@ for (let i = 0; i < 1000; i++) {
 }
 
 function renderGrid(ctx: CanvasRenderingContext2D) {
-  const cellSize = State.spatialHash.cellSize;
+  const cellSize = Store.spatialHash.cellSize;
 
   // @ts-ignore
-  const hashCells: Array<[number, TSpatialHashItem[]]> = Object.entries(State.spatialHash.hash)
+  const hashCells: Array<[number, TSpatialHashItem[]]> = Object.entries(Store.spatialHash.hash)
 
   ctx.textAlign = 'center';
   for (let [cellid, cell] of hashCells) {
-    const [cellX, cellY] = getCoordsFromCellid(State.spatialHash, cellid);
+    const [cellX, cellY] = getCoordsFromCellid(Store.spatialHash, cellid);
     const fX = cellX * cellSize;
     const fY = cellY * cellSize;
     const csh = cellSize / 2;
@@ -47,13 +47,13 @@ function renderGrid(ctx: CanvasRenderingContext2D) {
 export const partColors: Map<number, string> = new Map();
 
 export function update() {
-  const ctx = State.render.context;
-  startViewTransform(State.render);
+  const ctx = Store.render.context;
+  startViewTransform(Store.render);
 
   // renderGrid(ctx);
 
-  const activeRect = getRectWithPaddingsFromBounds(State.render.bounds, State.activeBoundsPadding);
-  const renderRect = getRectWithPaddingsFromBounds(State.render.bounds, State.renderBoundsPadding);
+  const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
+  const renderRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.renderBoundsPadding);
 
   particles.forEach((part, id) => {
     const x = part[ParticleProps.x], y = part[ParticleProps.y];

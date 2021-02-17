@@ -1,7 +1,7 @@
 import * as Events from './events';
 import SpatialHash from './spatialHash';
 
-export const State: TState = {
+export const Store: TState = {
   world: null,
   render: null,
   engine: null,
@@ -22,28 +22,28 @@ function setPaddings(data: TFourNumbers, padding: number | TPadding) {
 }
 
 export function setWorld(world: Matter.World) {
-  State.world = world;
+  Store.world = world;
 }
 export function setPause(value = true) {
-  State.isPaused = value;
+  Store.isPaused = value;
   Events.emit(value ? Events.types.PAUSED : Events.types.CONTINUE);
 }
 export function setRender(render: Matter.Render) {
-  State.render = render;
+  Store.render = render;
 }
 export function setRenderBoundsPadding(padding: number | TPadding) {
-  setPaddings(State.renderBoundsPadding, padding)
+  setPaddings(Store.renderBoundsPadding, padding)
 }
 export function setActiveBoundsPadding(padding: number | TPadding) {
-  setPaddings(State.activeBoundsPadding, padding)
+  setPaddings(Store.activeBoundsPadding, padding)
 }
 export function setEngine(engine: Matter.Engine) {
-  State.engine = engine;
+  Store.engine = engine;
 }
 export function setGravity(vertical: number, horizontal: number) {
   const divider = 10;
-  State.gravity = [horizontal / divider, vertical / divider];
+  Store.gravity = [horizontal / divider, vertical / divider];
 }
 export function setInteractionRadius(value: number) {
-  State.radius = value;
+  Store.radius = value;
 }

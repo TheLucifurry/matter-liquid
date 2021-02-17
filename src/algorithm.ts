@@ -1,6 +1,6 @@
 import { checkParticleIsStatic, checkRectContainsParticle, ParticleProps, particles } from './liquid';
 import { partColors } from './render';
-import { State } from './state';
+import { Store } from './state';
 import { arrayEach, checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './utils';
 
 const p0 = 10 // rest density
@@ -32,7 +32,7 @@ function foreachIds(pids: number[], callback: (particle: TLiquidParticle, partic
   // });
 }
 function getNeighbors(part: TLiquidParticle) {
-  return State.spatialHash.getAroundCellsItems(part[ParticleProps.x], part[ParticleProps.y]);
+  return Store.spatialHash.getAroundCellsItems(part[ParticleProps.x], part[ParticleProps.y]);
 }
 function eachNeighbors(neighbors: number[], cb: (neighbParticle: TLiquidParticle)=>void ) {
   // @ts-ignore
@@ -194,14 +194,14 @@ function computeI(part: TLiquidParticle, body: Matter.Body) {
 }
 
 function resolveCollisions(particles: TLiquidParticle[], activeZone: TRect, updatablePids: number[]) {
-  const bodies = getBodiesInRect(State.world.bodies, activeZone);
+  const bodies = getBodiesInRect(Store.world.bodies, activeZone);
   const originalBodiesData: TOriginalBodyData[] = [];
   const bodiesContainsParticleIds: number[][] = [];
   bodies.forEach((body, ix)=>{
     // originalBodiesData[ix] = {...body.position, a: body.angle} // save original body position and orientation
     // advance body using V and ω
     // clear force and torque buffers
-    const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, State.spatialHash, updatablePids);
+    const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, Store.spatialHash, updatablePids);
     bodiesContainsParticleIds[ix] = particlesInBodyIds;
     // foreachIds(particlesInBodyIds, function(part) { // foreach particle inside the body
     //   const I = computeI(part, body); // compute collision impulse I
@@ -264,17 +264,17 @@ function addParticlePositionByVel(part: TLiquidParticle, deltaTime: number) {
 }
 
 export function update(dt: number) {
-  const activeRect = getRectWithPaddingsFromBounds(State.render.bounds, State.activeBoundsPadding);
+  const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
   const updatablePids: number[] = [];
 
   foreachActive(activeRect, particles, function(part, pid) {
     updatablePids.push(pid)
     // vi ← vi + ∆tg
-    part[ParticleProps.velX] += dt * State.gravity[0];
-    part[ParticleProps.velY] += dt * State.gravity[1];
+    part[ParticleProps.velX] += dt * Store.gravity[0];
+    part[ParticleProps.velY] += dt * Store.gravity[1];
   });
   foreachIds(updatablePids, function(part) {
-    applyViscosity(State, part, dt);
+    applyViscosity(Store, part, dt);
   });
   foreachIds(updatablePids, function(part) {
     _limitMoving(part); // Custom
@@ -299,7 +299,7 @@ export function update(dt: number) {
   // const [cellX, cellY] = updateParticlePool()
   foreachIds(updatablePids, function(part, pid) {
     // checkAnomaly(part, 'all')
-    State.spatialHash.update(pid, part[ParticleProps.x], part[ParticleProps.y]);
+    Store.spatialHash.update(pid, part[ParticleProps.x], part[ParticleProps.y]);
   });
   // console.log(`Ignored particles count: ${particles.length - updatedParticleIds.length}`);
   // const p = particles[100];

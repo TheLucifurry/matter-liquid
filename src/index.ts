@@ -4,9 +4,9 @@ import * as Algorithm from './algorithm';
 import * as Events from './events';
 import * as Liquid from './liquid';
 import * as Render from './render';
-import * as StateManager from './state';
+import * as State from './state';
 
-const { State } = StateManager;
+const { Store } = State;
 
 const MatterLiquid = {
   // Original
@@ -25,7 +25,8 @@ const MatterLiquid = {
     const { createLiquid, spawnLiquid, fillZoneByLiquid } = Liquid;
 
     matter.liquid = {
-      State: StateManager,
+      Store,
+      State,
       Events,
       createLiquid,
       spawnLiquid,
@@ -39,18 +40,18 @@ const MatterLiquid = {
     const starter = start();
 
     matter.after('Render.create', function(this: Matter.Render) {
-      StateManager.setRender(this);
-      // StateManager.setRenderBoundsPadding(-50)
-      // StateManager.setActiveBoundsPadding(-100)
+      State.setRender(this);
+      // State.setRenderBoundsPadding(-50)
+      // State.setActiveBoundsPadding(-100)
       starter.next();
     });
     matter.after('World.create', function(this: Matter.World) {
-      StateManager.setWorld(this);
-      StateManager.setGravity(this.gravity.y, this.gravity.x);
+      State.setWorld(this);
+      State.setGravity(this.gravity.y, this.gravity.x);
       starter.next();
     });
     matter.after('Engine.create', function(this: Matter.Engine) {
-      StateManager.setEngine(this);
+      State.setEngine(this);
       starter.next();
     });
 
@@ -65,13 +66,13 @@ const MatterLiquid = {
       yield 0;
       yield 0;
 
-      console.log('State:');
-      console.dir(State);
+      console.log('Store:');
+      console.dir(Store);
       Liquid.init(worldWidth, 64);
-      Events.on(Events.types.PAUSED, ()=>Matter.Events.off(State.engine, 'afterUpdate', updateComputing));
-      Events.on(Events.types.CONTINUE, ()=>Matter.Events.on(State.engine, 'afterUpdate', updateComputing));
-      StateManager.setPause(false);
-      Matter.Events.on(State.render, 'afterRender', updateRender)
+      Events.on(Events.types.PAUSED, ()=>Matter.Events.off(Store.engine, 'afterUpdate', updateComputing));
+      Events.on(Events.types.CONTINUE, ()=>Matter.Events.on(Store.engine, 'afterUpdate', updateComputing));
+      State.setPause(false);
+      Matter.Events.on(Store.render, 'afterRender', updateRender)
       Events.emit(Events.types.STARTED);
     }
   },
