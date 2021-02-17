@@ -50,7 +50,7 @@ export function update() {
   const ctx = State.render.context;
   startViewTransform(State.render);
 
-  renderGrid(ctx);
+  // renderGrid(ctx);
 
   const activeRect = getRectWithPaddingsFromBounds(State.render.bounds, State.activeBoundsPadding);
   const renderRect = getRectWithPaddingsFromBounds(State.render.bounds, State.renderBoundsPadding);
