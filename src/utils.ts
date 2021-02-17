@@ -8,10 +8,7 @@ export function checkPointInRect(pointX: number, pointY: number, rectX1: number,
 export function arrayEach(array: any[], iteratee: (element: any, index: number)=>void) { // From lodash
   let index = -1
   const length = array.length
-  while (++index < length) {
-    iteratee(array[index], index)
-  }
-  return array
+  while (++index < length) iteratee(array[index], index);
 }
 
 // Original
