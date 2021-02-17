@@ -1,17 +1,4 @@
-import * as Events from './events';
 import SpatialHash from './spatialHash';
-
-export const Store: TState = {
-  world: null,
-  render: null,
-  engine: null,
-  isPaused: false,
-  gravityRatio: 1,
-  radius: 30,
-  spatialHash: new SpatialHash,
-  renderBoundsPadding: [0, 0, 0, 0],
-  activeBoundsPadding: [0, 0, 0, 0],
-};
 
 function setPaddings(data: TFourNumbers, padding: number | TPadding) {
   if(typeof padding === 'number'){
@@ -21,31 +8,42 @@ function setPaddings(data: TFourNumbers, padding: number | TPadding) {
   }
 }
 
-export function setWorld(world: Matter.World) {
-  Store.world = world;
-}
-export function setPause(value = true) {
-  Store.isPaused = value;
-  Events.emit(value ? Events.types.PAUSED : Events.types.CONTINUE);
-}
-export function setRender(render: Matter.Render) {
-  Store.render = render;
-}
-export function setRenderBoundsPadding(padding: number | TPadding) {
-  setPaddings(Store.renderBoundsPadding, padding)
-}
-export function setActiveBoundsPadding(padding: number | TPadding) {
-  setPaddings(Store.activeBoundsPadding, padding)
-}
-export function setEngine(engine: Matter.Engine) {
-  Store.engine = engine;
-}
-export function setGravityRatio(ratio: number) {
-  Store.gravityRatio = ratio;
-}
-export function getGravity(): TVector {
-  return [Store.world.gravity.x * Store.gravityRatio, Store.world.gravity.y * Store.gravityRatio];
-}
-export function setInteractionRadius(value: number) {
-  Store.radius = value;
+export default class State {
+  store: TStore = {
+    world: null,
+    render: null,
+    engine: null,
+    isPaused: false,
+    gravityRatio: 1,
+    radius: 30,
+    spatialHash: new SpatialHash,
+    renderBoundsPadding: [0, 0, 0, 0],
+    activeBoundsPadding: [0, 0, 0, 0],
+  }
+
+  constructor(engine: Matter.Engine, render: Matter.Render){
+    this.store.engine = engine;
+    this.store.world = engine.world;
+    this.store.render = render;
+  }
+
+  setPause(value = true) {
+    this.store.isPaused = value;
+    // Events.emit(value ? Events.types.PAUSED : Events.types.CONTINUE);
+  }
+  setRenderBoundsPadding(padding: number | TPadding) {
+    setPaddings(this.store.renderBoundsPadding, padding)
+  }
+  setActiveBoundsPadding(padding: number | TPadding) {
+    setPaddings(this.store.activeBoundsPadding, padding)
+  }
+  setGravityRatio(ratio: number) {
+    this.store.gravityRatio = ratio;
+  }
+  getGravity(): TVector {
+    return [this.store.world.gravity.x * this.store.gravityRatio, this.store.world.gravity.y * this.store.gravityRatio];
+  }
+  setInteractionRadius(value: number) {
+    this.store.radius = value;
+  }
 }
