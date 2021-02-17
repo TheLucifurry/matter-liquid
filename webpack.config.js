@@ -78,6 +78,7 @@ module.exports = {
     afterBuildTaskPlugin,
   ],
   devServer: {
+    open: true,
     proxy: {
       ['/build/' + name + '.js']: {
         target: 'http://localhost:8080/',
