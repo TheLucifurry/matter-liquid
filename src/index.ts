@@ -21,7 +21,7 @@ const MatterLiquid = {
       create(engine: Matter.Engine, render: Matter.Render) {
         return new Liquid(engine, render);
       },
-      EVENT_TYPES,
+      events: EVENT_TYPES,
     }
   },
 };
