@@ -6,9 +6,9 @@ export const EVENT_TYPES = {
 export const PARTICLE_PROPS = {
   X: 0,
   Y: 1,
-  PREV_X: 2,
-  PREV_Y: 3,
-  VEL_X:4,
-  VEL_Y: 5,
+  VEL_X: 2,
+  VEL_Y: 3,
+  PREV_X: 4,
+  PREV_Y: 5,
   LIQUID_ID: 6,
 };
