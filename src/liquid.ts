@@ -84,7 +84,14 @@ export default class Liquid {
 
   spawnLiquid(liquidid: number, x: number, y: number) {
     const pid = this.store.particles.length;
-    this.store.particles[pid] = [ x, y, x-1, y-1, 0, 0, liquidid];
+    const particle = Array(7).fill(0);
+    particle[PARTICLE_PROPS.X] = x;
+    particle[PARTICLE_PROPS.Y] = y;
+    // particle[PARTICLE_PROPS.PREV_X] = x-1;
+    // particle[PARTICLE_PROPS.PREV_Y] = y-1;
+    particle[PARTICLE_PROPS.LIQUID_ID] = liquidid;
+    //@ts-ignore
+    this.store.particles[pid] = particle;
     this.store.spatialHash.insert(pid, x, y);
   }
 
