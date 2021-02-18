@@ -7,6 +7,8 @@ const k = 0.004 // stiffness
 const kNear = 0.01 // stiffness near
 const kSpring = 0.3 //
 const sigma = 1; //
+const alpha = 0.3 // α - константа пластичности
+const L = 1; // длина упора пружины
 const beta = 1; // 0 - вязкая жидкость
 const mu = .5; // friction, 0 - скольжение, 1 - цепкость
 
@@ -79,8 +81,21 @@ function applyViscosity(store: TStore, i: TLiquidParticle, dt: number) {
     }
   });
 }
-function adjustSprings() {
-
+function adjustSprings(store: TStore, updatedIds: number[], dt: number) {
+  const { particles } = store;
+  // alpha
+  // L
+  // const dL = dt * alpha * ()
+  foreachIds(particles, updatedIds, i=>{
+    eachNeighborsOf(store, i, j=>{
+      const r = getR(i, j)
+      // const rNormal = vectorNormal(r);
+      const q = vectorLength(vectorDiv(r, store.radius));
+      if (q < 1) {
+        // const d = y * Lij;
+      }
+    })
+  })
 /*
   foreach neighbor pair i j, (i < j)
     q ← ri j/h
@@ -99,7 +114,6 @@ function adjustSprings() {
 */
 }
 function applySpringDisplacements(store: TStore, i: TLiquidParticle, dt: number) {
-  // const L = 23321423;
   // const r = getR(i, j);
   // const D = dt**2 * kSpring * (1-L/h) * (L - r) * r;
   eachNeighborsOf(store, i, j=>{
@@ -285,7 +299,7 @@ export default function update(liquid: CLiquid, dt: number) {
     part[PARTICLE_PROPS.X] += dt * part[PARTICLE_PROPS.VEL_X];
     part[PARTICLE_PROPS.Y] += dt * part[PARTICLE_PROPS.VEL_Y];
   });
-  // adjustSprings();
+  // adjustSprings(Store, updatedPids, dt);
   // foreachIds(updatablePids, function(part) {
   //   applySpringDisplacements(Config, part, dt);
   // });
