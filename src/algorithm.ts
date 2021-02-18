@@ -1,3 +1,4 @@
+import Matter from 'matter-js';
 import { PARTICLE_PROPS } from './enums';
 import { arrayEach, checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './utils';
 
@@ -55,45 +56,25 @@ function addPos(part: TLiquidParticle, num: number) {
   part[PARTICLE_PROPS.Y] = vecAdded[1];
 }
 
-function savePrevPosition(part: TLiquidParticle) {
-  part[PARTICLE_PROPS.PREV_X] = part[PARTICLE_PROPS.X];
-  part[PARTICLE_PROPS.PREV_Y] = part[PARTICLE_PROPS.Y];
-}
-
 
 
 function applyViscosity(store: TStore, i: TLiquidParticle, dt: number) {
   eachNeighborsOf(store, i, j=>{
-    // const copy = {iVel: [...i], jVel: [...j]};
-    // let isAnomalInBegining = isAnomaly(i[PARTICLE_PROPS.VEL_X]) || isAnomaly(i[PARTICLE_PROPS.VEL_Y]) || isAnomaly(j[PARTICLE_PROPS.VEL_X]) || isAnomaly(j[PARTICLE_PROPS.VEL_Y]);
-    // let isNaNInBegining = isNaN(i[PARTICLE_PROPS.VEL_X]) || isNaN(i[PARTICLE_PROPS.VEL_Y]) || isNaN(j[PARTICLE_PROPS.VEL_X]) || isNaN(j[PARTICLE_PROPS.VEL_Y]);
     const r = getR(i, j)
     const rNormal = vectorNormal(r);
     const q = vectorLength(vectorDiv(r, store.radius));
     if (q < 1) {
       const velDiff = getVelDiff(i, j);
+      // if(isAnomalyVel(i) || isAnomalyVel(j)){
+      //   console.dir({ i, j });
+      //   debugger
+      // }
       const u = vectorLength(vectorMulVector(rNormal, velDiff));
       if (u > 0) {
         // const halfI = vectorDiv(vectorMul(rNormal, dt * (1 - q) * (sigma * u + (beta * u)**2 )), 2);
         const halfI = vectorDiv(vectorMul(rNormal, dt * (1 - q) * (sigma * u + (beta * u) )), 2);
         addVel(i, [-halfI[0], -halfI[1]]); // vi -= I/2;
         addVel(j, halfI); // vj += I/2;
-        // if(!isAnomalInBegining && isAnomaly(i[PARTICLE_PROPS.VEL_X]) || isAnomaly(i[PARTICLE_PROPS.VEL_X])){
-        //   console.dir({isAnomalInBegining,copy,r,rNormal,q,velDiff,u,halfI});
-        //   console.dir({
-        //     copy,
-        //     q, sigma, u, beta,
-        //   });
-        //   // debugger
-        // }
-        // if(!isAnomalInBegining && isAnomaly(i[PARTICLE_PROPS.VEL_X])){
-        //   console.dir({isAnomalInBegining,copy,r,rNormal,q,velDiff,u,halfI});
-        //   debugger
-        // }
-        // if(!isNaNInBegining && (isNaN(i[PARTICLE_PROPS.VEL_X]) || isNaN(i[PARTICLE_PROPS.VEL_Y]) || isNaN(j[PARTICLE_PROPS.VEL_X]) || isNaN(j[PARTICLE_PROPS.VEL_Y]))){
-        //   console.dir({copy,r,rNormal,q,velDiff,u,halfI});
-        //   debugger
-        // }
       }
     }
   });
@@ -167,36 +148,72 @@ function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) 
   //   i[PARTICLE_PROPS.Y] += dx;
   // // ?
 }
+function applyI(part: TLiquidParticle, I: TVector) {
+  part[PARTICLE_PROPS.X] -= I[0];
+  part[PARTICLE_PROPS.Y] -= I[1];
+  // if(I[0]>0){
+  //   part[PARTICLE_PROPS.X] += I[0];
+  // }else{
+  //   part[PARTICLE_PROPS.X] -= I[0];
+  // }
+  // if(I[1]>0){
+  //   part[PARTICLE_PROPS.Y] += I[1];
+  // }else{
+  //   part[PARTICLE_PROPS.Y] -= I[1];
+  // }
+}
+
 function resolveCollisions(store: TStore, particles: TLiquidParticle[], activeZone: TRect, updatablePids: number[]) {
   const bodies = getBodiesInRect(store.world.bodies, activeZone);
   const originalBodiesData: TOriginalBodyData[] = [];
-  const bodiesContainsParticleIds: number[][] = [];
+  // const bodiesContainsParticleIds: number[][] = [];
+  const processedBodies: Matter.Body[] = [];
+  const buffer: TVector[] = [];
   bodies.forEach((body, ix)=>{
-    // originalBodiesData[ix] = {...body.position, a: body.angle} // save original body position and orientation
+    if(body.isStatic)return;
+    originalBodiesData[ix] = {...body.position, a: body.angle} // save original body position and orientation
     // advance body using V and ω
     // clear force and torque buffers
     const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, store.spatialHash, updatablePids);
-    bodiesContainsParticleIds[ix] = particlesInBodyIds;
-    // foreachIds(particlesInBodyIds, function(part) { // foreach particle inside the body
-    //   const I = computeI(part, body); // compute collision impulse I
-    //   // add I contribution to force and torque buffers
-    // })
-  })
-  // bodies.forEach(body=>{  // foreach body
-  //   // modify V with force and ω with torque
-  //   // advance from original position using V and ω
-  // })
-  // resolve collisions and contacts between bodies
-  bodiesContainsParticleIds.forEach((particlesInBodyIds, bodyid)=>{
-    const body = bodies[bodyid];
+    if(!particlesInBodyIds.length)return;
+
+    processedBodies.push(body);
+    // bodiesContainsParticleIds[ix] = particlesInBodyIds;
+    const buf: TVector = [0, 0];
     foreachIds(particles, particlesInBodyIds, function(part) { // foreach particle inside the body
       const I = computeI(part, body); // compute collision impulse I
-      part[PARTICLE_PROPS.X] -= I[0]; // apply I to the particle
-      part[PARTICLE_PROPS.Y] -= I[1];
+      // buf[0] += I[0];
+      // buf[1] += I[1];
+      // body.position.x += I[0];
+      // body.position.y += I[1];
+      // add I contribution to force and torque buffers
+    })
+    buffer.push(buf)
+  })
+  processedBodies.forEach((body, bodyid)=>{  // foreach body
+    const buf = buffer[bodyid];
+    // body.velocity.x
+    body.position.x += buf[0];
+    body.position.y += buf[1];
+    // modify V with force and ω with torque
+    // advance from original position using V and ω
+  })
+  // resolve collisions and contacts between bodies
+  processedBodies.forEach(body=>{
+    const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, store.spatialHash, updatablePids);
+    foreachIds(particles, particlesInBodyIds, function(part) { // foreach particle inside the body
+      const I = computeI(part, body); // compute collision impulse I
+      applyI(part, I); // apply I to the particle
       if(checkBodyContainsPoint(body, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y])){
         // extract the particle if still inside the body
-        // part[PARTICLE_PROPS.X] += -part[PARTICLE_PROPS.VEL_X]*1.5;
-        // part[PARTICLE_PROPS.Y] += -part[PARTICLE_PROPS.VEL_Y]*1.5;
+        // const bodyCenterPos: TVector = [body.position.x, body.position.y];
+        // const partPrevPos: TVector = [part[PARTICLE_PROPS.PREV_X], part[PARTICLE_PROPS.PREV_Y]];
+        // const partPos: TVector = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]];
+        // const cbToppLength = vectorLength(vectorFromTwo(bodyCenterPos, partPrevPos));
+        // const movePosit = vectorLengthSet(vectorFromTwo(bodyCenterPos, partPos), cbToppLength);
+
+        // part[PARTICLE_PROPS.X] += movePosit[0];
+        // part[PARTICLE_PROPS.Y] += movePosit[1];
       }
     })
   })
@@ -206,7 +223,11 @@ function resolveCollisions(store: TStore, particles: TLiquidParticle[], activeZo
 
 // DEBUG
 function isAnomaly(vari: number) {
-  return !isFinite(vari) || Math.abs(vari) >= 2.1e+100;
+  // return !isFinite(vari) || Math.abs(vari) >= 2.1e+100;
+  return Math.abs(vari) >= 2.1e+100;
+}
+function isAnomalyVel(part: TLiquidParticle){
+  return isAnomaly(part[PARTICLE_PROPS.VEL_X]) || isAnomaly(part[PARTICLE_PROPS.VEL_Y]);
 }
 function checkAnomaly(part: TLiquidParticle, caption: string) {
   if(isAnomaly(part[PARTICLE_PROPS.X]) || isAnomaly(part[PARTICLE_PROPS.Y])){
@@ -217,7 +238,7 @@ function checkAnomaly(part: TLiquidParticle, caption: string) {
   }
 }
 function _limitMoving(part: TLiquidParticle) {
-  const limit = 10;
+  const limit = 5;
   part[PARTICLE_PROPS.VEL_X] = Math.min(Math.max(part[PARTICLE_PROPS.VEL_X], -limit), limit);
   part[PARTICLE_PROPS.VEL_Y] = Math.min(Math.max(part[PARTICLE_PROPS.VEL_Y], -limit), limit);
 }
@@ -238,10 +259,6 @@ function _limitMoving(part: TLiquidParticle) {
 //   })
 // };
 
-function addParticlePositionByVel(part: TLiquidParticle, deltaTime: number) {
-  part[PARTICLE_PROPS.X] += deltaTime * part[PARTICLE_PROPS.VEL_X];
-  part[PARTICLE_PROPS.Y] += deltaTime * part[PARTICLE_PROPS.VEL_Y];
-}
 
 export default function update(liquid: CLiquid, dt: number) {
   const Store = liquid.store;
@@ -261,10 +278,12 @@ export default function update(liquid: CLiquid, dt: number) {
   });
   foreachIds(particles, updatedPids, function(part) {
     _limitMoving(part); // Custom
-    // xi^prev ← xi
-    savePrevPosition(part);
-    // xi ← xi + ∆tvi
-    addParticlePositionByVel(part, dt)
+    // Save previous position: xi^prev ← xi
+    part[PARTICLE_PROPS.PREV_X] = part[PARTICLE_PROPS.X];
+    part[PARTICLE_PROPS.PREV_Y] = part[PARTICLE_PROPS.Y];
+    // Add Particle Position By Velosity: xi ← xi + ∆tvi
+    part[PARTICLE_PROPS.X] += dt * part[PARTICLE_PROPS.VEL_X];
+    part[PARTICLE_PROPS.Y] += dt * part[PARTICLE_PROPS.VEL_Y];
   });
   // adjustSprings();
   // foreachIds(updatablePids, function(part) {
@@ -273,7 +292,7 @@ export default function update(liquid: CLiquid, dt: number) {
   // foreachIds(updatablePids, function(part) {
   //   doubleDensityRelaxation(part, dt);
   // });
-  resolveCollisions(Store, particles, activeRect, updatedPids);
+  // resolveCollisions(Store, particles, activeRect, updatedPids);
   foreachIds(particles, updatedPids, function(part) {
     // vi ← (xi − xi^prev )/∆t
     part[PARTICLE_PROPS.VEL_X] = (part[PARTICLE_PROPS.X] - part[PARTICLE_PROPS.PREV_X]) / dt;
