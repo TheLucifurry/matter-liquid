@@ -285,11 +285,11 @@ export default function update(liquid: CLiquid, dt: number) {
     part[PARTICLE_PROPS.VEL_X] += dt * gravity[0];
     part[PARTICLE_PROPS.VEL_Y] += dt * gravity[1];
   });
+  // foreachIds(particles, updatedPids, function(part) {
+  //   applyViscosity(Store, part, dt);
+  // });
   foreachIds(particles, updatedPids, function(part) {
-    applyViscosity(Store, part, dt);
-  });
-  foreachIds(particles, updatedPids, function(part) {
-    _limitMoving(part); // Custom
+    // _limitMoving(part); // Custom
     // Save previous position: xi^prev ← xi
     part[PARTICLE_PROPS.PREV_X] = part[PARTICLE_PROPS.X];
     part[PARTICLE_PROPS.PREV_Y] = part[PARTICLE_PROPS.Y];
@@ -305,12 +305,11 @@ export default function update(liquid: CLiquid, dt: number) {
     doubleDensityRelaxation(Store, part, dt);
   });
   // resolveCollisions(Store, particles, activeRect, updatedPids);
-  foreachIds(particles, updatedPids, function(part) {
+  foreachIds(particles, updatedPids, function(part, pid) {
     // vi ← (xi − xi^prev )/∆t
     part[PARTICLE_PROPS.VEL_X] = (part[PARTICLE_PROPS.X] - part[PARTICLE_PROPS.PREV_X]) / dt;
     part[PARTICLE_PROPS.VEL_Y] = (part[PARTICLE_PROPS.Y] - part[PARTICLE_PROPS.PREV_Y]) / dt;
-  });
-  foreachIds(particles, updatedPids, function(part, pid) {
+
     Store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
   });
 }
