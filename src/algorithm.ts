@@ -5,12 +5,13 @@ import { arrayEach, checkBodyContainsPoint, getBodiesInRect, getParticlesInsideB
 const p0 = 10 // rest density
 const k = 0.004 // stiffness
 const kNear = 10 // stiffness near (вроде, влияет на текучесть)
-const kSpring = 0.3 //
 const sigma = 1; //
 const alpha = 0.3 // α - константа пластичности
-const L = 1; // длина упора пружины
 const beta = 1; // 0 - вязкая жидкость
 const mu = .5; // friction, 0 - скольжение, 1 - цепкость
+
+const L = 50; // длина упора пружины; (хорошо ведут себя значения в пределах 20-100)
+const kSpring = 0.001; // (в доке по дефолту 0.3)
 
 function foreachActive(liquid: CLiquid, activeRect: TRect, arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
   arrayEach(arr, (part, id)=>{
@@ -56,6 +57,14 @@ function addPos(part: TLiquidParticle, num: number) {
   const vecAdded = vectorLengthAdd([part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]], num)
   part[PARTICLE_PROPS.X] = vecAdded[0];
   part[PARTICLE_PROPS.Y] = vecAdded[1];
+}
+function partPosAdd(part: TLiquidParticle, vec: TVector) {
+  part[PARTICLE_PROPS.X] += vec[0];
+  part[PARTICLE_PROPS.Y] += vec[1];
+}
+function partPosSub(part: TLiquidParticle, vec: TVector) {
+  part[PARTICLE_PROPS.X] -= vec[0];
+  part[PARTICLE_PROPS.Y] -= vec[1];
 }
 
 
@@ -114,18 +123,21 @@ function adjustSprings(store: TStore, updatedIds: number[], dt: number) {
 */
 }
 function applySpringDisplacements(store: TStore, i: TLiquidParticle, dt: number) {
-  // const r = getR(i, j);
-  // const D = dt**2 * kSpring * (1-L/h) * (L - r) * r;
   eachNeighborsOf(store, i, j=>{
-    // ?
-      const L = 1;
-    // ?
-    // const r = getR(i, j);
-    // const D = dt**2 * kSpring * (1-L/cfg.h) * (L - r) * r;
-    // // ?
-    //   addPos(i, -D/2) // xi -= D/2;
-    //   addPos(j, D/2) // xj += D/2;
-    // ?
+    const isJStatic = store.liquids[j[PARTICLE_PROPS.LIQUID_ID]].isStatic;
+    const r = getR(i, j);
+    const rNormal = vectorNormal(r);
+    const rLength = vectorLength(r);
+    const Lij = L - rLength;
+
+    // dt**2 * kSpring * (1 − Lij / h) * (Lij − Rij) * Rˆij
+    //       4         5    2     1    6      3      7
+    const D = vectorMul(rNormal, dt**2 * kSpring * (1 - Lij / store.radius) * (Lij - rLength));
+    const Dhalf = vectorDiv(D, 2);
+    partPosSub(i, Dhalf) // xi -= D/2;
+    if(!isJStatic){
+      partPosAdd(j, Dhalf) // xj += D/2;
+    }
   });
 }
 function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) {
@@ -298,9 +310,9 @@ export default function update(liquid: CLiquid, dt: number) {
     part[PARTICLE_PROPS.Y] += dt * part[PARTICLE_PROPS.VEL_Y];
   });
   // adjustSprings(Store, updatedPids, dt);
-  // foreachIds(updatablePids, function(part) {
-  //   applySpringDisplacements(Config, part, dt);
-  // });
+  foreachIds(particles, updatedPids, function(part) {
+    applySpringDisplacements(Store, part, dt);
+  });
   foreachIds(particles, updatedPids, function(part) {
     doubleDensityRelaxation(Store, part, dt);
   });
