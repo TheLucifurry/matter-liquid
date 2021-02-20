@@ -1,3 +1,9 @@
+type TLiquidConfig = {
+  engine: Matter.Engine
+  render: Matter.Render
+  isFullMode?: boolean
+};
+
 type TStore = {
   world: Matter.World
   render: Matter.Render

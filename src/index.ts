@@ -18,8 +18,8 @@ const MatterLiquid = {
     console.dir({ MatterLiquid });
 
     matter.Liquid = {
-      create(engine: Matter.Engine, render: Matter.Render) {
-        return new Liquid(engine, render);
+      create(config: TLiquidConfig) {
+        return new Liquid(config);
       },
       events: EVENT_TYPES,
     }

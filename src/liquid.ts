@@ -1,6 +1,6 @@
 import EventEmitter from 'eventemitter3';
 import Matter from 'matter-js';
-import updateCompute from './algorithm';
+import { fullUpdate, simpleUpdate } from './algorithm';
 import { EVENT_TYPES, PARTICLE_PROPS } from './enums';
 import updateRender from './render';
 import SpatialHash from './spatialHash';
@@ -33,22 +33,22 @@ export default class Liquid {
   state: State
   events = new EventEmitter()
 
-  constructor(engine: Matter.Engine, render: Matter.Render){
+  constructor(config: TLiquidConfig){
     // TODO: change hardcode to spatialHash's adaptivity by
     const _worldWidth = 5000;
     const _cellSize = 30;
 
-    this.state = new State(this, engine, render);
+    this.state = new State(this, config.engine, config.render);
     this.store.spatialHash.init(_worldWidth, _cellSize);
 
     // Set compute updater
-    const updateCompute = this.updateCompute.bind(this);
-    this.events.on(EVENT_TYPES.PAUSED, () => Matter.Events.off(engine, 'afterUpdate', updateCompute));
-    this.events.on(EVENT_TYPES.CONTINUE, () => Matter.Events.on(engine, 'afterUpdate', updateCompute));
+    const updateCompute = config.isFullMode ? this.updateFullCompute.bind(this) : this.updateSimpleCompute.bind(this);
+    this.events.on(EVENT_TYPES.PAUSED, () => Matter.Events.off(config.engine, 'afterUpdate', updateCompute));
+    this.events.on(EVENT_TYPES.CONTINUE, () => Matter.Events.on(config.engine, 'afterUpdate', updateCompute));
     this.state.setPause(false);
 
     // Set render updater
-    Matter.Events.on(render, 'afterRender', this.updateRender.bind(this))
+    Matter.Events.on(config.render, 'afterRender', this.updateRender.bind(this))
 
     // DEV
     console.log('Liquid:'); console.dir(this);
@@ -67,10 +67,15 @@ export default class Liquid {
   }
 
 
-  updateCompute(){
+  updateSimpleCompute(){
     // TODO: change hardcode
     const deltaTime = 1;
-    updateCompute(this, deltaTime);
+    simpleUpdate(this, deltaTime);
+  }
+  updateFullCompute(){
+    // TODO: change hardcode
+    const deltaTime = 1;
+    fullUpdate(this, deltaTime);
   }
   updateRender(){
     updateRender(this);
