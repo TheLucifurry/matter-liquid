@@ -30,3 +30,19 @@ export function waitField(object, key, interval = 100) {
     }, interval)
   })
 }
+
+export function onkey(keyCode, downCallback, upCallback) {
+  window.addEventListener('keydown', (event) => {
+    if (event.code === keyCode) downCallback(event);
+  });
+  window.addEventListener('keyup', (event) => {
+    if (event.code === keyCode) upCallback(event);
+  });
+}
+
+export const KEY_CODES = {
+  LEFT: 'ArrowLeft',
+  UP: 'ArrowUp',
+  RIGHT: 'ArrowRight',
+  DOWN: 'ArrowDown',
+}
