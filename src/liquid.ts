@@ -1,7 +1,7 @@
 import EventEmitter from 'eventemitter3';
 import Matter from 'matter-js';
 import { fullUpdate, simpleUpdate } from './algorithm';
-import { EVENT_TYPES, PARTICLE_PROPS } from './enums';
+import { PARTICLE_PROPS } from './enums';
 import updateRender from './render';
 import SpatialHash from './spatialHash';
 import State from './state';
@@ -32,6 +32,7 @@ export default class Liquid {
   }
   state: State
   events = new EventEmitter()
+  updateCompute
 
   constructor(config: TLiquidConfig){
     // TODO: change hardcode to spatialHash's adaptivity by
@@ -42,9 +43,7 @@ export default class Liquid {
     this.store.spatialHash.init(_worldWidth, _cellSize);
 
     // Set compute updater
-    const updateCompute = config.isFullMode ? this.updateFullCompute.bind(this) : this.updateSimpleCompute.bind(this);
-    this.events.on(EVENT_TYPES.PAUSED, () => Matter.Events.off(config.engine, 'afterUpdate', updateCompute));
-    this.events.on(EVENT_TYPES.CONTINUE, () => Matter.Events.on(config.engine, 'afterUpdate', updateCompute));
+    this.updateCompute = (config.isFullMode ? this.updateFullCompute : this.updateSimpleCompute).bind(this);
     this.state.setPause(false);
 
     // Set render updater
@@ -66,6 +65,13 @@ export default class Liquid {
     this.events.emit(eventType, ...args);
   }
 
+  setPauseState(isPause = true) {
+    if(isPause){
+      Matter.Events.off(this.store.engine, 'afterUpdate', this.updateCompute);
+    }else{
+      Matter.Events.on(this.store.engine, 'afterUpdate', this.updateCompute);
+    }
+  }
 
   updateSimpleCompute(){
     // TODO: change hardcode

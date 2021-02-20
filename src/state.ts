@@ -1,5 +1,3 @@
-import { EVENT_TYPES } from './enums';
-
 function setPaddings(data: TFourNumbers, padding: number | TPadding) {
   if(typeof padding === 'number'){
     Object.assign(data, [padding, padding, padding, padding]);
@@ -22,7 +20,7 @@ export default class State {
 
   setPause(value = true) {
     this.store.isPaused = value;
-    this.liquid.emit(value ? EVENT_TYPES.PAUSED : EVENT_TYPES.CONTINUE);
+    this.liquid.setPauseState(value);
   }
   setRenderBoundsPadding(padding: number | TPadding) {
     setPaddings(this.store.renderBoundsPadding, padding)
