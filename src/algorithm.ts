@@ -6,12 +6,12 @@ const p0 = 10 // rest density
 const k = 0.004 // stiffness
 const kNear = 10 // stiffness near (вроде, влияет на текучесть)
 const sigma = 1; //
-const alpha = 0.3 // α - константа пластичности
 const beta = 1; // 0 - вязкая жидкость
 const mu = .5; // friction, 0 - скольжение, 1 - цепкость
 
-const L = 50; // длина упора пружины; (хорошо ведут себя значения в пределах 20-100)
+const L = 10; // длина упора пружины; (хорошо ведут себя значения в пределах 20-100)
 const kSpring = 0.001; // (в доке по дефолту 0.3)
+const alpha = 0.03 // α - константа пластичности
 
 function foreachActive(liquid: CLiquid, activeRect: TRect, arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
   arrayEach(arr, (part, id)=>{
@@ -20,19 +20,15 @@ function foreachActive(liquid: CLiquid, activeRect: TRect, arr: TLiquidParticle[
   })
 }
 function foreachIds(particles: TLiquidParticle[], pids: number[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
-  arrayEach(pids, (pid)=>{
-    callback(particles[pid], pid);
-  })
+  arrayEach(pids, (pid)=>callback(particles[pid], pid));
 }
 function getNeighbors(store: TStore, part: TLiquidParticle) {
   return store.spatialHash.getAroundCellsItems(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
 }
-function eachNeighbors(particles: TLiquidParticle[], neighbors: number[], cb: (neighbParticle: TLiquidParticle)=>void ) {
-  arrayEach(neighbors, (pid)=>{
-    cb(particles[pid]);
-  })
+function eachNeighbors(particles: TLiquidParticle[], neighbors: number[], cb: (neighbParticle: TLiquidParticle, neighbPid: number)=>void ) {
+  arrayEach(neighbors, (pid)=>cb(particles[pid], pid));
 }
-function eachNeighborsOf(store: TStore, part: TLiquidParticle, cb: (neighbParticle: TLiquidParticle)=>void ) {
+function eachNeighborsOf(store: TStore, part: TLiquidParticle, cb: (neighbParticle: TLiquidParticle, neighbPid: number)=>void ) {
   eachNeighbors(store.particles, getNeighbors(store, part), cb);
 }
 function getR(a: TLiquidParticle, b: TLiquidParticle) {
@@ -66,6 +62,18 @@ function partPosSub(part: TLiquidParticle, vec: TVector) {
   part[PARTICLE_PROPS.X] -= vec[0];
   part[PARTICLE_PROPS.Y] -= vec[1];
 }
+function getSpringKey(currentPartid: number, ngbrPartid: number) {
+  return `${currentPartid}.${ngbrPartid}`;
+}
+function getPidsFromSpringKey(springKey: string) {
+  const [currentPid, ngbrPid] = springKey.split('.');
+  return [+currentPid, +ngbrPid];
+}
+function eachSpring(springs: TSpringList, cb: (springKey: string, spring: TSpring)=>void) {
+  for (let [key, value] of Object.entries(springs)) {
+    cb(key, springs[key])
+  }
+}
 
 
 
@@ -90,45 +98,55 @@ function applyViscosity(store: TStore, i: TLiquidParticle, dt: number) {
     }
   });
 }
-function adjustSprings(store: TStore, updatedIds: number[], dt: number) {
-  const { particles } = store;
-  // alpha
-  // L
-  // const dL = dt * alpha * ()
-  foreachIds(particles, updatedIds, i=>{
-    eachNeighborsOf(store, i, j=>{
-      const r = getR(i, j)
-      // const rNormal = vectorNormal(r);
+function adjustSprings(store: TStore, updatedPids: number[], dt: number) {
+  // const alpha = 0.01; // 0 до 0,2
+  const y = 0.1; // 0 до 0,2
+  foreachIds(store.particles, updatedPids, function(i, currentPid) {
+    eachNeighborsOf(store, i, (j, ngbrPid)=>{
+      const r = getR(i, j);
       const q = vectorLength(vectorDiv(r, store.radius));
       if (q < 1) {
-        // const d = y * Lij;
+        const r = getR(i, j);
+        const rLength = vectorLength(r);
+        let Lij = L - rLength;
+        // let Lij = store.radius;
+
+        const springKey = getSpringKey(currentPid, ngbrPid);
+        // if(springs[springKey] === undefined){
+        //   springs[springKey] = Lij;
+        // }
+        const d = y * Lij;
+        if(rLength > L + d){ // stretch
+          Lij += dt * alpha * (rLength - L - d);
+        } else if(rLength < L - d){ // compress
+          Lij -= dt * alpha * (L - d - rLength);
+        }
+
+        if(store.springs[springKey] === undefined){
+          store.springs[springKey] = Lij;
+        }
+
+        // if(Lij > store.radius){
+        //   store.springs[springKey] = undefined;
+        // }
       }
-    })
+    });
+  });
+  eachSpring(store.springs, (springKey, spring) => {
+    if(Math.abs(spring) > store.radius){
+      store.springs[springKey] = undefined;
+    }
   })
-/*
-  foreach neighbor pair i j, (i < j)
-    q ← ri j/h
-      if q < 1
-        if there is no spring i j
-          add spring i j with rest length h
-        // tolerable deformation = yield ratio * rest length
-        d ← γ Li j
-        if ri j > L+d // stretch
-          Li j ← Li j +∆t α(ri j −L−d)
-        else if ri j < L−d // compress
-          Li j ← Li j −∆t α(L−d −ri j)
-  foreach spring i j
-    if Li j > h
-      remove spring i j
-*/
-}
-function applySpringDisplacements(store: TStore, i: TLiquidParticle, dt: number) {
-  eachNeighborsOf(store, i, j=>{
+  eachSpring(store.springs, (springKey, spring) => {
+    const [iPid, jPid] = getPidsFromSpringKey(springKey);
+    const i = store.particles[iPid], j = store.particles[jPid];
+
     const isJStatic = store.liquids[j[PARTICLE_PROPS.LIQUID_ID]].isStatic;
     const r = getR(i, j);
     const rNormal = vectorNormal(r);
     const rLength = vectorLength(r);
-    const Lij = L - rLength;
+    //     const Lij = L - rLength;
+    const Lij = spring;
 
     // dt**2 * kSpring * (1 − Lij / h) * (Lij − Rij) * Rˆij
     //       4         5    2     1    6      3      7
@@ -138,7 +156,7 @@ function applySpringDisplacements(store: TStore, i: TLiquidParticle, dt: number)
     if(!isJStatic){
       partPosAdd(j, Dhalf) // xj += D/2;
     }
-  });
+  })
 }
 function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) {
   let p = 0;
@@ -309,14 +327,12 @@ export default function update(liquid: CLiquid, dt: number) {
     part[PARTICLE_PROPS.X] += dt * part[PARTICLE_PROPS.VEL_X];
     part[PARTICLE_PROPS.Y] += dt * part[PARTICLE_PROPS.VEL_Y];
   });
-  // adjustSprings(Store, updatedPids, dt);
-  foreachIds(particles, updatedPids, function(part) {
-    applySpringDisplacements(Store, part, dt);
-  });
+  adjustSprings(Store, updatedPids, dt);
+  // applySpringDisplacements
   foreachIds(particles, updatedPids, function(part) {
     doubleDensityRelaxation(Store, part, dt);
   });
-  // resolveCollisions(Store, particles, activeRect, updatedPids);
+  resolveCollisions(Store, particles, activeRect, updatedPids);
   foreachIds(particles, updatedPids, function(part, pid) {
     // vi ← (xi − xi^prev )/∆t
     part[PARTICLE_PROPS.VEL_X] = (part[PARTICLE_PROPS.X] - part[PARTICLE_PROPS.PREV_X]) / dt;

@@ -28,6 +28,7 @@ export default class Liquid {
     activeBoundsPadding: [0, 0, 0, 0],
     liquids: [],
     particles: [],
+    springs: {},
   }
   state: State
   events = new EventEmitter()

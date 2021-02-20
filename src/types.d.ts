@@ -10,6 +10,7 @@ type TStore = {
   activeBoundsPadding: TFourNumbers
   liquids:  Required<TLiquidProps>[]
   particles: TLiquidParticle[]
+  springs: TSpringList
 }
 
 type TLiquidProps = {
@@ -32,3 +33,8 @@ type TRect = [ x1: number, y1: number, x2: number, y2: number ];
 type TFourNumbers = [ number, number, number, number ];
 
 type TOriginalBodyData = { x: number, y: number, a: number };
+
+type TSpringList = {
+  [key: string]: TSpring
+};
+type TSpring = number;
