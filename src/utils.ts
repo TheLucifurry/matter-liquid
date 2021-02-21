@@ -24,6 +24,10 @@ export function vectorLengthAdd(vec: TVector, l: number): TVector{
   const y = endSidesSum * sideYproport;
   return [x * Math.sign(vec[0] || 1), y * Math.sign(vec[1] || 1)];
 }
+// export function vectorLengthAddNormalBased(vec: TVector, l: number): TVector{
+//   const normal = vectorNormal(vec);
+//   return [vec[0] + normal[0] * l, vec[1] + normal[1] * l];
+// }
 // Closure compiled
 
 export function vectorLength(vec: TVector) {
@@ -32,7 +36,7 @@ export function vectorLength(vec: TVector) {
 
 export function vectorNormal(vec: TVector): TVector {
   const length = Math.hypot(vec[0], vec[1]);
-  return [vec[0] / length || 0, vec[1] / length || 0];
+  return length !== 0 ? [ vec[0] / length, vec[1] / length] : [0, 0];
 }
 
 export function vectorFromTwo(vec1: TVector, vec2: TVector): TVector {
