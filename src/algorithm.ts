@@ -19,6 +19,12 @@ function foreachActive(liquid: CLiquid, activeRect: TRect, arr: TLiquidParticle[
     callback(part, id);
   })
 }
+function foreachDynamic(liquid: CLiquid, arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
+  arrayEach(arr, (part, id)=>{
+    if(liquid.checkParticleIsStatic(part)) return; // Ignore static or inactive particles
+    callback(part, id);
+  })
+}
 function foreachIds(particles: TLiquidParticle[], pids: number[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
   arrayEach(pids, (pid)=>callback(particles[pid], pid));
 }
@@ -299,45 +305,49 @@ function _limitMoving(part: TLiquidParticle) {
 //   })
 // };
 
+function applyGravity(part: TLiquidParticle, dt: number, gravity: TVector) {
+  part[PARTICLE_PROPS.VEL_X] += dt * gravity[0];
+  part[PARTICLE_PROPS.VEL_Y] += dt * gravity[1];
+}
+function addParticlePositionByVelosity(part: TLiquidParticle, dt: number) {
+  part[PARTICLE_PROPS.X] += dt * part[PARTICLE_PROPS.VEL_X];
+  part[PARTICLE_PROPS.Y] += dt * part[PARTICLE_PROPS.VEL_Y];
+}
+function computeNextVelosity(part: TLiquidParticle, dt: number, prevPositions: TVector) {
+  part[PARTICLE_PROPS.VEL_X] = (part[PARTICLE_PROPS.X] - prevPositions[0]) / dt;
+  part[PARTICLE_PROPS.VEL_Y] = (part[PARTICLE_PROPS.Y] - prevPositions[1]) / dt;
+}
 
-export function simpleUpdate(liquid: CLiquid, dt: number) {
+
+
+export function simple_world(liquid: CLiquid, dt: number) {
   const Store = liquid.store;
-  const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
   const updatedPids: number[] = [];
   const gravity = liquid.state.getGravity();
   const particlesPrevPositions: TSavedParticlesPositions = {};
 
-  foreachActive(liquid, activeRect, Store.particles, function(part, pid) {
-    updatedPids.push(pid)
-    // vi ← vi + ∆tg
-    part[PARTICLE_PROPS.VEL_X] += dt * gravity[0];
-    part[PARTICLE_PROPS.VEL_Y] += dt * gravity[1];
-  });
+  foreachDynamic(liquid, Store.particles, function(part, pid) {
+    updatedPids.push(pid);
+    applyGravity(part, dt, gravity); // vi ← vi + ∆tg
+  })
   // foreachIds(Store.particles, updatedPids, function(part) {
   //   applyViscosity(Store, part, dt);
   // });
   foreachIds(Store.particles, updatedPids, function(part, pid) {
     // _limitMoving(part); // Custom
-    // Save previous position: xi^prev ← xi
-    particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]];
-    // Add Particle Position By Velosity: xi ← xi + ∆tvi
-    part[PARTICLE_PROPS.X] += dt * part[PARTICLE_PROPS.VEL_X];
-    part[PARTICLE_PROPS.Y] += dt * part[PARTICLE_PROPS.VEL_Y];
+    particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]]; // Save previous position: xi^prev ← xi
+    addParticlePositionByVelosity(part, dt); // Add Particle Position By Velosity: xi ← xi + ∆tvi
   });
   foreachIds(Store.particles, updatedPids, function(part) {
     doubleDensityRelaxation(Store, part, dt);
   });
   // resolveCollisions(Store, Store.particles, activeRect, updatedPids);
   foreachIds(Store.particles, updatedPids, function(part, pid) {
-    // vi ← (xi − xi^prev )/∆t
-    part[PARTICLE_PROPS.VEL_X] = (part[PARTICLE_PROPS.X] - particlesPrevPositions[pid][0]) / dt;
-    part[PARTICLE_PROPS.VEL_Y] = (part[PARTICLE_PROPS.Y] - particlesPrevPositions[pid][1]) / dt;
-
+    computeNextVelosity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
     Store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
   });
 }
-
-export function fullUpdate(liquid: CLiquid, dt: number) {
+export function simple_region(liquid: CLiquid, dt: number) {
   const Store = liquid.store;
   const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
   const updatedPids: number[] = [];
@@ -345,21 +355,48 @@ export function fullUpdate(liquid: CLiquid, dt: number) {
   const particlesPrevPositions: TSavedParticlesPositions = {};
 
   foreachActive(liquid, activeRect, Store.particles, function(part, pid) {
-    updatedPids.push(pid)
-    // vi ← vi + ∆tg
-    part[PARTICLE_PROPS.VEL_X] += dt * gravity[0];
-    part[PARTICLE_PROPS.VEL_Y] += dt * gravity[1];
+    updatedPids.push(pid);
+    applyGravity(part, dt, gravity); // vi ← vi + ∆tg
+  });
+  // foreachIds(Store.particles, updatedPids, function(part) {
+  //   applyViscosity(Store, part, dt);
+  // });
+  foreachIds(Store.particles, updatedPids, function(part, pid) {
+    // _limitMoving(part); // Custom
+    particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]]; // Save previous position: xi^prev ← xi
+    addParticlePositionByVelosity(part, dt); // Add Particle Position By Velosity: xi ← xi + ∆tvi
+  });
+  foreachIds(Store.particles, updatedPids, function(part) {
+    doubleDensityRelaxation(Store, part, dt);
+  });
+  // resolveCollisions(Store, Store.particles, activeRect, updatedPids);
+  foreachIds(Store.particles, updatedPids, function(part, pid) {
+    computeNextVelosity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
+    Store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
+  });
+}
+
+export function advanced_world(liquid: CLiquid, dt: number) {
+  // ...
+}
+export function advanced_region(liquid: CLiquid, dt: number) {
+  const Store = liquid.store;
+  const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
+  const updatedPids: number[] = [];
+  const gravity = liquid.state.getGravity();
+  const particlesPrevPositions: TSavedParticlesPositions = {};
+
+  foreachActive(liquid, activeRect, Store.particles, function(part, pid) {
+    updatedPids.push(pid);
+    applyGravity(part, dt, gravity); // vi ← vi + ∆tg
   });
   // foreachIds(particles, updatedPids, function(part) {
   //   applyViscosity(Store, part, dt);
   // });
   foreachIds(Store.particles, updatedPids, function(part, pid) {
     // _limitMoving(part); // Custom
-    // Save previous position: xi^prev ← xi
-    particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]];
-    // Add Particle Position By Velosity: xi ← xi + ∆tvi
-    part[PARTICLE_PROPS.X] += dt * part[PARTICLE_PROPS.VEL_X];
-    part[PARTICLE_PROPS.Y] += dt * part[PARTICLE_PROPS.VEL_Y];
+    particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]]; // Save previous position: xi^prev ← xi
+    addParticlePositionByVelosity(part, dt); // Add Particle Position By Velosity: xi ← xi + ∆tvi
   });
   adjustSprings(Store, updatedPids, dt);
   // applySpringDisplacements
@@ -368,10 +405,7 @@ export function fullUpdate(liquid: CLiquid, dt: number) {
   });
   // resolveCollisions(Store, Store.particles, activeRect, updatedPids);
   foreachIds(Store.particles, updatedPids, function(part, pid) {
-    // vi ← (xi − xi^prev )/∆t
-    part[PARTICLE_PROPS.VEL_X] = (part[PARTICLE_PROPS.X] - particlesPrevPositions[pid][0]) / dt;
-    part[PARTICLE_PROPS.VEL_Y] = (part[PARTICLE_PROPS.Y] - particlesPrevPositions[pid][1]) / dt;
-
+    computeNextVelosity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
     Store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
   });
 }

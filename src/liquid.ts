@@ -55,7 +55,11 @@ export default class Liquid {
   }
 
   private setComputeUpdater(config: TLiquidConfig){
-    this.algorithm = config.isFullMode ? Algorithm.fullUpdate : Algorithm.simpleUpdate;
+    if (config.isAdvancedAlgorithm) {
+      this.algorithm = config.isRegionalComputing ? Algorithm.advanced_region : Algorithm.advanced_world;
+    } else {
+      this.algorithm = config.isRegionalComputing ? Algorithm.simple_region : Algorithm.simple_world;
+    }
     this.updateCompute = this.updateCompute.bind(this);
     this.state.setPause(!!config.isPaused); // Enable updating
   }

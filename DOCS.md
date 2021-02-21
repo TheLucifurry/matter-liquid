@@ -11,11 +11,14 @@ const config = { // field: type = default
   engine: Matter.Engine
   render: Matter.Render
 
-  // Optional
-  isPaused: boolean = false   // Set pause on start
-  isFullMode: boolean = false // Choose full algorithm (with viscosity)
-  radius: number = 30         // Interaction radius
-  gravityRatio: number = 0.1  // The ratio of particle gravity to the gravity of Matter's world
+  // Optional, constant
+  isAdvancedAlgorithm: boolean = false  // Use advanced algorithm (with viscosity)
+  isRegionalComputing: boolean = false  // Computing all particles in the camera's region or in all world
+  radius: number = 30                   // Interaction radius of particles
+
+  // Optional, redefinable
+  isPaused: boolean = false             // Set pause on start
+  gravityRatio: number = 0.1            // The ratio of particle gravity to the gravity of Matter's world
 }
 ```
 ## Events

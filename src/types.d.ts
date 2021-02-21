@@ -1,7 +1,8 @@
 type TLiquidConfig = {
   engine: Matter.Engine
   render: Matter.Render
-  isFullMode?: boolean
+  isAdvancedAlgorithm?: boolean
+  isRegionalComputing?: boolean
   gravityRatio?: number
   radius?: number
   isPaused?: boolean
