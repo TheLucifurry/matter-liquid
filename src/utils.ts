@@ -10,6 +10,10 @@ export function arrayEach(array: any[], iteratee: (element: any, index: number)=
   const length = array.length
   while (++index < length) iteratee(array[index], index);
 }
+export function mathWrap(value: number, min: number, max: number): number{
+  const range = max - min;
+  return (min + ((((value - min) % range) + range) % range));
+}
 
 // Original
 export function vectorLengthAdd(vec: TVector, l: number): TVector{
@@ -70,14 +74,11 @@ export function getBodiesByPoint(bodies: Matter.Body[], x: number, y: number): M
 }
 export function checkBodyContainsPoint(body: Matter.Body, x: number, y: number): boolean {
   const point = { x, y };
-  // for (let i = 0; i < bodies.length; i++) {
-    // body = bodies[i];
-    if (Matter.Bounds.contains(body.bounds, point)) {
-      for (let j = body.parts.length === 1 ? 0 : 1; j < body.parts.length; j++) {
-        const part = body.parts[j];
-        if (Matter.Bounds.contains(part.bounds, point) && Matter.Vertices.contains(part.vertices, point)) {
-          return true;
-        }
+  // if (Matter.Bounds.contains(body.bounds, point)) {
+    for (let j = body.parts.length === 1 ? 0 : 1; j < body.parts.length; j++) {
+      const part = body.parts[j];
+      if (Matter.Bounds.contains(part.bounds, point) && Matter.Vertices.contains(part.vertices, point)) {
+        return true;
       }
     }
   // }
