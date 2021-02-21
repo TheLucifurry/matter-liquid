@@ -1,5 +1,5 @@
 import Matter from 'matter-js';
-import { PARTICLE_PROPS } from './enums';
+import { PARTICLE_PROPS } from './constants';
 
 export function checkPointInRect(pointX: number, pointY: number, rectX1: number, rectY1: number, rectX2: number, rectY2: number) {
   return (pointX > rectX1 && pointX < rectX2) && (pointY > rectY1 && pointY < rectY2)
@@ -157,6 +157,6 @@ export function startViewTransform(render: Matter.Render) {
 }
 
 export function getWorldWidth(world: Matter.World, defaultValue: number): number {
-  const diff = world.bounds.min.x - world.bounds.max.x;
+  const diff = world.bounds.max.x - world.bounds.min.x;
   return isFinite(diff) ? diff : defaultValue;
 }
