@@ -155,3 +155,8 @@ export function startViewTransform(render: Matter.Render) {
 
   render.context.translate(-render.bounds.min.x, -render.bounds.min.y);
 }
+
+export function getWorldWidth(world: Matter.World, defaultValue: number): number {
+  const diff = world.bounds.min.x - world.bounds.max.x;
+  return isFinite(diff) ? diff : defaultValue;
+}
