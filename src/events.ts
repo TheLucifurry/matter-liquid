@@ -1,14 +1,9 @@
-import { arrayEach } from './utils';
+const eventsNames: Array<keyof TEvents> = [
+  'pauseChange',
+];
 
 export default function createEventsObject(): TEvents {
-  const eventsNames: Array<keyof TEvents> = [
-    'pauseChange',
-  ];
-  const res = {};
-  arrayEach(eventsNames, name=>{
-    //@ts-ignore
-    res[name] = ()=>{};
-  });
-  //@ts-ignore
-  return res;
+  const res: Partial<TEvents> = {};
+  eventsNames.forEach(name=>res[name] = ()=>0);
+  return res as TEvents;
 }
