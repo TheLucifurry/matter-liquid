@@ -45,7 +45,7 @@ module.exports = {
   output: {
     library: Case.pascal(name),
     path: path.resolve(__dirname, './build'),
-    publicPath: '/libs',
+    publicPath: '/build',
     filename: '[name].js',
     libraryTarget: 'umd'
   },
@@ -79,12 +79,6 @@ module.exports = {
   ],
   devServer: {
     open: true,
-    proxy: {
-      ['/build/' + name + '.js']: {
-        target: 'http://localhost:8080/',
-        pathRewrite: { ['^/build/' + name + '.js']: './' + name + '.js' },
-      },
-    },
     allowedHosts: ['cdn.jsdelivr.net'],
   },
 };
