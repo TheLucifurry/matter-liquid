@@ -13,10 +13,10 @@ function arrayDeleteItem(arr: any[] = [], item: any) {
   return arr;
 }
 
-const aroundCellRelatives: number[][] = [
-  [-1,-1], [ 0,-1], [ 1,-1],
-  [-1, 0],          [ 1, 0],
-  [-1, 1], [ 0, 1], [ 1, 1],
+const aroundCellRelatives: number[] = [
+  -1,-1,  0,-1,  1,-1,
+  -1, 0,         1, 0,
+  -1, 1,  0, 1,  1, 1,
 ];
 
 export default class SpatialHash{
@@ -95,8 +95,9 @@ export default class SpatialHash{
     const res: TSpatialHashItem[] = [
       ...arrayDeleteItem(this.hash[selfItemId], selfItemId),
     ];
-    for (const [dx, dy] of aroundCellRelatives) {
-      res.push(...(this.hash[getIndex(centerCellX + dx, centerCellY + dy, c)] || []))
+    for (let i = 0; i < aroundCellRelatives.length; i+=2) {
+      const x = centerCellX + aroundCellRelatives[i], y = centerCellY + aroundCellRelatives[i+1];
+      res.push(...(this.hash[getIndex(x, y, c)] || []))
     }
     return res;
   }
