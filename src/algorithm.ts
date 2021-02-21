@@ -171,7 +171,7 @@ function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) 
   });
   let P = k * (p - p0);
   let PNear = kNear * pNear;
-  let dx = [0, 0];
+  let dx: TVector = [0, 0];
   eachNeighbors(store.particles, ngbrs, j=>{
     const isJStatic = store.liquids[j[PARTICLE_PROPS.LIQUID_ID]].isStatic;
     const r = getR(i, j);
@@ -179,16 +179,14 @@ function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) 
     let q = vectorLength(vectorDiv(r, store.radius)); // q ← rij/h
     if(q < 1){
       const halfD = vectorDiv(vectorMul(rNormal, dt**2 * (P*(1 - q) + PNear * (1 - q)**2)), 2);
-      if(!isJStatic){
-        j[PARTICLE_PROPS.X] += halfD[0];
-        j[PARTICLE_PROPS.Y] += halfD[1];
-      }
       dx[0] -= halfD[0];
       dx[1] -= halfD[1];
+      if(!isJStatic){
+        partPosAdd(j, halfD);
+      }
     }
   });
-  i[PARTICLE_PROPS.X] += dx[0];
-  i[PARTICLE_PROPS.Y] += dx[1];
+  partPosAdd(i, dx);
 }
 function applyI(part: TLiquidParticle, I: TVector) {
   part[PARTICLE_PROPS.X] -= I[0];
