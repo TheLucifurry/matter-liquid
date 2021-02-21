@@ -78,7 +78,7 @@ export default class Liquid {
     return lid;
   }
 
-  spawnLiquid(liquidid: number, x: number, y: number) {
+  spawnParticle(liquidid: number, x: number, y: number) {
     const pid = this.store.particles.length;
     const particle = Array(5).fill(0);
     particle[PARTICLE_PROPS.X] = x;
@@ -88,13 +88,21 @@ export default class Liquid {
     this.store.particles[pid] = particle;
     this.store.spatialHash.insert(pid, x, y);
   }
+  removeParticle(particleId: number){
+    const particle = this.store.particles[particleId];
+    this.store.particles[particleId] = null;
+    this.store.spatialHash.remove(particleId);
+    this.events.particleRemove(particle, particleId, this.store.liquids[particle[PARTICLE_PROPS.LIQUID_ID]]);
+    // TODO: save cleared id-s
+    // TODO: remove associated springs
+  }
 
   fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number, interval: number = this.store.radius) {
     const columns = Math.max(1, Math.trunc(zoneWidth / interval));
     const rows = Math.max(1, Math.trunc(zoneHeight / interval));
     for (let c = 0; c < columns; c++) {
       for (let r = 0; r < rows; r++) {
-        this.spawnLiquid(liquidid, zoneX+c*interval, zoneY+r*interval);
+        this.spawnParticle(liquidid, zoneX+c*interval, zoneY+r*interval);
       }
     }
   }

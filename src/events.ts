@@ -1,5 +1,6 @@
 const eventsNames: Array<keyof TEvents> = [
   'pauseChange',
+  'particleRemove',
 ];
 
 export default function createEventsObject(): TEvents {
