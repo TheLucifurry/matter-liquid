@@ -8,6 +8,4 @@ export const PARTICLE_PROPS = {
   VEL_X: 2,
   VEL_Y: 3,
   LIQUID_ID: 4,
-  PREV_X: 5,
-  PREV_Y: 6,
 };

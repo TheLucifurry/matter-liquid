@@ -307,6 +307,7 @@ export function simpleUpdate(liquid: CLiquid, dt: number) {
   const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
   const updatedPids: number[] = [];
   const gravity = liquid.state.getGravity();
+  const particlesPrevPositions: TSavedParticlesPositions = {};
 
   foreachActive(liquid, activeRect, Store.particles, function(part, pid) {
     updatedPids.push(pid)
@@ -317,11 +318,10 @@ export function simpleUpdate(liquid: CLiquid, dt: number) {
   // foreachIds(Store.particles, updatedPids, function(part) {
   //   applyViscosity(Store, part, dt);
   // });
-  foreachIds(Store.particles, updatedPids, function(part) {
+  foreachIds(Store.particles, updatedPids, function(part, pid) {
     // _limitMoving(part); // Custom
     // Save previous position: xi^prev ← xi
-    part[PARTICLE_PROPS.PREV_X] = part[PARTICLE_PROPS.X];
-    part[PARTICLE_PROPS.PREV_Y] = part[PARTICLE_PROPS.Y];
+    particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]];
     // Add Particle Position By Velosity: xi ← xi + ∆tvi
     part[PARTICLE_PROPS.X] += dt * part[PARTICLE_PROPS.VEL_X];
     part[PARTICLE_PROPS.Y] += dt * part[PARTICLE_PROPS.VEL_Y];
@@ -332,8 +332,8 @@ export function simpleUpdate(liquid: CLiquid, dt: number) {
   // resolveCollisions(Store, Store.particles, activeRect, updatedPids);
   foreachIds(Store.particles, updatedPids, function(part, pid) {
     // vi ← (xi − xi^prev )/∆t
-    part[PARTICLE_PROPS.VEL_X] = (part[PARTICLE_PROPS.X] - part[PARTICLE_PROPS.PREV_X]) / dt;
-    part[PARTICLE_PROPS.VEL_Y] = (part[PARTICLE_PROPS.Y] - part[PARTICLE_PROPS.PREV_Y]) / dt;
+    part[PARTICLE_PROPS.VEL_X] = (part[PARTICLE_PROPS.X] - particlesPrevPositions[pid][0]) / dt;
+    part[PARTICLE_PROPS.VEL_Y] = (part[PARTICLE_PROPS.Y] - particlesPrevPositions[pid][1]) / dt;
 
     Store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
   });
@@ -344,6 +344,7 @@ export function fullUpdate(liquid: CLiquid, dt: number) {
   const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
   const updatedPids: number[] = [];
   const gravity = liquid.state.getGravity();
+  const particlesPrevPositions: TSavedParticlesPositions = {};
 
   foreachActive(liquid, activeRect, Store.particles, function(part, pid) {
     updatedPids.push(pid)
@@ -354,11 +355,10 @@ export function fullUpdate(liquid: CLiquid, dt: number) {
   // foreachIds(particles, updatedPids, function(part) {
   //   applyViscosity(Store, part, dt);
   // });
-  foreachIds(Store.particles, updatedPids, function(part) {
+  foreachIds(Store.particles, updatedPids, function(part, pid) {
     // _limitMoving(part); // Custom
     // Save previous position: xi^prev ← xi
-    part[PARTICLE_PROPS.PREV_X] = part[PARTICLE_PROPS.X];
-    part[PARTICLE_PROPS.PREV_Y] = part[PARTICLE_PROPS.Y];
+    particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]];
     // Add Particle Position By Velosity: xi ← xi + ∆tvi
     part[PARTICLE_PROPS.X] += dt * part[PARTICLE_PROPS.VEL_X];
     part[PARTICLE_PROPS.Y] += dt * part[PARTICLE_PROPS.VEL_Y];
@@ -371,8 +371,8 @@ export function fullUpdate(liquid: CLiquid, dt: number) {
   // resolveCollisions(Store, Store.particles, activeRect, updatedPids);
   foreachIds(Store.particles, updatedPids, function(part, pid) {
     // vi ← (xi − xi^prev )/∆t
-    part[PARTICLE_PROPS.VEL_X] = (part[PARTICLE_PROPS.X] - part[PARTICLE_PROPS.PREV_X]) / dt;
-    part[PARTICLE_PROPS.VEL_Y] = (part[PARTICLE_PROPS.Y] - part[PARTICLE_PROPS.PREV_Y]) / dt;
+    part[PARTICLE_PROPS.VEL_X] = (part[PARTICLE_PROPS.X] - particlesPrevPositions[pid][0]) / dt;
+    part[PARTICLE_PROPS.VEL_Y] = (part[PARTICLE_PROPS.Y] - particlesPrevPositions[pid][1]) / dt;
 
     Store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
   });

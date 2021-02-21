@@ -87,11 +87,9 @@ export default class Liquid {
 
   spawnLiquid(liquidid: number, x: number, y: number) {
     const pid = this.store.particles.length;
-    const particle = Array(7).fill(0);
+    const particle = Array(5).fill(0);
     particle[PARTICLE_PROPS.X] = x;
     particle[PARTICLE_PROPS.Y] = y;
-    // particle[PARTICLE_PROPS.PREV_X] = x-1;
-    // particle[PARTICLE_PROPS.PREV_Y] = y-1;
     particle[PARTICLE_PROPS.LIQUID_ID] = liquidid;
     //@ts-ignore
     this.store.particles[pid] = particle;

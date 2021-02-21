@@ -51,3 +51,7 @@ type TSpring = number;
 type TEvents = {
   pauseChange: (isPaused: boolean)=>void
 }
+
+type TSavedParticlesPositions = {
+  [key: number]: TVector
+}
