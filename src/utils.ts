@@ -54,43 +54,7 @@ export function vectorSubVector(vec1: TVector, vec2: TVector): TVector {
   return [vec1[0] - vec2[0], vec1[1] - vec2[1]];
 }
 
-// export function vectorFromTwo(vec1: TVector, vec2: TVector): TVector {
-//   const res: TVector = [vec2[0] - vec1[0], vec2[1] - vec1[1]];
-//   if(hasAnomal(res)){
-//     console.dir({res, vec1, vec2});
-//     // debugger
-//   }
-//   return res;
-// }
-// export function vectorMul(vec: TVector, multiplier: number): TVector {
-//   const res: TVector = [vec[0] * multiplier, vec[1] * multiplier];
-//   if(hasAnomal(res)){
-//     console.dir({res, vec, multiplier});
-//     // debugger
-//   }
-//   return res;
-// }
-// export function vectorMulVector(vec1: TVector, vec2: TVector): TVector {
-//   const res: TVector = [vec1[0] * vec2[0], vec1[1] * vec2[1]];
-//   if(hasAnomal(res)){
-//     console.dir({res, vec1, vec2});
-//     // debugger
-//   }
-//   return res;
-// }
-// export function vectorDiv(vec: TVector, divider: number): TVector {
-//   const res: TVector = [vec[0] / divider, vec[1] / divider];
-//   if(hasAnomal(res)){
-//     console.dir({res, vec, divider});
-//     // debugger
-//   }
-//   return res;
-// }
-
-function hasAnomal(vec: TVector) {
-  return !isFinite(vec[0]) || !isFinite(vec[1]);
-}
-
+// Matter dependant
 export function getBodiesInRect(bodies: Matter.Body[], zone: TRect): Matter.Body[] {
   return Matter.Query.region(bodies, {
     min: {x: zone[0], y: zone[1]},
