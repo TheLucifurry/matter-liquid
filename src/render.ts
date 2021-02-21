@@ -55,6 +55,7 @@ export default function update(liquid: CLiquid) {
 
   renderGrid(Store);
 
+  const worldRect = getRectWithPaddingsFromBounds(Store.world.bounds, [0, 0, 0, 0]);
   const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
   const renderRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.renderBoundsPadding);
 
@@ -65,6 +66,9 @@ export default function update(liquid: CLiquid) {
     drawAtom(ctx, x, y, color);
   })
 
+  //   Draw world zone
+  ctx.strokeStyle = 'violet';
+  ctx.strokeRect(worldRect[0], worldRect[1], worldRect[2]-worldRect[0], worldRect[3]-worldRect[1]);
   //   Draw active zone
   ctx.strokeStyle = 'orange';
   ctx.strokeRect(activeRect[0], activeRect[1], activeRect[2]-activeRect[0], activeRect[3]-activeRect[1]);
