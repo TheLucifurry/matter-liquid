@@ -1,11 +1,12 @@
 import Matter from 'matter-js';
 import { fullUpdate, simpleUpdate } from './algorithm';
+import { DEFAULT_GRAVITY_RADIUS, DEFAULT_INTERACTION_RADIUS, DEFAULT_WORLD_WIDTH } from './constants';
 import { PARTICLE_PROPS } from './enums';
 import createEventsObject from './events';
 import updateRender from './render';
 import SpatialHash from './spatialHash';
 import State from './state';
-import { checkPointInRect } from './utils';
+import { checkPointInRect, getWorldWidth } from './utils';
 
 
 const LiquidPropDefaults: Required<TLiquidProps> = {
@@ -21,8 +22,8 @@ export default class Liquid {
     render: null,
     engine: null,
     isPaused: false,
-    gravityRatio: 0.1,
-    radius: 30,
+    gravityRatio: DEFAULT_GRAVITY_RADIUS,
+    radius: DEFAULT_INTERACTION_RADIUS,
     spatialHash: new SpatialHash,
     renderBoundsPadding: [0, 0, 0, 0],
     activeBoundsPadding: [0, 0, 0, 0],
@@ -35,14 +36,13 @@ export default class Liquid {
   updateCompute
 
   constructor(config: TLiquidConfig){
-    // TODO: change hardcode to spatialHash's adaptivity by
-    const _worldWidth = 5000;
-    const _cellSize = 30;
-
     this.state = new State(this, config.engine, config.render);
     this.state.setGravityRatio(config.gravityRatio);
     this.state.setInteractionRadius(config.radius);
-    this.store.spatialHash.init(_worldWidth, _cellSize);
+    this.store.spatialHash.init(
+      getWorldWidth(this.store.world, DEFAULT_WORLD_WIDTH),
+      this.store.radius,
+    );
 
     // Set compute updater
     this.updateCompute = (config.isFullMode ? this.updateFullCompute : this.updateSimpleCompute).bind(this);
