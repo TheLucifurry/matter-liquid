@@ -21,9 +21,13 @@ const config = { // field: type = default
 ## Events
 
 ```javascript
-  liquid.on(Liquid.events.PAUSED, callback); // Set event listener
-  liquid.off(Liquid.events.PAUSED, callback); // Remove event listener
-  liquid.emit('customEvent'); // Trigger event
+  liquid.events.pauseChange = (isPaused)=>{...}; // Set event listener
+  liquid.events.pauseChange = ()=>{}; // Remove event listener
 ```
-PAUSED - Calls after `liquid.state.setPause(true | undefined)`
-CONTINUE - Calls after `liquid.state.setPause(false)`
+>
+```typescript
+// Event list:
+{ // eventName(parameter: type, ..)
+  pauseChange(isPaused: boolean){} // Calls after `.setPause()`
+}
+```

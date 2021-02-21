@@ -21,11 +21,7 @@ export default class State {
   setPause(value = true) {
     this.store.isPaused = value;
     this.liquid.setPauseState(value);
-    if(value){
-      this.liquid.events.paused();
-    }else{
-      this.liquid.events.continue();
-    }
+    this.liquid.events.pauseChange(value);
   }
   setRenderBoundsPadding(padding: number | TPadding) {
     setPaddings(this.store.renderBoundsPadding, padding)

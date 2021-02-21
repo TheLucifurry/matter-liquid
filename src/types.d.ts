@@ -49,6 +49,5 @@ type TSpringList = {
 type TSpring = number;
 
 type TEvents = {
-  paused: ()=>void
-  continue: ()=>void
+  pauseChange: (isPaused: boolean)=>void
 }
