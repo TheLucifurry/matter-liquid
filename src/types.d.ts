@@ -47,3 +47,8 @@ type TSpringList = {
   [key: string]: TSpring
 };
 type TSpring = number;
+
+type TEvents = {
+  paused: ()=>void
+  continue: ()=>void
+}

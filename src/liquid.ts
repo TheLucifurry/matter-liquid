@@ -1,7 +1,7 @@
-import EventEmitter from 'eventemitter3';
 import Matter from 'matter-js';
 import { fullUpdate, simpleUpdate } from './algorithm';
 import { PARTICLE_PROPS } from './enums';
+import createEventsObject from './events';
 import updateRender from './render';
 import SpatialHash from './spatialHash';
 import State from './state';
@@ -31,7 +31,7 @@ export default class Liquid {
     springs: {},
   }
   state: State
-  events = new EventEmitter()
+  events = createEventsObject()
   updateCompute
 
   constructor(config: TLiquidConfig){
@@ -55,16 +55,6 @@ export default class Liquid {
     console.log('Liquid:'); console.dir(this);
     //@ts-ignore
     window.Liquid = this;
-  }
-
-  on(eventType: string, fn: (...args: any[]) => void, context?: any) {
-    this.events.on(eventType, fn, context);
-  }
-  off(eventType: string, fn?: (...args: any[]) => void, context?: any, once?: boolean) {
-    this.events.off(eventType, fn, context, once);
-  }
-  emit(eventType: string, ...args: any[]) {
-    this.events.emit(eventType, ...args);
   }
 
   setPauseState(isPause = true) {

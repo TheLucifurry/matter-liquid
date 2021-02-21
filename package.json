@@ -22,9 +22,7 @@
     "dev": "webpack serve --mode=development",
     "build": "webpack"
   },
-  "dependencies": {
-    "eventemitter3": "^4.0.7"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/matter-js": "^0.14.10",
     "@webpack-cli/serve": "^1.1.0",
