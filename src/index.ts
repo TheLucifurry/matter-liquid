@@ -1,6 +1,5 @@
 import Matter from 'matter-js';
 import Package from '../package.json';
-import { EVENT_TYPES } from './enums';
 import Liquid from './liquid';
 
 const MatterLiquid = {
@@ -21,7 +20,6 @@ const MatterLiquid = {
       create(config: TLiquidConfig) {
         return new Liquid(config);
       },
-      events: EVENT_TYPES,
     }
   },
 };

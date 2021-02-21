@@ -1,4 +1,4 @@
-import { PARTICLE_PROPS } from './enums';
+import { PARTICLE_PROPS } from './constants';
 
 function trunc(number: number, divider: number): number {
   return Math.trunc(number / divider);

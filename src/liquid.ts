@@ -1,7 +1,6 @@
 import Matter from 'matter-js';
 import { fullUpdate, simpleUpdate } from './algorithm';
-import { DEFAULT_GRAVITY_RADIUS, DEFAULT_INTERACTION_RADIUS, DEFAULT_WORLD_WIDTH } from './constants';
-import { PARTICLE_PROPS } from './enums';
+import { DEFAULT_GRAVITY_RADIUS, DEFAULT_INTERACTION_RADIUS, DEFAULT_WORLD_WIDTH, PARTICLE_PROPS } from './constants';
 import createEventsObject from './events';
 import updateRender from './render';
 import SpatialHash from './spatialHash';

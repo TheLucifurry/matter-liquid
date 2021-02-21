@@ -1,4 +1,4 @@
-import { PARTICLE_PROPS } from './enums';
+import { PARTICLE_PROPS } from './constants';
 import { arrayEach, getRectWithPaddingsFromBounds, startViewTransform } from './utils';
 
 function getCoordsFromCellid(spatialHash: CSpatialHash, cellid: number): [number, number] {

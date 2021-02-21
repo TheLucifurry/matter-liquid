@@ -1,5 +1,5 @@
 import Matter from 'matter-js';
-import { PARTICLE_PROPS } from './enums';
+import { PARTICLE_PROPS } from './constants';
 import { arrayEach, checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './utils';
 
 const p0 = 10 // rest density
