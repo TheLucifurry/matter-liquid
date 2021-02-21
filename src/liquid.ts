@@ -1,12 +1,11 @@
 import Matter from 'matter-js';
-import { fullUpdate, simpleUpdate } from './algorithm';
+import * as Algorithm from './algorithm';
 import { DEFAULT_GRAVITY_RADIUS, DEFAULT_INTERACTION_RADIUS, DEFAULT_WORLD_WIDTH, PARTICLE_PROPS } from './constants';
 import createEventsObject from './events';
 import updateRender from './render';
 import SpatialHash from './spatialHash';
 import State from './state';
 import { checkPointInRect, getWorldWidth } from './utils';
-
 
 const LiquidPropDefaults: Required<TLiquidProps> = {
   isStatic: false,
@@ -32,7 +31,7 @@ export default class Liquid {
   }
   state: State
   events = createEventsObject()
-  updateCompute
+  algorithm: any
 
   constructor(config: TLiquidConfig){
     this.state = new State(this, config.engine, config.render);
@@ -44,8 +43,7 @@ export default class Liquid {
     );
 
     // Set compute updater
-    this.updateCompute = (config.isFullMode ? this.updateFullCompute : this.updateSimpleCompute).bind(this);
-    this.state.setPause(!!config.isPaused);
+    this.setComputeUpdater(config);
 
     // Set render updater
     Matter.Events.on(config.render, 'afterRender', this.updateRender.bind(this))
@@ -56,23 +54,14 @@ export default class Liquid {
     window.Liquid = this;
   }
 
-  setPauseState(isPause = true) {
-    if(isPause){
-      Matter.Events.off(this.store.engine, 'afterUpdate', this.updateCompute);
-    }else{
-      Matter.Events.on(this.store.engine, 'afterUpdate', this.updateCompute);
-    }
+  private setComputeUpdater(config: TLiquidConfig){
+    this.algorithm = config.isFullMode ? Algorithm.fullUpdate : Algorithm.simpleUpdate;
+    this.updateCompute = this.updateCompute.bind(this);
+    this.state.setPause(!!config.isPaused); // Enable updating
   }
-
-  updateSimpleCompute(){
-    // TODO: change hardcode
+  updateCompute(){
     const deltaTime = 1;
-    simpleUpdate(this, deltaTime);
-  }
-  updateFullCompute(){
-    // TODO: change hardcode
-    const deltaTime = 1;
-    fullUpdate(this, deltaTime);
+    this.algorithm(this, deltaTime)
   }
   updateRender(){
     updateRender(this);

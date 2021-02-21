@@ -1,3 +1,5 @@
+import Matter from 'matter-js';
+
 function setPaddings(data: TFourNumbers, padding: number | TPadding) {
   if(typeof padding === 'number'){
     Object.assign(data, [padding, padding, padding, padding]);
@@ -18,10 +20,14 @@ export default class State {
     this.store.render = render;
   }
 
-  setPause(value = true) {
-    this.store.isPaused = value;
-    this.liquid.setPauseState(value);
-    this.liquid.events.pauseChange(value);
+  setPause(isPause = true) {
+    this.store.isPaused = isPause;
+    if(isPause){
+      Matter.Events.off(this.store.engine, 'afterUpdate', this.liquid.updateCompute);
+    }else{
+      Matter.Events.on(this.store.engine, 'afterUpdate', this.liquid.updateCompute);
+    }
+    this.liquid.events.pauseChange(isPause);
   }
   setRenderBoundsPadding(padding: number | TPadding) {
     setPaddings(this.store.renderBoundsPadding, padding)
