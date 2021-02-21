@@ -2,6 +2,9 @@ type TLiquidConfig = {
   engine: Matter.Engine
   render: Matter.Render
   isFullMode?: boolean
+  gravityRatio?: number
+  radius?: number
+  isPaused?: boolean
 };
 
 type TStore = {

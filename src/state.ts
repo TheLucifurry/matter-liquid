@@ -28,13 +28,13 @@ export default class State {
   setActiveBoundsPadding(padding: number | TPadding) {
     setPaddings(this.store.activeBoundsPadding, padding)
   }
-  setGravityRatio(ratio: number) {
+  setGravityRatio(ratio: number = this.store.gravityRatio) {
     this.store.gravityRatio = ratio;
   }
   getGravity(): TVector {
     return [this.store.world.gravity.x * this.store.gravityRatio, this.store.world.gravity.y * this.store.gravityRatio];
   }
-  setInteractionRadius(value: number) {
+  setInteractionRadius(value: number = this.store.radius) {
     this.store.radius = value;
   }
 }

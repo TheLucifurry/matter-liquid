@@ -40,11 +40,13 @@ export default class Liquid {
     const _cellSize = 30;
 
     this.state = new State(this, config.engine, config.render);
+    this.state.setGravityRatio(config.gravityRatio);
+    this.state.setInteractionRadius(config.radius);
     this.store.spatialHash.init(_worldWidth, _cellSize);
 
     // Set compute updater
     this.updateCompute = (config.isFullMode ? this.updateFullCompute : this.updateSimpleCompute).bind(this);
-    this.state.setPause(false);
+    this.state.setPause(!!config.isPaused);
 
     // Set render updater
     Matter.Events.on(config.render, 'afterRender', this.updateRender.bind(this))
