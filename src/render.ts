@@ -2,8 +2,13 @@ import Matter from 'matter-js';
 import { PARTICLE_PROPS } from './constants';
 import { arrayEach, getRectWithPaddingsFromBounds } from './utils';
 
-function getCoordsFromCellid(spatialHash: CSpatialHash, cellid: number): [number, number] {
-  return [cellid % spatialHash._columns, Math.trunc(cellid / spatialHash._columns)];
+// function getCoordsFromCellid(spatialHash: CSpatialHash, cellid: TSHCellId) {
+//   return [cellid % spatialHash._columns, Math.trunc(cellid / spatialHash._columns)];
+// }
+function getCoordsFromCellid(cellid: TSHCellId, cellSize: number): TVector {
+  const p = cellid.split('.');
+  // @ts-ignore
+  return [p[0] * cellSize, p[1] * cellSize];
 }
 
 function drawAtom(ctx: CanvasRenderingContext2D, x: number, y: number, color: string) {
@@ -25,15 +30,13 @@ function renderGrid(store: TStore) {
   const csh = cellSize / 2;
 
   // @ts-ignore
-  const hashCells: Array<[number, TSpatialHashItem[]]> = Object.entries(store.spatialHash.hash)
+  const hashCells: Array<[TSHCellId, TSHItem[]]> = Object.entries(store.spatialHash.hash)
 
   ctx.textAlign = 'center';
   ctx.lineWidth = 1;
   ctx.fillStyle = 'white';
   for (let [cellid, cell] of hashCells) {
-    const [cellX, cellY] = getCoordsFromCellid(store.spatialHash, cellid);
-    const fX = cellX * cellSize;
-    const fY = cellY * cellSize;
+    const [fX, fY] = getCoordsFromCellid(cellid, cellSize);
 
     if(cell.length !== 0){
       ctx.strokeStyle = 'green';
@@ -77,4 +80,15 @@ export default function update(liquid: CLiquid) {
   //   Draw render zone
   ctx.strokeStyle = 'cyan';
   ctx.strokeRect(renderRect[0], renderRect[1], renderRect[2]-renderRect[0], renderRect[3]-renderRect[1]);
+
+  // Draw world center
+  const radius = 1000;
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'yellow';
+  ctx.beginPath();
+  ctx.moveTo(-radius, 0);
+  ctx.lineTo(radius, 0);
+  ctx.moveTo(0, -radius);
+  ctx.lineTo(0, radius);
+  ctx.stroke();
 }
