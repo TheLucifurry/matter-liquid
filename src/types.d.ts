@@ -21,6 +21,7 @@ type TStore = {
   liquids:  Required<TLiquidProps>[]
   particles: TLiquidParticle[]
   springs: TSpringList
+  particlesCount: number
 }
 
 type TLiquidProps = {
