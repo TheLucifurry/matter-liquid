@@ -1,5 +1,6 @@
+import Matter from 'matter-js';
 import { PARTICLE_PROPS } from './constants';
-import { arrayEach, getRectWithPaddingsFromBounds, startViewTransform } from './utils';
+import { arrayEach, getRectWithPaddingsFromBounds } from './utils';
 
 function getCoordsFromCellid(spatialHash: CSpatialHash, cellid: number): [number, number] {
   return [cellid % spatialHash._columns, Math.trunc(cellid / spatialHash._columns)];
@@ -51,7 +52,8 @@ export default function update(liquid: CLiquid) {
   const { particles, liquids } = Store;
 
   const ctx = Store.render.context;
-  startViewTransform(Store.render);
+  //@ts-ignore
+  Matter.Render.startViewTransform(Store.render);
 
   renderGrid(Store);
 

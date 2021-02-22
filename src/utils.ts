@@ -108,23 +108,6 @@ export function getParticlesInsideBodyIds(particles: TLiquidParticle[], body: Ma
   return res;
 }
 
-/** @see https://github.com/liabru/matter-js/blob/3f579274c7e213eb4c49bd2636634542b01dd0e9/src/render/Render.js#L263 */
-export function startViewTransform(render: Matter.Render) {
-  let boundsWidth = render.bounds.max.x - render.bounds.min.x,
-      boundsHeight = render.bounds.max.y - render.bounds.min.y,
-      boundsScaleX = boundsWidth / render.options.width,
-      boundsScaleY = boundsHeight / render.options.height;
-
-  render.context.setTransform(
-    //@ts-ignore
-    render.options.pixelRatio / boundsScaleX, 0, 0,
-    //@ts-ignore
-    render.options.pixelRatio / boundsScaleY, 0, 0
-  );
-
-  render.context.translate(-render.bounds.min.x, -render.bounds.min.y);
-}
-
 export function getWorldWidth(world: Matter.World, defaultValue: number): number {
   const diff = world.bounds.max.x - world.bounds.min.x;
   return isFinite(diff) ? diff : defaultValue;
