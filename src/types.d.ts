@@ -36,7 +36,8 @@ type TPadding = [top_vertical: number, right_horizontal: number, bottom?: number
 
 type TVector = [number, number];
 
-type TSpatialHashItem = number;
+type TSHCellId = string;
+type TSHItem = number;
 
 type TRect = [ x1: number, y1: number, x2: number, y2: number ];
 
