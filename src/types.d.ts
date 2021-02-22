@@ -20,6 +20,7 @@ type TStore = {
   activeBoundsPadding: TFourNumbers
   liquids:  Required<TLiquidProps>[]
   particles: TLiquidParticle[]
+  freeParticleIds: number[]
   springs: TSpringList
   particlesCount: number
 }
