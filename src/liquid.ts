@@ -1,9 +1,7 @@
 import Matter from 'matter-js';
 import * as Algorithm from './algorithm';
-import { DEFAULT_GRAVITY_RADIUS, DEFAULT_INTERACTION_RADIUS, DEFAULT_WORLD_WIDTH, PARTICLE_PROPS } from './constants';
-import createEventsObject from './events';
 import updateRender from './render';
-import SpatialHash from './spatialHash';
+import { DEFAULT_WORLD_WIDTH, PARTICLE_PROPS } from './constants';
 import State from './state';
 import { checkPointInRect, getWorldWidth } from './utils';
 
@@ -14,30 +12,16 @@ const LiquidPropDefaults: Required<TLiquidProps> = {
   // stiffness: 0.004,
 }
 
-export default class Liquid {
-  store: TStore = {
-    world: null,
-    render: null,
-    engine: null,
-    isPaused: false,
-    gravityRatio: DEFAULT_GRAVITY_RADIUS,
-    radius: DEFAULT_INTERACTION_RADIUS,
-    spatialHash: new SpatialHash,
-    renderBoundsPadding: [0, 0, 0, 0],
-    activeBoundsPadding: [0, 0, 0, 0],
-    liquids: [],
-    particles: [],
-    springs: {},
-    freeParticleIds: [],
-  }
-  state: State
-  events = createEventsObject()
+export default class Liquid extends State {
   algorithm: any
 
   constructor(config: TLiquidConfig){
-    this.state = new State(this, config.engine, config.render);
-    this.state.setGravityRatio(config.gravityRatio);
-    this.state.setInteractionRadius(config.radius);
+    super();
+    this.store.engine = config.engine;
+    this.store.world = config.engine.world;
+    this.store.render = config.render;
+    this.setGravityRatio(config.gravityRatio);
+    this.setInteractionRadius(config.radius);
     this.store.spatialHash.init(
       getWorldWidth(this.store.world, DEFAULT_WORLD_WIDTH),
       this.store.radius,
@@ -55,6 +39,15 @@ export default class Liquid {
     window.Liquid = this;
   }
 
+  setPause(isPause = true) {
+    if(isPause){
+      Matter.Events.off(this.store.engine, 'afterUpdate', this.updateCompute);
+    }else{
+      Matter.Events.on(this.store.engine, 'afterUpdate', this.updateCompute);
+    }
+    super.setPause(isPause);
+  }
+
   private setComputeUpdater(config: TLiquidConfig){
     if (config.isAdvancedAlgorithm) {
       this.algorithm = config.isRegionalComputing ? Algorithm.advanced_region : Algorithm.advanced_world;
@@ -62,7 +55,7 @@ export default class Liquid {
       this.algorithm = config.isRegionalComputing ? Algorithm.simple_region : Algorithm.simple_world;
     }
     this.updateCompute = this.updateCompute.bind(this);
-    this.state.setPause(!!config.isPaused); // Enable updating
+    this.setPause(!!config.isPaused); // Enable updating
   }
   updateCompute(){
     const deltaTime = 1;

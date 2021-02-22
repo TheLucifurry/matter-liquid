@@ -323,7 +323,7 @@ function computeNextVelosity(part: TLiquidParticle, dt: number, prevPositions: T
 export function simple_world(liquid: CLiquid, dt: number) {
   const Store = liquid.store;
   const updatedPids: number[] = [];
-  const gravity = liquid.state.getGravity();
+  const gravity = liquid.getGravity();
   const particlesPrevPositions: TSavedParticlesPositions = {};
 
   foreachDynamic(liquid, Store.particles, function(part, pid) {
@@ -360,7 +360,7 @@ export function simple_region(liquid: CLiquid, dt: number) {
   const Store = liquid.store;
   const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
   const updatedPids: number[] = [];
-  const gravity = liquid.state.getGravity();
+  const gravity = liquid.getGravity();
   const particlesPrevPositions: TSavedParticlesPositions = {};
 
   foreachActive(liquid, activeRect, Store.particles, function(part, pid) {
@@ -392,7 +392,7 @@ export function advanced_region(liquid: CLiquid, dt: number) {
   const Store = liquid.store;
   const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
   const updatedPids: number[] = [];
-  const gravity = liquid.state.getGravity();
+  const gravity = liquid.getGravity();
   const particlesPrevPositions: TSavedParticlesPositions = {};
 
   foreachActive(liquid, activeRect, Store.particles, function(part, pid) {

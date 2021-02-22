@@ -1,4 +1,6 @@
-import Matter from 'matter-js';
+import { DEFAULT_GRAVITY_RADIUS, DEFAULT_INTERACTION_RADIUS } from './constants';
+import SpatialHash from './spatialHash';
+import createEventsObject from './events';
 
 function setPaddings(data: TFourNumbers, padding: number | TPadding) {
   if(typeof padding === 'number'){
@@ -8,26 +10,27 @@ function setPaddings(data: TFourNumbers, padding: number | TPadding) {
   }
 }
 
-export default class State {
-  store: TStore
-  liquid: CLiquid
-
-  constructor(liquid: CLiquid, engine: Matter.Engine, render: Matter.Render){
-    this.liquid = liquid;
-    this.store = liquid.store;
-    this.store.engine = engine;
-    this.store.world = engine.world;
-    this.store.render = render;
+export default abstract class State {
+  store: TStore = {
+    world: null,
+    render: null,
+    engine: null,
+    isPaused: false,
+    gravityRatio: DEFAULT_GRAVITY_RADIUS,
+    radius: DEFAULT_INTERACTION_RADIUS,
+    spatialHash: new SpatialHash,
+    renderBoundsPadding: [0, 0, 0, 0],
+    activeBoundsPadding: [0, 0, 0, 0],
+    liquids: [],
+    particles: [],
+    springs: {},
+    freeParticleIds: [],
   }
+  events = createEventsObject()
 
   setPause(isPause = true) {
     this.store.isPaused = isPause;
-    if(isPause){
-      Matter.Events.off(this.store.engine, 'afterUpdate', this.liquid.updateCompute);
-    }else{
-      Matter.Events.on(this.store.engine, 'afterUpdate', this.liquid.updateCompute);
-    }
-    this.liquid.events.pauseChange(isPause);
+    this.events.pauseChange(isPause);
   }
   setRenderBoundsPadding(padding: number | TPadding) {
     setPaddings(this.store.renderBoundsPadding, padding)
