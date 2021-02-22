@@ -22,7 +22,6 @@ type TStore = {
   particles: TLiquidParticle[]
   freeParticleIds: number[]
   springs: TSpringList
-  particlesCount: number
 }
 
 type TLiquidProps = {

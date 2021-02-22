@@ -29,7 +29,6 @@ export default class Liquid {
     particles: [],
     springs: {},
     freeParticleIds: [],
-    particlesCount: 0,
   }
   state: State
   events = createEventsObject()
@@ -89,13 +88,11 @@ export default class Liquid {
     //@ts-ignore
     this.store.particles[pid] = particle;
     this.store.spatialHash.insert(pid, x, y);
-    this.store.particlesCount++;
   }
   removeParticle(particleId: number){
     const particle = this.store.particles[particleId];
     this.store.particles[particleId] = null;
     this.store.spatialHash.remove(particleId);
-    this.store.particlesCount--;
     this.events.particleRemove(particle, particleId, this.store.liquids[particle[PARTICLE_PROPS.LIQUID_ID]]);
     this.store.freeParticleIds.push(particleId);
     // TODO: remove associated springs

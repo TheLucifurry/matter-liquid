@@ -38,10 +38,14 @@ export default class State {
   setGravityRatio(ratio: number = this.store.gravityRatio) {
     this.store.gravityRatio = ratio;
   }
+  setInteractionRadius(value: number = this.store.radius) {
+    this.store.radius = value;
+  }
+
   getGravity(): TVector {
     return [this.store.world.gravity.x * this.store.gravityRatio, this.store.world.gravity.y * this.store.gravityRatio];
   }
-  setInteractionRadius(value: number = this.store.radius) {
-    this.store.radius = value;
+  getParticlesCount(){
+    return this.store.particles.length - this.store.freeParticleIds.length;
   }
 }
