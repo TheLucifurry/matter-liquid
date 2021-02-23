@@ -327,28 +327,22 @@ function computeNextVelosity(part: TLiquidParticle, dt: number, prevPositions: T
 
 
 export function simple_world(liquid: CLiquid, dt: number) {
-  const Store = liquid.store;
+  // const Store = liquid.store;
   const updatedPids: number[] = [];
   const gravity = liquid.getGravity();
   const particlesPrevPositions: TSavedParticlesPositions = {};
 
-  foreachDynamic(liquid, Store.particles, function(part, pid) {
+  foreachDynamic(liquid, liquid.store.particles, function(part, pid) {
     updatedPids.push(pid);
     applyGravity(part, dt, gravity); // vi ← vi + ∆tg
-  })
-  // foreachIds(Store.particles, updatedPids, function(part) {
-  //   applyViscosity(Store, part, dt);
-  // });
-  foreachIds(Store.particles, updatedPids, function(part, pid) {
-    // _limitMoving(part); // Custom
     particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]]; // Save previous position: xi^prev ← xi
     addParticlePositionByVelosity(part, dt); // Add Particle Position By Velosity: xi ← xi + ∆tvi
+  })
+  foreachIds(liquid.store.particles, updatedPids, function(part) {
+    doubleDensityRelaxation(liquid.store, part, dt);
   });
-  foreachIds(Store.particles, updatedPids, function(part) {
-    doubleDensityRelaxation(Store, part, dt);
-  });
-  // resolveCollisions(Store, Store.particles, activeRect, updatedPids);
-  foreachIds(Store.particles, updatedPids, function(part, pid) {
+  // resolveCollisions(liquid.store, liquid.store.particles, activeRect, updatedPids);
+  foreachIds(liquid.store.particles, updatedPids, function(part, pid) {
     computeNextVelosity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
 
     const b = liquid.store.world.bounds;
@@ -359,7 +353,7 @@ export function simple_world(liquid: CLiquid, dt: number) {
     if(part[PARTICLE_PROPS.Y] < b.min.y && part[PARTICLE_PROPS.VEL_Y] < 0) part[PARTICLE_PROPS.VEL_Y] *= -1;
     if(part[PARTICLE_PROPS.Y] > b.max.y && part[PARTICLE_PROPS.VEL_Y] > 0) part[PARTICLE_PROPS.VEL_Y] *= -1;
 
-    Store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
+    liquid.store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
   });
 }
 export function simple_region(liquid: CLiquid, dt: number) {
