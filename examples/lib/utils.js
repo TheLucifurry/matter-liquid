@@ -1,12 +1,18 @@
-export function onpressedPointer(element, callback) {
+export function onpressedPointer(element, callback, delay) {
   let isPressed = false;
-  let e;
-  element.addEventListener('mousedown', () => isPressed = true);
+  let e, isMainButton;
+  element.addEventListener('mousedown', (e) => {
+    isMainButton = e.button === 0;
+    isPressed = true
+  });
   element.addEventListener('mouseup', () => isPressed = false);
+  element.addEventListener('mouseleave', () => isPressed = false);
   element.addEventListener('mousemove', (ev) => e = ev);
+  let prevCallTime = 0;
   function loop() {
-    if (isPressed) {
-      callback(e);
+    if (isPressed && prevCallTime + delay < Date.now()) {
+      prevCallTime = Date.now();
+      callback(e, isMainButton);
     }
     requestAnimationFrame(loop);
   }
