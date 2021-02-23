@@ -1,6 +1,12 @@
 import Matter from 'matter-js';
 import Package from '../package.json';
 import Liquid from './liquid';
+// import ASL from '@assemblyscript/loader';
+
+// fetch('./build/wasmModule.wasm')
+//   .then(ASL.instantiateStreaming)
+//   .then(wasmModule=>{
+//     // const wasmModule = ASL.instantiateStreaming(data);
 
 const MatterLiquid = {
   // Original
@@ -26,5 +32,5 @@ const MatterLiquid = {
 
 //@ts-ignore
 Matter.Plugin.register(MatterLiquid);
-
-export default MatterLiquid;
+  // })
+// export default MatterLiquid;
