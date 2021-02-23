@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./built",
+    "outDir": "./build",
     "noImplicitAny": true,
     "module": "es6",
     "target": "es2020",
@@ -14,5 +14,6 @@
     // "types": [
     //   "Matter"
     // ]
-  }
+  },
+  "exclude": ["assembly_script/**/*.ts", "build", "node_modules"]
 }
