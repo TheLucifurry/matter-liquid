@@ -16,7 +16,11 @@
     "plugin",
     "physics",
     "liquid",
-    "water"
+    "fluid",
+    "water",
+    "simulation",
+    "js",
+    "javascript"
   ],
   "scripts": {
     "dev": "webpack serve --mode=development",
