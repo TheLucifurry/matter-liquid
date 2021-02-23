@@ -65,7 +65,7 @@ export default function update(liquid: CLiquid) {
   const renderRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.renderBoundsPadding);
 
   arrayEach(particles, (part, id) => {
-    if(!liquid.checkRectContainsParticle(renderRect, part))return;
+    if(part === null || !liquid.checkRectContainsParticle(renderRect, part))return;
     const x = part[PARTICLE_PROPS.X], y = part[PARTICLE_PROPS.Y];
     const color = partColors.get(id) || liquids[part[PARTICLE_PROPS.LIQUID_ID]].color;
     drawAtom(ctx, x, y, color);

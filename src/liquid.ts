@@ -100,6 +100,13 @@ export default class Liquid extends State {
       }
     }
   }
+  clearZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number){
+    this.store.particles.forEach((part, pid)=>{
+      if(part !== null && checkPointInRect(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y], zoneX, zoneY, zoneX + zoneWidth, zoneY + zoneHeight)){
+        this.removeParticle(pid)
+      }
+    })
+  }
 
   checkParticleIsStatic(particle: TLiquidParticle) {
     return this.store.liquids[particle[PARTICLE_PROPS.LIQUID_ID]].isStatic;
