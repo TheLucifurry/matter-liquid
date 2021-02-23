@@ -5,8 +5,8 @@ import { arrayEach, checkBodyContainsPoint, getBodiesInRect, getParticlesInsideB
 const p0 = 10 // rest density
 const k = 0.004 // stiffness
 const kNear = 10 // stiffness near (вроде, влияет на текучесть)
-const sigma = 1; //
-const beta = 1; // 0 - вязкая жидкость
+const sigma = .1; //
+const beta = .1; // 0 - вязкая жидкость
 const mu = .5; // friction, 0 - скольжение, 1 - цепкость
 
 const L = 10; // длина упора пружины; (хорошо ведут себя значения в пределах 20-100)
@@ -15,13 +15,13 @@ const alpha = 0.03 // α - константа пластичности
 
 function foreachActive(liquid: CLiquid, activeRect: TRect, arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
   arrayEach(arr, (part, id)=>{
-    if(liquid.checkParticleIsStatic(part) || !liquid.checkRectContainsParticle(activeRect, part)) return; // Ignore static or inactive particles
+    if(part === null || liquid.checkParticleIsStatic(part) || !liquid.checkRectContainsParticle(activeRect, part)) return; // Ignore static or inactive particles
     callback(part, id);
   })
 }
 function foreachDynamic(liquid: CLiquid, arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
   arrayEach(arr, (part, id)=>{
-    if(liquid.checkParticleIsStatic(part)) return; // Ignore static or inactive particles
+    if(part === null || liquid.checkParticleIsStatic(part)) return; // Ignore static or inactive particles
     callback(part, id);
   })
 }
@@ -49,11 +49,19 @@ function computeI(part: TLiquidParticle, body: Matter.Body) {
   return vectorSubVector(vNormal, vectorMul(vTangent, mu)); // v¯normal - µ * v¯tangent
 }
 function getVelDiff(a: TLiquidParticle, b: TLiquidParticle): [number, number] {
-  return [a[PARTICLE_PROPS.VEL_X]-b[PARTICLE_PROPS.VEL_X], a[PARTICLE_PROPS.VEL_Y]-b[PARTICLE_PROPS.VEL_Y]];
+  return vectorFromTwo(
+    [b[PARTICLE_PROPS.VEL_X], b[PARTICLE_PROPS.VEL_Y]],
+    [a[PARTICLE_PROPS.VEL_X], a[PARTICLE_PROPS.VEL_Y]],
+  );
+  // return [a[PARTICLE_PROPS.VEL_X]-b[PARTICLE_PROPS.VEL_X], a[PARTICLE_PROPS.VEL_Y]-b[PARTICLE_PROPS.VEL_Y]];
 }
 function addVel(part: TLiquidParticle, vec: [number, number]) {
   part[PARTICLE_PROPS.VEL_X] += vec[0];
   part[PARTICLE_PROPS.VEL_Y] += vec[1];
+}
+function subVel(part: TLiquidParticle, vec: [number, number]) {
+  part[PARTICLE_PROPS.VEL_X] -= vec[0];
+  part[PARTICLE_PROPS.VEL_Y] -= vec[1];
 }
 function addPos(part: TLiquidParticle, num: number) {
   const vecAdded = vectorLengthAdd([part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]], num)
@@ -90,15 +98,13 @@ function applyViscosity(store: TStore, i: TLiquidParticle, dt: number) {
     const q = vectorLength(vectorDiv(r, store.radius));
     if (q < 1) {
       const velDiff = getVelDiff(i, j);
-      // if(isAnomalyVel(i) || isAnomalyVel(j)){
-      //   console.dir({ i, j });
-      //   debugger
-      // }
       const u = vectorLength(vectorMulVector(rNormal, velDiff));
       if (u > 0) {
-        // const halfI = vectorDiv(vectorMul(rNormal, dt * (1 - q) * (sigma * u + (beta * u)**2 )), 2);
-        const halfI = vectorDiv(vectorMul(rNormal, dt * (1 - q) * (sigma * u + (beta * u) )), 2);
-        addVel(i, [-halfI[0], -halfI[1]]); // vi -= I/2;
+        const sigma = 0.01;
+        const beta = 0.01;
+        const I = vectorMul(rNormal, dt * (1 - q) * (sigma * u + (beta * u**2) ));
+        const halfI = vectorDiv(I, 2);
+        subVel(i, halfI); // vi -= I/2;
         addVel(j, halfI); // vj += I/2;
       }
     }
