@@ -58,8 +58,7 @@ export default class Liquid extends State {
     this.setPause(!!config.isPaused); // Enable updating
   }
   updateCompute(){
-    const deltaTime = 1;
-    this.algorithm(this, deltaTime)
+    this.algorithm(this, this.store.engine.timing.timeScale);
   }
   updateRender(){
     updateRender(this);
