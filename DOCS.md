@@ -19,6 +19,8 @@ const config = { // field: type = default
   // Optional, redefinable
   isPaused: boolean = false             // Set pause on start
   gravityRatio: number = 0.1            // The ratio of particle gravity to the gravity of Matter's world
+  updateEveryFrame: number = 2          // Compute every N frame (default matter engine's FPS is 60)
+  timeScale: number = 1                 // It multiplies to engine.timing.timeScale
 }
 ```
 ## Events
