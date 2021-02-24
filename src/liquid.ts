@@ -72,9 +72,11 @@ export default class Liquid extends State {
 
   spawnParticle(liquidid: number, x: number, y: number) {
     const pid = this.store.freeParticleIds.length === 0 ? this.store.particles.length : this.store.freeParticleIds.pop();
-    const particle = Array(5).fill(0);
+    const particle = new Float32Array(5);
     particle[PARTICLE_PROPS.X] = x;
     particle[PARTICLE_PROPS.Y] = y;
+    particle[PARTICLE_PROPS.VEL_X] = 0;
+    particle[PARTICLE_PROPS.VEL_Y] = 0;
     particle[PARTICLE_PROPS.LIQUID_ID] = liquidid;
     //@ts-ignore
     this.store.particles[pid] = particle;
