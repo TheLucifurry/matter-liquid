@@ -54,7 +54,10 @@ export default class SpatialHash{
   _delete(item: TSHItem, cellid: TSHCellId){
     const itemIndex = this._find(cellid, item);
     this.hash[cellid].splice(itemIndex, 1);
-    this.prevItemCell[item] = undefined;
+    delete this.prevItemCell[item];
+    if(this.hash[cellid].length === 0){
+      delete this.hash[cellid];
+    }
     // this.itemCount--;
   }
 
