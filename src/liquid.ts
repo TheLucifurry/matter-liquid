@@ -26,6 +26,7 @@ export default class Liquid extends State {
       this.store.radius,
     );
     this.store.everyFrame = config.updateEveryFrame || this.store.everyFrame;
+    this.store.timeScale = config.timeScale || this.store.timeScale;
 
     // Set compute updater
     this.setComputeUpdater(config);
@@ -59,7 +60,7 @@ export default class Liquid extends State {
   }
   updateCompute(){
     if(this.store.tick++ % this.store.everyFrame === 0){
-      this.algorithm(this, this.store.engine.timing.timeScale);
+      this.algorithm(this, this.store.engine.timing.timeScale * this.store.timeScale);
     }
   }
   updateRender(){

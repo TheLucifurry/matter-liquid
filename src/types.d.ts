@@ -7,6 +7,7 @@ type TLiquidConfig = {
   radius?: number
   isPaused?: boolean
   updateEveryFrame?: number
+  timeScale?: number
 };
 
 type TStore = {
@@ -25,6 +26,7 @@ type TStore = {
   springs: TSpringList
   tick: number
   everyFrame: number
+  timeScale: number
 }
 
 type TLiquidProps = {
