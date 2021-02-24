@@ -4,7 +4,7 @@ import { arrayEach, checkBodyContainsPoint, getBodiesInRect, getParticlesInsideB
 
 const p0 = 10 // rest density
 const k = 0.004 // stiffness
-const kNear = 10 // stiffness near (вроде, влияет на текучесть)
+// const kNear = 10 // stiffness near (вроде, влияет на текучесть)
 const sigma = .1; //
 const beta = .1; // 0 - вязкая жидкость
 const mu = .5; // friction, 0 - скольжение, 1 - цепкость
@@ -15,21 +15,32 @@ const alpha = 0.03 // α - константа пластичности
 
 function foreachActive(liquid: CLiquid, activeRect: TRect, arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
   arrayEach(arr, (part, id)=>{
-    if(part === null || liquid.checkParticleIsStatic(part) || !liquid.checkRectContainsParticle(activeRect, part)) return; // Ignore static or inactive particles
+    if(part === null  || !liquid.checkRectContainsParticle(activeRect, part)) return; // Ignore static or inactive particles
     callback(part, id);
   })
 }
 function foreachDynamic(liquid: CLiquid, arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
   arrayEach(arr, (part, id)=>{
-    if(part === null || liquid.checkParticleIsStatic(part)) return; // Ignore static or inactive particles
+    if(part === null) return; // Ignore static or inactive particles
     callback(part, id);
   })
 }
 function foreachIds(particles: TLiquidParticle[], pids: number[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
   arrayEach(pids, (pid)=>callback(particles[pid], pid));
 }
+function pointInCircle(x: number, y: number, cx: number, cy: number, radius: number) {
+  const distancesquared = (x - cx) * (x - cx) + (y - cy) * (y - cy);
+  return distancesquared <= radius * radius;
+}
 function getNeighbors(store: TStore, part: TLiquidParticle) {
-  return store.spatialHash.getAroundCellsItems(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
+  // const Math.sqrt((x1-x0)*(x1-x0) + (y1-y0)*(y1-y0)) < r
+  // const x = part[PARTICLE_PROPS.X], y = part[PARTICLE_PROPS.Y];
+  return store.spatialHash.getAroundCellsItems(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y])
+    // .filter(npid=>{
+    //   const nPart = store.particles[npid];
+    //   const nx = nPart[PARTICLE_PROPS.X], ny = nPart[PARTICLE_PROPS.Y];
+    //   return pointInCircle(nx, ny, x, y, store.radius);
+    // });
 }
 function eachNeighbors(particles: TLiquidParticle[], neighbors: number[], cb: (neighbParticle: TLiquidParticle, neighbPid: number)=>void ) {
   arrayEach(neighbors, (pid)=>cb(particles[pid], pid));
@@ -153,7 +164,6 @@ function adjustSprings(store: TStore, updatedPids: number[], dt: number) {
     const [iPid, jPid] = getPidsFromSpringKey(springKey);
     const i = store.particles[iPid], j = store.particles[jPid];
 
-    const isJStatic = store.liquids[j[PARTICLE_PROPS.LIQUID_ID]].isStatic;
     const r = getR(i, j);
     const rNormal = vectorNormal(r);
     const rLength = vectorLength(r);
@@ -165,12 +175,12 @@ function adjustSprings(store: TStore, updatedPids: number[], dt: number) {
     const D = vectorMul(rNormal, dt**2 * kSpring * (1 - Lij / store.radius) * (Lij - rLength));
     const Dhalf = vectorDiv(D, 2);
     partPosSub(i, Dhalf) // xi -= D/2;
-    if(!isJStatic){
-      partPosAdd(j, Dhalf) // xj += D/2;
-    }
+    partPosAdd(j, Dhalf) // xj += D/2;
   })
 }
 function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) {
+  const kNear = store.radius / 4 // stiffness near (вроде, влияет на текучесть)
+
   let p = 0;
   let pNear = 0;
   const ngbrs = getNeighbors(store, i);
@@ -185,17 +195,15 @@ function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) 
   let PNear = kNear * pNear;
   let dx: TVector = [0, 0];
   eachNeighbors(store.particles, ngbrs, j=>{
-    const isJStatic = store.liquids[j[PARTICLE_PROPS.LIQUID_ID]].isStatic;
     const r = getR(i, j);
     const rNormal = vectorNormal(r);
     let q = vectorLength(vectorDiv(r, store.radius)); // q ← rij/h
+    // console.log(`q: ${q}`);
     if(q < 1){
       const halfD = vectorDiv(vectorMul(rNormal, dt**2 * (P*(1 - q) + PNear * (1 - q)**2)), 2);
       dx[0] -= halfD[0];
       dx[1] -= halfD[1];
-      if(!isJStatic){
-        partPosAdd(j, halfD);
-      }
+      partPosAdd(j, halfD);
     }
   });
   partPosAdd(i, dx);
@@ -348,10 +356,11 @@ export function simple_world(liquid: CLiquid, dt: number) {
     const b = liquid.store.world.bounds;
     // part[PARTICLE_PROPS.X] = mathWrap(part[PARTICLE_PROPS.X], b.min.x, b.max.x);
     // part[PARTICLE_PROPS.Y] = mathWrap(part[PARTICLE_PROPS.Y], b.min.y, b.max.y);
-    if(part[PARTICLE_PROPS.X] < b.min.x && part[PARTICLE_PROPS.VEL_X] < 0) part[PARTICLE_PROPS.VEL_X] *= -1;
-    if(part[PARTICLE_PROPS.X] > b.max.x && part[PARTICLE_PROPS.VEL_X] > 0) part[PARTICLE_PROPS.VEL_X] *= -1;
-    if(part[PARTICLE_PROPS.Y] < b.min.y && part[PARTICLE_PROPS.VEL_Y] < 0) part[PARTICLE_PROPS.VEL_Y] *= -1;
-    if(part[PARTICLE_PROPS.Y] > b.max.y && part[PARTICLE_PROPS.VEL_Y] > 0) part[PARTICLE_PROPS.VEL_Y] *= -1;
+    const delta = -0.5;
+    if(part[PARTICLE_PROPS.X] < b.min.x && part[PARTICLE_PROPS.VEL_X] < 0) part[PARTICLE_PROPS.VEL_X] *= delta;
+    if(part[PARTICLE_PROPS.X] > b.max.x && part[PARTICLE_PROPS.VEL_X] > 0) part[PARTICLE_PROPS.VEL_X] *= delta;
+    if(part[PARTICLE_PROPS.Y] < b.min.y && part[PARTICLE_PROPS.VEL_Y] < 0) part[PARTICLE_PROPS.VEL_Y] *= delta;
+    if(part[PARTICLE_PROPS.Y] > b.max.y && part[PARTICLE_PROPS.VEL_Y] > 0) part[PARTICLE_PROPS.VEL_Y] *= delta;
 
     liquid.store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
   });
