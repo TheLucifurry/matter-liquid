@@ -35,15 +35,10 @@ function renderGrid(store: TStore) {
   ctx.textAlign = 'center';
   ctx.lineWidth = 1;
   ctx.fillStyle = 'white';
+  ctx.strokeStyle = 'green';
   for (let [cellid, cell] of hashCells) {
     const [fX, fY] = getCoordsFromCellid(cellid, cellSize);
-
-    if(cell.length !== 0){
-      ctx.strokeStyle = 'green';
-      ctx.fillText('' + cell.length, fX + csh, fY + csh);
-    }else{
-      ctx.strokeStyle = 'gray';
-    }
+    ctx.fillText('' + cell.length, fX + csh, fY + csh);
     ctx.strokeRect(fX, fY, cellSize, cellSize);
   }
 }
