@@ -1,7 +1,7 @@
 import { PARTICLE_PROPS } from './constants';
 
 function trunc(number: number, divider: number): number {
-  return Math.trunc(number / divider);
+  return Math.round(number / divider);
 }
 function getIndex(x: number, y: number /*, columnCount: number*/): TSHCellId {
   return x+'.'+y;
