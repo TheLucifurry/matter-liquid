@@ -1,4 +1,4 @@
-import { DEFAULT_GRAVITY_RADIUS, DEFAULT_INTERACTION_RADIUS } from './constants';
+import { DEFAULT_GRAVITY_RADIUS, DEFAULT_INTERACTION_RADIUS, DEF_EVERY_FRAME } from './constants';
 import SpatialHash from './spatialHash';
 import createEventsObject from './events';
 
@@ -25,6 +25,8 @@ export default abstract class State {
     particles: [],
     springs: {},
     freeParticleIds: [],
+    tick: 0,
+    everyFrame: DEF_EVERY_FRAME,
   }
   events = createEventsObject()
 

@@ -25,6 +25,7 @@ export default class Liquid extends State {
       getWorldWidth(this.store.world, DEFAULT_WORLD_WIDTH),
       this.store.radius,
     );
+    this.store.everyFrame = config.updateEveryFrame || this.store.everyFrame;
 
     // Set compute updater
     this.setComputeUpdater(config);
@@ -57,7 +58,9 @@ export default class Liquid extends State {
     this.setPause(!!config.isPaused); // Enable updating
   }
   updateCompute(){
-    this.algorithm(this, this.store.engine.timing.timeScale);
+    if(this.store.tick++ % this.store.everyFrame === 0){
+      this.algorithm(this, this.store.engine.timing.timeScale);
+    }
   }
   updateRender(){
     updateRender(this);

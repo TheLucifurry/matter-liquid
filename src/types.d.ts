@@ -6,6 +6,7 @@ type TLiquidConfig = {
   gravityRatio?: number
   radius?: number
   isPaused?: boolean
+  updateEveryFrame?: number
 };
 
 type TStore = {
@@ -22,6 +23,8 @@ type TStore = {
   particles: TLiquidParticle[]
   freeParticleIds: number[]
   springs: TSpringList
+  tick: number
+  everyFrame: number
 }
 
 type TLiquidProps = {
