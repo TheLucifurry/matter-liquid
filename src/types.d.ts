@@ -25,7 +25,7 @@ type TStore = {
 }
 
 type TLiquidProps = {
-  isStatic?: boolean
+  // isStatic?: boolean
   color?: string
   plasticity?: number // a
   // stiffness?: number // k

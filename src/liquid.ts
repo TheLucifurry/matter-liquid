@@ -6,7 +6,6 @@ import State from './state';
 import { checkPointInRect, getWorldWidth } from './utils';
 
 const LiquidPropDefaults: Required<TLiquidProps> = {
-  isStatic: false,
   color: '#fff',
   plasticity: 0.3,
   // stiffness: 0.004,
@@ -105,10 +104,6 @@ export default class Liquid extends State {
         this.removeParticle(pid)
       }
     })
-  }
-
-  checkParticleIsStatic(particle: TLiquidParticle) {
-    return this.store.liquids[particle[PARTICLE_PROPS.LIQUID_ID]].isStatic;
   }
 
   checkRectContainsParticle(rect: TRect, particle: TLiquidParticle) {
