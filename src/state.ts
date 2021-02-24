@@ -47,6 +47,12 @@ export default abstract class State {
   setInteractionRadius(value: number = this.store.radius) {
     this.store.radius = value;
   }
+  setUpdateEveryFrame(value: number = this.store.everyFrame){
+    this.store.everyFrame = value;
+  }
+  setTimeScale(value: number = this.store.timeScale){
+    this.store.timeScale = value;
+  }
 
   getGravity(): TVector {
     return [this.store.world.gravity.x * this.store.gravityRatio, this.store.world.gravity.y * this.store.gravityRatio];
