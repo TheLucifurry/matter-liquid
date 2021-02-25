@@ -15,5 +15,5 @@
     //   "Matter"
     // ]
   },
-  "exclude": ["assembly_script/**/*.ts", "build", "node_modules"]
+  "exclude": ["assembly_script/**/*.ts", "build", "node_modules", "src/worker"]
 }

@@ -11,3 +11,12 @@ export const PARTICLE_PROPS = {
   VEL_Y: 3,
   LIQUID_ID: 4,
 };
+
+export const WORKER_METHODS = {
+  UPDATE: 0,
+  SET_RENDER_BOUNDS: 1,
+}
+
+export const WORKER_EVENTS = {
+  RENDER_DATA: 0,
+}

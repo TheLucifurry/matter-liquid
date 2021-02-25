@@ -1,9 +1,11 @@
 import Matter from 'matter-js';
 import * as Algorithm from './algorithm';
 import updateRender from './render';
-import { DEFAULT_WORLD_WIDTH, PARTICLE_PROPS } from './constants';
+import { DEFAULT_WORLD_WIDTH, PARTICLE_PROPS, WORKER_METHODS } from './constants';
 import State from './state';
 import { checkPointInRect, getWorldWidth } from './utils';
+//@ts-ignore
+import AlgorithmWorker from './worker/index.worker';
 
 const LiquidPropDefaults: Required<TLiquidProps> = {
   color: '#fff',
@@ -12,10 +14,13 @@ const LiquidPropDefaults: Required<TLiquidProps> = {
 }
 
 export default class Liquid extends State {
+  worker: Worker
   algorithm: any
 
   constructor(config: TLiquidConfig){
     super();
+    this.worker = new AlgorithmWorker();
+
     this.store.engine = config.engine;
     this.store.world = config.engine.world;
     this.store.render = config.render;
@@ -60,7 +65,8 @@ export default class Liquid extends State {
   }
   updateCompute(){
     if(this.store.tick++ % this.store.everyFrame === 0){
-      this.algorithm(this, this.store.engine.timing.timeScale * this.store.timeScale);
+      // this.algorithm(this, this.store.engine.timing.timeScale * this.store.timeScale);
+      this.worker.postMessage([WORKER_METHODS.UPDATE, this.store.engine.timing.timeScale * this.store.timeScale])
     }
   }
   updateRender(){
