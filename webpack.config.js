@@ -60,6 +60,14 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.worker\.ts$/,
+        loader: 'worker-loader',
+        options: {
+          filename: 'worker.js',
+          // inline: 'no-fallback',
+        }
+      },
+      {
         test: /\.ts$/,
         use: 'ts-loader',
         exclude: /node_modules/,
