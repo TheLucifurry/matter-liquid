@@ -1,16 +1,7 @@
-// import 'https://cdn.jsdelivr.net/gh/liabru/matter-js@0.15.0/build/matter.min.js';
-// import 'https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.11.1/build/matter-tools.demo.min.js';
-// import '../build/matter-liquid.js';
-
-import * as Utils from './lib/utils.js';
-
-// install plugin
-Matter.use(
-  'matter-liquid', // PLUGIN_NAME
-);
+import * as Util from './lib/utils.js';
 
 export default function () {
-  const { Engine, Render, Runner, MouseConstraint, Mouse, World, Bodies } = Matter;
+  const { Engine, Render, Runner, MouseConstraint, Mouse, World, Bodies, Liquid } = Matter;
 
   // create engine
   const engine = Engine.create();
@@ -21,34 +12,63 @@ export default function () {
     element: document.body,
     engine,
     options: {
-      width: document.documentElement.clientWidth * 0.8,
-      height: document.documentElement.clientHeight * 0.8,
+      width: document.documentElement.clientWidth * 0.9,
+      height: document.documentElement.clientHeight * 0.9,
       showVelocity: true,
+      showAngleIndicator: true,
+      wireframes: false
     },
   });
   Render.run(render);
+
+  const worldWidth = 1000;
+  world.bounds.min.x = -worldWidth / 2;
+  world.bounds.min.y = -worldWidth / 2;
+  world.bounds.max.x = worldWidth / 2;
+  world.bounds.max.y = worldWidth / 2;
+
+  const renderPadding = 100;
+  Render.lookAt(render, {
+    min: { x: world.bounds.min.x - renderPadding, y: world.bounds.min.y - renderPadding },
+    max: { x: world.bounds.max.x + renderPadding, y: world.bounds.max.y + renderPadding },
+  });
+
 
   // create runner
   const runner = Runner.create();
   Runner.run(runner, engine);
 
+  const liquid = Liquid.create({ engine, render });
+
+  const bodyStyle = { fillStyle: '#fff' };
   // add bodies
-  // World.add(world, [
-  //   // walls
-  //   Bodies.rectangle(400, 0, 800, 20, { isStatic: true }),
-  //   Bodies.rectangle(400, 600, 800, 20, { isStatic: true }),
-  //   Bodies.rectangle(800, 300, 20, 600, { isStatic: true }),
-  //   Bodies.rectangle(0, 300, 20, 600, { isStatic: true }),
-  //   // Platforms
-  //   Bodies.rectangle(300, 180, 600, 20, { isStatic: true, angle: Math.PI * 0.06 }),
-  //   Bodies.rectangle(300, 350, 600, 20, { isStatic: true, angle: Math.PI * 0.06 }),
-  //   Bodies.rectangle(600, 500, 600, 20, { isStatic: true, angle: Math.PI * -0.03 }),
-  //   // Blocks
-  //   Bodies.rectangle(300, 70, 40, 40),
-  //   Bodies.rectangle(300, 250, 40, 40),
-  //   Bodies.rectangle(300, 430, 40, 40),
-  //   Bodies.circle(100, 100, 10)
-  // ]);
+  World.add(world, [
+    // walls
+    // Bodies.rectangle(400, 25, 1200, 50, { isStatic: true, render: bodyStyle }),
+    // Bodies.rectangle(1000, 300, 50, 900, { isStatic: true, render: bodyStyle }),
+    // Bodies.rectangle(400, 750, 1200, 50, { isStatic: true, render: bodyStyle }),
+    // Bodies.rectangle(25, 300, 50, 850, { isStatic: true, render: bodyStyle }),
+
+    // Bodies.rectangle(400, 0, 800, 20, { isStatic: true }),
+    // Bodies.rectangle(400, 600, 800, 20, { isStatic: true }),
+    // Bodies.rectangle(800, 300, 20, 600, { isStatic: true }),
+    // Bodies.rectangle(0, 300, 20, 600, { isStatic: true }),
+    // Platforms
+    // Bodies.rectangle(300, 180, 600, 20, { isStatic: true, angle: Math.PI * 0.06, render: bodyStyle }),
+    // Bodies.rectangle(300, 350, 600, 20, { isStatic: true, angle: Math.PI * 0.06 }),
+    // Bodies.rectangle(600, 500, 600, 20, { isStatic: true, angle: Math.PI * -0.03, render: bodyStyle }),
+    // Blocks
+    // Bodies.rectangle(300, 70, 40, 40),
+    // Bodies.rectangle(300, 250, 40, 40),
+    // Bodies.rectangle(300, 430, 40, 40),
+    // Bodies.circle(100, 100, 10)
+
+    // Bodies.circle(200, 100, 60),
+
+    // Bodies.rectangle(400, 250, 50, 50),
+    // Bodies.rectangle(600, 250, 20, 100),
+    // Bodies.rectangle(300, 350, 80, 80, { isStatic: true, render: bodyStyle }),
+  ]);
 
   // add mouse control
   const mouse = Mouse.create(render.canvas);
@@ -61,24 +81,22 @@ export default function () {
       },
     },
   });
+  // TEST
+  // Matter.Events.on(mouseConstraint, "mousemove", function () {
+  //   window.TEST_MOUSE_MOVE(mouseConstraint);
+  // });
 
   World.add(world, mouseConstraint);
 
   // keep the mouse in sync with rendering
   render.mouse = mouse;
 
-  // fit the render viewport to the scene
-  Render.lookAt(render, {
-    min: { x: 0, y: 0 },
-    max: { x: 800, y: 600 },
-  });
+  pluginUsingExample(liquid);
+  setGravityManipulator(engine);
+  setDripper(render, liquid, mouseConstraint);
 
-
-  // onpressedPointer(render.canvas.nextElementSibling(), function (e) {
-  //   Matter.liquid.spawnLiquid(1, e.offsetX, e.offsetY)
-  // })
-
-  pluginUsingExample();
+  // For stats
+  window.ON_LIQUID_STARTED(liquid);
 
   // context for MatterTools.Demo
   return {
@@ -93,37 +111,45 @@ export default function () {
   };
 };
 
-async function pluginUsingExample() {
-  await Utils.waitField(window, 'MIRROR_CANVAS');
-
-  const Liquid = Matter.liquid
-
-  const staticid = Liquid.createLiquid({
-    isStatic: true,
-    color: 'darkgray',
-  });
-  const dynamicid = Liquid.createLiquid({
+function pluginUsingExample(liquid) {
+  liquid.createLiquid({
     color: 'cyan',
   });
-  // Liquid.fillZoneByLiquid(10, 10, 1000, 0, staticid)
-  // Liquid.fillZoneByLiquid(10, 770, 1000, 0, staticid)
-  // Liquid.fillZoneByLiquid(10, 10, 0, 750, staticid)
-  // Liquid.fillZoneByLiquid(1000, 10, 10, 750, staticid)
+  const dynamicid = 0;
+  // liquid.fillZoneByLiquid(100, 50, 800, 500, dynamicid);
 
-  Liquid.fillZoneByLiquid(50, 50, 300, 300, dynamicid)
-  // Liquid.fillZoneByLiquid(100, 100, 1, 1, dynamicid)
+  liquid.fillZoneByLiquid(-100, -100, 200, 200, dynamicid);
+  liquid.fillZoneByLiquid(150, 150, 100, 100, dynamicid);
+  liquid.fillZoneByLiquid(-250, -250, 500, 500, dynamicid);
+  // liquid.fillZoneByLiquid(-500, -500, 1000, 1000, dynamicid);
 
-  const activeZoneParams = [10, 10, 400, 400];
-  const renderZoneParams = [1, 1, 1000, 770];
-  Liquid.setZone(Liquid.zoneType.ACTIVE, ...activeZoneParams);
-  Liquid.setZone(Liquid.zoneType.RENDER, ...renderZoneParams);
+  const space = 12;
 
-  Utils.onclick(window.MIRROR_CANVAS, function () {
-    activeZoneParams[2] += 15;
-    activeZoneParams[3] += 10;
-    Liquid.setZone(Liquid.zoneType.ACTIVE, ...activeZoneParams);
-  })
-  Utils.onmove(window.MIRROR_CANVAS, function () {
+  // liquid.fillZoneByLiquid(100, 100, 1, 1, dynamicid)
 
-  })
+  // Utils.onclick(window.MIRROR_CANVAS, function () {})
+}
+
+function setDripper(render, liquid, mouseConstraint) {
+  const dynamicid = 0;
+  const radius = 100;
+  Util.onpressedPointer(render.canvas, (event, isMainButton) => {
+    let point = mouseConstraint.mouse.position;
+    const x = point.x - radius, y = point.y - radius;
+    if (isMainButton) {
+      liquid.fillZoneByLiquid(x, y, radius * 2, radius * 2, dynamicid);
+    } else {
+      liquid.clearZoneByLiquid(x, y, radius * 2, radius * 2, dynamicid);
+    }
+  }, 100);
+}
+
+function setGravityManipulator(engine) {
+  const { gravity } = engine.world;
+  const defGravity = { x: 0, y: 0 };
+
+  Util.onkey(Util.KEY_CODES.UP, () => gravity.y = -1, () => gravity.y = defGravity.y);
+  Util.onkey(Util.KEY_CODES.LEFT, () => gravity.x = -1, () => gravity.x = defGravity.x);
+  Util.onkey(Util.KEY_CODES.DOWN, () => gravity.y = 1, () => gravity.y = defGravity.y);
+  Util.onkey(Util.KEY_CODES.RIGHT, () => gravity.x = 1, () => gravity.x = defGravity.x);
 }
