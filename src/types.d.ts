@@ -64,5 +64,3 @@ type TEvents = {
 type TSavedParticlesPositions = {
   [key: number]: TVector
 }
-
-type TWorkerMethod = (...args: any) => void;
