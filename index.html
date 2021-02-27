@@ -19,11 +19,17 @@
       padding: 0;
     }
 
-    /* matter-tools dependent */
-    header.matter-header {
-      padding-left: 100px;
+    .counter-caption {
+      width: 80px;
+      padding-top: 22px;
+      position: relative;
+      z-index: 10001;
+      color: #fff;
+      text-align: center;
+      user-select: none;
     }
 
+    /* matter-tools dependent */
     .matter-demo canvas {
       outline: 1px solid #fff;
     }
@@ -33,7 +39,8 @@
 <body>
   <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/liabru/matter-js@0.16.1/build/matter.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.14.0/build/matter-tools.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.14.0/build/matter-tools.min.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.14.0/build/matter-tools.demo.min.js"></script>
   <script src="./build/matter-liquid.js"></script>
   <script type="module">
     import examBasic from './examples/basic.js';
@@ -45,15 +52,24 @@
     Matter.use(pluginName);
 
     // Stats
+    const statsContainer = document.createElement('div');
+    const counter = document.createElement('div');
+    counter.classList.add('counter-caption');
+
     const stats = new Stats();
     stats.showPanel(0);
-    document.body.append(stats.dom);
+    statsContainer.prepend(stats.dom, counter);
+    counter.onclick = () => stats.dom.click();
     window.ON_LIQUID_STARTED = (liquid) => {
-      const engine = liquid.state.store.engine;
+      const engine = liquid.store.engine;
       Matter.Events.on(engine, 'beforeUpdate', stats.begin);
-      Matter.Events.on(engine, 'afterUpdate', stats.end);
-      window.onblur = () => liquid.state.setPause();
-      window.onfocus = () => liquid.state.setPause(false);
+      Matter.Events.on(engine, 'afterUpdate', () => {
+        stats.end();
+        counter.textContent = liquid.store.particlesCount;
+      });
+      window.onblur = () => liquid.setPause();
+      window.onfocus = () => liquid.setPause(false);
+      // liquid.setPause(!document.hasFocus())
     };
 
     // Init
@@ -74,7 +90,7 @@
       },
       tools: {
         // inspector: true,
-        gui: true
+        // gui: true
       },
       examples: [
         {
@@ -85,6 +101,8 @@
         }
       ]
     });
+
+    document.querySelector('.matter-header-outer').prepend(statsContainer);
   </script>
 </body>
 
