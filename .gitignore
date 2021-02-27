@@ -1,3 +1,8 @@
 node_modules
 .vscode
 example*.js
+
+assembly_script/
+*.wasm
+*.wasm.map
+*.asm.js
