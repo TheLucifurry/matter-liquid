@@ -5,7 +5,7 @@
     "plugin:lodash/recommended",
     "plugin:sonarjs/recommended"
   ],
-  "ignorePatterns": ["_*", "webpack.config.js", "examples/", "static/", "example*.js"],
+  "ignorePatterns": ["_*", "webpack.config.js", "examples/", "static/", "example*.js", "assembly_script", "node_modules", "build"],
   "parserOptions": {
     "ecmaVersion": 8,
     "sourceType": "module"
