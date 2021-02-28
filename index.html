@@ -65,7 +65,7 @@
       Matter.Events.on(engine, 'beforeUpdate', stats.begin);
       Matter.Events.on(engine, 'afterUpdate', () => {
         stats.end();
-        counter.textContent = liquid.store.particlesCount;
+        counter.textContent = liquid.getParticlesCount();
       });
       window.onblur = () => liquid.setPause();
       window.onfocus = () => liquid.setPause(false);

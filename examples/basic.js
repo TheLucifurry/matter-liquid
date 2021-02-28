@@ -118,10 +118,10 @@ function pluginUsingExample(liquid) {
   const dynamicid = 0;
   // liquid.fillZoneByLiquid(100, 50, 800, 500, dynamicid);
 
-  liquid.fillZoneByLiquid(-100, -100, 200, 200, dynamicid);
-  liquid.fillZoneByLiquid(150, 150, 100, 100, dynamicid);
+  // liquid.fillZoneByLiquid(-100, -100, 200, 200, dynamicid);
+  // liquid.fillZoneByLiquid(150, 150, 100, 100, dynamicid);
   liquid.fillZoneByLiquid(-250, -250, 500, 500, dynamicid);
-  // liquid.fillZoneByLiquid(-500, -500, 1000, 1000, dynamicid);
+  liquid.fillZoneByLiquid(-500, -500, 1000, 1000, dynamicid);
 
   const space = 12;
 
