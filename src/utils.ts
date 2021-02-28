@@ -21,11 +21,11 @@ export function vectorLengthAdd(vec: TVector, l: number): TVector{
   const endLength = baseLength + l;
   const baseX = Math.abs(vec[0]);
   const baseY = Math.abs(vec[1]);
-  const sideXproport = (baseX / (baseX + baseY)) || 0.5;
-  const sideYproport = (baseY / (baseX + baseY)) || 0.5;
+  const sideXRatio = (baseX / (baseX + baseY)) || 0.5;
+  const sideYRatio = (baseY / (baseX + baseY)) || 0.5;
   const endSidesSum = Math.sqrt( endLength**2 / 2) * 2;
-  const x = endSidesSum * sideXproport;
-  const y = endSidesSum * sideYproport;
+  const x = endSidesSum * sideXRatio;
+  const y = endSidesSum * sideYRatio;
   return [x * Math.sign(vec[0] || 1), y * Math.sign(vec[1] || 1)];
 }
 // export function vectorLengthAddNormalBased(vec: TVector, l: number): TVector{

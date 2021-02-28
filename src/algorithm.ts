@@ -29,23 +29,22 @@ function foreachIds(particles: TLiquidParticle[], pids: number[], callback: (par
   arrayEach(pids, (pid)=>callback(particles[pid], pid));
 }
 function pointInCircle(x: number, y: number, cx: number, cy: number, radius: number) {
-  const distancesquared = (x - cx) * (x - cx) + (y - cy) * (y - cy);
-  return distancesquared <= radius * radius;
+  return (x - cx) * (x - cx) + (y - cy) * (y - cy) <= radius * radius;
 }
 function getNeighbors(store: TStore, part: TLiquidParticle) {
   // const Math.sqrt((x1-x0)*(x1-x0) + (y1-y0)*(y1-y0)) < r
   // const x = part[PARTICLE_PROPS.X], y = part[PARTICLE_PROPS.Y];
   return store.spatialHash.getAroundCellsItems(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y])
-    // .filter(npid=>{
-    //   const nPart = store.particles[npid];
+    // .filter(neighborPid=>{
+    //   const nPart = store.particles[neighborPid];
     //   const nx = nPart[PARTICLE_PROPS.X], ny = nPart[PARTICLE_PROPS.Y];
     //   return pointInCircle(nx, ny, x, y, store.radius);
     // });
 }
-function eachNeighbors(particles: TLiquidParticle[], neighbors: number[], cb: (neighbParticle: TLiquidParticle, neighbPid: number)=>void ) {
+function eachNeighbors(particles: TLiquidParticle[], neighbors: number[], cb: (neighborParticle: TLiquidParticle, neighborPid: number)=>void ) {
   arrayEach(neighbors, (pid)=>cb(particles[pid], pid));
 }
-function eachNeighborsOf(store: TStore, part: TLiquidParticle, cb: (neighbParticle: TLiquidParticle, neighbPid: number)=>void ) {
+function eachNeighborsOf(store: TStore, part: TLiquidParticle, cb: (neighborParticle: TLiquidParticle, neighborPid: number)=>void ) {
   eachNeighbors(store.particles, getNeighbors(store, part), cb);
 }
 function getR(a: TLiquidParticle, b: TLiquidParticle) {
@@ -87,12 +86,12 @@ function partPosSub(part: TLiquidParticle, vec: TVector) {
   part[PARTICLE_PROPS.X] -= vec[0];
   part[PARTICLE_PROPS.Y] -= vec[1];
 }
-function getSpringKey(currentPartid: number, ngbrPartid: number) {
-  return `${currentPartid}.${ngbrPartid}`;
+function getSpringKey(currentParticleid: number, neighborPid: number) {
+  return `${currentParticleid}.${neighborPid}`;
 }
 function getPidsFromSpringKey(springKey: string) {
-  const [currentPid, ngbrPid] = springKey.split('.');
-  return [+currentPid, +ngbrPid];
+  const [currentPid, neighborPid] = springKey.split('.');
+  return [+currentPid, +neighborPid];
 }
 function eachSpring(springs: TSpringList, cb: (springKey: string, spring: TSpring)=>void) {
   for (let [key, value] of Object.entries(springs)) {
@@ -125,7 +124,7 @@ function adjustSprings(store: TStore, updatedPids: number[], dt: number) {
   // const alpha = 0.01; // 0 до 0,2
   const y = 0.1; // 0 до 0,2
   foreachIds(store.particles, updatedPids, function(i, currentPid) {
-    eachNeighborsOf(store, i, (j, ngbrPid)=>{
+    eachNeighborsOf(store, i, (j, neighborPid)=>{
       const r = getR(i, j);
       const q = vectorLength(vectorDiv(r, store.radius));
       if (q < 1) {
@@ -134,7 +133,7 @@ function adjustSprings(store: TStore, updatedPids: number[], dt: number) {
         let Lij = L - rLength;
         // let Lij = store.radius;
 
-        const springKey = getSpringKey(currentPid, ngbrPid);
+        const springKey = getSpringKey(currentPid, neighborPid);
         // if(springs[springKey] === undefined){
         //   springs[springKey] = Lij;
         // }
@@ -170,12 +169,12 @@ function adjustSprings(store: TStore, updatedPids: number[], dt: number) {
     //     const Lij = L - rLength;
     const Lij = spring;
 
-    // dt**2 * kSpring * (1 − Lij / h) * (Lij − Rij) * Rˆij
+    // dt**2 * kSpring * (1 − Lij / h) * (Lij − Rij) * R^ij
     //       4         5    2     1    6      3      7
     const D = vectorMul(rNormal, dt**2 * kSpring * (1 - Lij / store.radius) * (Lij - rLength));
-    const Dhalf = vectorDiv(D, 2);
-    partPosSub(i, Dhalf) // xi -= D/2;
-    partPosAdd(j, Dhalf) // xj += D/2;
+    const DHalf = vectorDiv(D, 2);
+    partPosSub(i, DHalf) // xi -= D/2;
+    partPosAdd(j, DHalf) // xj += D/2;
   })
 }
 function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) {
@@ -183,8 +182,8 @@ function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) 
 
   let p = 0;
   let pNear = 0;
-  const ngbrs = getNeighbors(store, i);
-  eachNeighbors(store.particles, ngbrs, j=>{
+  const neighbors = getNeighbors(store, i);
+  eachNeighbors(store.particles, neighbors, j=>{
     let q = vectorLength(vectorDiv(getR(i, j), store.radius)); // q ← rij/h
     if(q < 1){
       p += (1-q)**2;
@@ -194,7 +193,7 @@ function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) 
   let P = k * (p - p0);
   let PNear = kNear * pNear;
   let dx: TVector = [0, 0];
-  eachNeighbors(store.particles, ngbrs, j=>{
+  eachNeighbors(store.particles, neighbors, j=>{
     const r = getR(i, j);
     const rNormal = vectorNormal(r);
     let q = vectorLength(vectorDiv(r, store.radius)); // q ← rij/h
@@ -269,8 +268,8 @@ function resolveCollisions(store: TStore, particles: TLiquidParticle[], activeZo
         // const bodyCenterPos: TVector = [body.position.x, body.position.y];
         // const partPrevPos: TVector = [part[PARTICLE_PROPS.PREV_X], part[PARTICLE_PROPS.PREV_Y]];
         // const partPos: TVector = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]];
-        // const cbToppLength = vectorLength(vectorFromTwo(bodyCenterPos, partPrevPos));
-        // const movePosit = vectorLengthSet(vectorFromTwo(bodyCenterPos, partPos), cbToppLength);
+        // const cbTopLength = vectorLength(vectorFromTwo(bodyCenterPos, partPrevPos));
+        // const movePosit = vectorLengthSet(vectorFromTwo(bodyCenterPos, partPos), cbTopLength);
 
         // part[PARTICLE_PROPS.X] += movePosit[0];
         // part[PARTICLE_PROPS.Y] += movePosit[1];
@@ -282,9 +281,9 @@ function resolveCollisions(store: TStore, particles: TLiquidParticle[], activeZo
 
 
 // DEBUG
-function isAnomaly(vari: number) {
-  // return !isFinite(vari) || Math.abs(vari) >= 2.1e+100;
-  return Math.abs(vari) >= 2.1e+100;
+function isAnomaly(value: number) {
+  // return !isFinite(value) || Math.abs(value) >= 2.1e+100;
+  return Math.abs(value) >= 2.1e+100;
 }
 function isAnomalyVel(part: TLiquidParticle){
   return isAnomaly(part[PARTICLE_PROPS.VEL_X]) || isAnomaly(part[PARTICLE_PROPS.VEL_Y]);
@@ -309,10 +308,10 @@ function _limitMoving(part: TLiquidParticle) {
 //     body = mouseConstraint.body,
 //     point = mouse.position;
 //   if(!body)return ;
-// const partturjherIds = particles.map((v, ix)=>ix);
+// const pIds = particles.map((v, ix)=>ix);
 //   body.render.fillStyle = '#0f5'
 //   // @ts-ignore
-//   const partIds = getParticlesInsideBodyIds(particles, body, spatialHash, partturjherIds);
+//   const partIds = getParticlesInsideBodyIds(particles, body, spatialHash, pIds);
 //   // debugger
 //   partIds.forEach(pid=>{
 //     partColors.set(pid, '#0af')
@@ -323,11 +322,11 @@ function applyGravity(part: TLiquidParticle, dt: number, gravity: TVector) {
   part[PARTICLE_PROPS.VEL_X] += dt * gravity[0];
   part[PARTICLE_PROPS.VEL_Y] += dt * gravity[1];
 }
-function addParticlePositionByVelosity(part: TLiquidParticle, dt: number) {
+function addParticlePositionByVelocity(part: TLiquidParticle, dt: number) {
   part[PARTICLE_PROPS.X] += dt * part[PARTICLE_PROPS.VEL_X];
   part[PARTICLE_PROPS.Y] += dt * part[PARTICLE_PROPS.VEL_Y];
 }
-function computeNextVelosity(part: TLiquidParticle, dt: number, prevPositions: TVector) {
+function computeNextVelocity(part: TLiquidParticle, dt: number, prevPositions: TVector) {
   part[PARTICLE_PROPS.VEL_X] = (part[PARTICLE_PROPS.X] - prevPositions[0]) / dt;
   part[PARTICLE_PROPS.VEL_Y] = (part[PARTICLE_PROPS.Y] - prevPositions[1]) / dt;
 }
@@ -344,14 +343,14 @@ export function simple_world(liquid: CLiquid, dt: number) {
     updatedPids.push(pid);
     applyGravity(part, dt, gravity); // vi ← vi + ∆tg
     particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]]; // Save previous position: xi^prev ← xi
-    addParticlePositionByVelosity(part, dt); // Add Particle Position By Velosity: xi ← xi + ∆tvi
+    addParticlePositionByVelocity(part, dt); // Add Particle Position By Velocity: xi ← xi + ∆tvi
   })
   foreachIds(liquid.store.particles, updatedPids, function(part) {
     doubleDensityRelaxation(liquid.store, part, dt);
   });
   // resolveCollisions(liquid.store, liquid.store.particles, activeRect, updatedPids);
   foreachIds(liquid.store.particles, updatedPids, function(part, pid) {
-    computeNextVelosity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
+    computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
 
     const b = liquid.store.world.bounds;
     // part[PARTICLE_PROPS.X] = mathWrap(part[PARTICLE_PROPS.X], b.min.x, b.max.x);
@@ -382,14 +381,14 @@ export function simple_region(liquid: CLiquid, dt: number) {
   foreachIds(Store.particles, updatedPids, function(part, pid) {
     // _limitMoving(part); // Custom
     particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]]; // Save previous position: xi^prev ← xi
-    addParticlePositionByVelosity(part, dt); // Add Particle Position By Velosity: xi ← xi + ∆tvi
+    addParticlePositionByVelocity(part, dt); // Add Particle Position By Velocity: xi ← xi + ∆tvi
   });
   foreachIds(Store.particles, updatedPids, function(part) {
     doubleDensityRelaxation(Store, part, dt);
   });
   // resolveCollisions(Store, Store.particles, activeRect, updatedPids);
   foreachIds(Store.particles, updatedPids, function(part, pid) {
-    computeNextVelosity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
+    computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
     Store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
   });
 }
@@ -414,7 +413,7 @@ export function advanced_region(liquid: CLiquid, dt: number) {
   foreachIds(Store.particles, updatedPids, function(part, pid) {
     // _limitMoving(part); // Custom
     particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]]; // Save previous position: xi^prev ← xi
-    addParticlePositionByVelosity(part, dt); // Add Particle Position By Velosity: xi ← xi + ∆tvi
+    addParticlePositionByVelocity(part, dt); // Add Particle Position By Velocity: xi ← xi + ∆tvi
   });
   adjustSprings(Store, updatedPids, dt);
   // applySpringDisplacements
@@ -423,7 +422,7 @@ export function advanced_region(liquid: CLiquid, dt: number) {
   });
   // resolveCollisions(Store, Store.particles, activeRect, updatedPids);
   foreachIds(Store.particles, updatedPids, function(part, pid) {
-    computeNextVelosity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
+    computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
     Store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
   });
 }

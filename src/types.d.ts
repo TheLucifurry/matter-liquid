@@ -58,7 +58,7 @@ type TSpring = number;
 
 type TEvents = {
   pauseChange: (isPaused: boolean)=>void
-  particleRemove: (particel: TLiquidParticle, particleId: number, liquid: TLiquidProps)=>void
+  particleRemove: (particle: TLiquidParticle, particleId: number, liquid: TLiquidProps)=>void
 }
 
 type TSavedParticlesPositions = {

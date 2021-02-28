@@ -29,9 +29,9 @@ export function onclick(element, callback) {
 
 export function waitField(object, key, interval = 100) {
   return new Promise(next => {
-    const intervalid = setInterval(function () {
+    const interval = setInterval(function () {
       if (object[key] === undefined) return;
-      clearInterval(intervalid);
+      clearInterval(interval);
       next();
     }, interval)
   })
