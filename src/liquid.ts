@@ -19,6 +19,7 @@ export default class Liquid extends State {
     this.store.engine = config.engine;
     this.store.world = config.engine.world;
     this.store.render = config.render;
+    this.store.isRegionalComputing = config.isRegionalComputing;
     this.setGravityRatio(config.gravityRatio);
     this.setInteractionRadius(config.radius);
     this.store.spatialHash.init(
@@ -50,11 +51,7 @@ export default class Liquid extends State {
   }
 
   private setComputeUpdater(config: TLiquidConfig){
-    if (config.isAdvancedAlgorithm) {
-      this.algorithm = config.isRegionalComputing ? Algorithm.advanced_region : Algorithm.advanced_world;
-    } else {
-      this.algorithm = config.isRegionalComputing ? Algorithm.simple_region : Algorithm.simple_world;
-    }
+    this.algorithm = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple
     this.updateCompute = this.updateCompute.bind(this);
     this.setPause(!!config.isPaused); // Enable updating
   }

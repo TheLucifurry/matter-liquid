@@ -27,6 +27,7 @@ type TStore = {
   tick: number
   everyFrame: number
   timeScale: number
+  isRegionalComputing: boolean
 }
 
 type TLiquidProps = {

@@ -1,4 +1,4 @@
-import { GRAVITY_RATIO, INTERACTION_RADIUS, EVERY_FRAME, TIME_SCALE } from './constants';
+import { GRAVITY_RATIO, INTERACTION_RADIUS, EVERY_FRAME, TIME_SCALE, IS_REGIONAL_COMPUTING } from './constants';
 import SpatialHash from './spatialHash';
 import createEventsObject from './events';
 
@@ -28,6 +28,7 @@ export default abstract class State {
     tick: 0,
     everyFrame: EVERY_FRAME,
     timeScale: TIME_SCALE,
+    isRegionalComputing: IS_REGIONAL_COMPUTING,
   }
   events = createEventsObject()
 
