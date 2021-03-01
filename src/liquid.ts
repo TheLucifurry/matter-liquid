@@ -1,7 +1,7 @@
 import Matter from 'matter-js';
 import * as Algorithm from './algorithm';
 import updateRender from './render';
-import { DEFAULT_WORLD_WIDTH, PARTICLE_PROPS } from './constants';
+import { WORLD_WIDTH, PARTICLE_PROPS } from './constants';
 import State from './state';
 import { checkPointInRect, getWorldWidth } from './utils';
 
@@ -22,7 +22,7 @@ export default class Liquid extends State {
     this.setGravityRatio(config.gravityRatio);
     this.setInteractionRadius(config.radius);
     this.store.spatialHash.init(
-      getWorldWidth(this.store.world, DEFAULT_WORLD_WIDTH),
+      getWorldWidth(this.store.world, WORLD_WIDTH),
       this.store.radius,
     );
     this.setUpdateEveryFrame(config.updateEveryFrame);

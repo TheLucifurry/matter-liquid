@@ -1,4 +1,4 @@
-import { DEFAULT_GRAVITY_RADIUS, DEFAULT_INTERACTION_RADIUS, DEF_EVERY_FRAME, DEF_TIME_SCALE } from './constants';
+import { GRAVITY_RATIO, INTERACTION_RADIUS, EVERY_FRAME, TIME_SCALE } from './constants';
 import SpatialHash from './spatialHash';
 import createEventsObject from './events';
 
@@ -16,8 +16,8 @@ export default abstract class State {
     render: null,
     engine: null,
     isPaused: false,
-    gravityRatio: DEFAULT_GRAVITY_RADIUS,
-    radius: DEFAULT_INTERACTION_RADIUS,
+    gravityRatio: GRAVITY_RATIO,
+    radius: INTERACTION_RADIUS,
     spatialHash: new SpatialHash,
     renderBoundsPadding: [0, 0, 0, 0],
     activeBoundsPadding: [0, 0, 0, 0],
@@ -26,8 +26,8 @@ export default abstract class State {
     springs: {},
     freeParticleIds: [],
     tick: 0,
-    everyFrame: DEF_EVERY_FRAME,
-    timeScale: DEF_TIME_SCALE,
+    everyFrame: EVERY_FRAME,
+    timeScale: TIME_SCALE,
   }
   events = createEventsObject()
 
