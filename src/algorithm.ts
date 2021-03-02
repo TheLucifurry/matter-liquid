@@ -1,6 +1,6 @@
 import Matter from 'matter-js';
 import { PARTICLE_PROPS } from './constants';
-import { arrayEach, checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, mathWrap, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './utils';
+import { arrayEach, checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, mathWrap, vectorClampMaxLength, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './utils';
 
 const p0 = 10 // rest density
 const k = 0.004 // stiffness
@@ -330,6 +330,11 @@ function computeNextVelocity(part: TLiquidParticle, dt: number, prevPositions: T
   part[PARTICLE_PROPS.VEL_X] = (part[PARTICLE_PROPS.X] - prevPositions[0]) / dt;
   part[PARTICLE_PROPS.VEL_Y] = (part[PARTICLE_PROPS.Y] - prevPositions[1]) / dt;
 }
+function limitVelocity(part: TLiquidParticle, maxValue: number) {
+  const limitedVal: TVector = vectorClampMaxLength([part[PARTICLE_PROPS.VEL_X], part[PARTICLE_PROPS.VEL_Y]], maxValue);
+  part[PARTICLE_PROPS.VEL_X] = limitedVal[0];
+  part[PARTICLE_PROPS.VEL_Y] = limitedVal[1];
+}
 
 
 
@@ -344,6 +349,9 @@ export function simple(liquid: CLiquid, dt: number) {
     updatedPids.push(pid);
     applyGravity(part, dt, gravity); // vi ← vi + ∆tg
     particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]]; // Save previous position: xi^prev ← xi
+
+    limitVelocity(part, Store.radius * 0.5);
+
     addParticlePositionByVelocity(part, dt); // Add Particle Position By Velocity: xi ← xi + ∆tvi
   })
   foreachIds(Store.particles, updatedPids, function(part) {
@@ -377,9 +385,9 @@ export function advanced(liquid: CLiquid, dt: number) {
     updatedPids.push(pid);
     applyGravity(part, dt, gravity); // vi ← vi + ∆tg
   });
-  // foreachIds(particles, updatedPids, function(part) {
-  //   applyViscosity(Store, part, dt);
-  // });
+  foreachIds(Store.particles, updatedPids, function(part) {
+    applyViscosity(Store, part, dt);
+  });
   foreachIds(Store.particles, updatedPids, function(part, pid) {
     // _limitMoving(part); // Custom
     particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]]; // Save previous position: xi^prev ← xi
@@ -393,6 +401,15 @@ export function advanced(liquid: CLiquid, dt: number) {
   // resolveCollisions(Store, Store.particles, activeRect, updatedPids);
   foreachIds(Store.particles, updatedPids, function(part, pid) {
     computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
+
+
+    // const b = Store.world.bounds;
+    // const delta = -0.5;
+    // if(part[PARTICLE_PROPS.X] < b.min.x && part[PARTICLE_PROPS.VEL_X] < 0) part[PARTICLE_PROPS.VEL_X] *= delta;
+    // if(part[PARTICLE_PROPS.X] > b.max.x && part[PARTICLE_PROPS.VEL_X] > 0) part[PARTICLE_PROPS.VEL_X] *= delta;
+    // if(part[PARTICLE_PROPS.Y] < b.min.y && part[PARTICLE_PROPS.VEL_Y] < 0) part[PARTICLE_PROPS.VEL_Y] *= delta;
+    // if(part[PARTICLE_PROPS.Y] > b.max.y && part[PARTICLE_PROPS.VEL_Y] > 0) part[PARTICLE_PROPS.VEL_Y] *= delta;
+
     Store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
   });
 }
