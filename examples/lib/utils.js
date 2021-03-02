@@ -42,11 +42,12 @@ export function onkey(keyCode, downCallback, upCallback) {
     if (event.code === keyCode) downCallback(event);
   });
   window.addEventListener('keyup', (event) => {
-    if (event.code === keyCode) upCallback(event);
+    if (event.code === keyCode && upCallback) upCallback(event);
   });
 }
 
 export const KEY_CODES = {
+  SPACE: 'Space',
   LEFT: 'ArrowLeft',
   UP: 'ArrowUp',
   RIGHT: 'ArrowRight',
