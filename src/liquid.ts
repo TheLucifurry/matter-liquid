@@ -15,13 +15,8 @@ export default class Liquid extends State {
   algorithm: any
 
   constructor(config: TLiquidConfig){
-    super();
-    this.store.engine = config.engine;
-    this.store.world = config.engine.world;
-    this.store.render = config.render;
-    this.store.isRegionalComputing = config.isRegionalComputing;
+    super(config);
     this.setGravityRatio(config.gravityRatio);
-    this.setInteractionRadius(config.radius);
     this.store.spatialHash.init(
       getWorldWidth(this.store.world, WORLD_WIDTH),
       this.store.radius,

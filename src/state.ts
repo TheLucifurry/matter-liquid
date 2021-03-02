@@ -11,26 +11,31 @@ function setPaddings(data: TFourNumbers, padding: number | TPadding) {
 }
 
 export default abstract class State {
-  store: TStore = {
-    world: null,
-    render: null,
-    engine: null,
-    isPaused: false,
-    gravityRatio: GRAVITY_RATIO,
-    radius: INTERACTION_RADIUS,
-    spatialHash: new SpatialHash,
-    renderBoundsPadding: [0, 0, 0, 0],
-    activeBoundsPadding: [0, 0, 0, 0],
-    liquids: [],
-    particles: [],
-    springs: {},
-    freeParticleIds: [],
-    tick: 0,
-    everyFrame: EVERY_FRAME,
-    timeScale: TIME_SCALE,
-    isRegionalComputing: IS_REGIONAL_COMPUTING,
-  }
+  store: TStore
   events = createEventsObject()
+
+  constructor(config: TLiquidConfig){
+    this.store = {
+      engine: config.engine,
+      render: config.render,
+      world: config.engine.world,
+      radius: config.radius || INTERACTION_RADIUS,
+      isRegionalComputing: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
+
+      isPaused: false,
+      gravityRatio: GRAVITY_RATIO,
+      spatialHash: new SpatialHash,
+      renderBoundsPadding: [0, 0, 0, 0],
+      activeBoundsPadding: [0, 0, 0, 0],
+      liquids: [],
+      particles: [],
+      springs: {},
+      freeParticleIds: [],
+      tick: 0,
+      everyFrame: EVERY_FRAME,
+      timeScale: TIME_SCALE,
+    }
+  }
 
   setPause(isPause = true) {
     this.store.isPaused = isPause;
@@ -44,9 +49,6 @@ export default abstract class State {
   }
   setGravityRatio(ratio: number = this.store.gravityRatio) {
     this.store.gravityRatio = ratio;
-  }
-  setInteractionRadius(value: number = this.store.radius) {
-    this.store.radius = value;
   }
   setUpdateEveryFrame(value: number = this.store.everyFrame){
     this.store.everyFrame = value;

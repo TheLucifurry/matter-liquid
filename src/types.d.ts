@@ -11,12 +11,14 @@ type TLiquidConfig = {
 };
 
 type TStore = {
-  world: Matter.World
-  render: Matter.Render
-  engine: Matter.Engine
+  readonly engine: Matter.Engine
+  readonly render: Matter.Render
+  readonly world: Matter.World
+  readonly radius: number             // Interaction radius
+  readonly isRegionalComputing: boolean
+
   isPaused: boolean
   gravityRatio: number
-  radius: number             // Interaction radius
   spatialHash: CSpatialHash
   renderBoundsPadding: TFourNumbers
   activeBoundsPadding: TFourNumbers
@@ -27,7 +29,6 @@ type TStore = {
   tick: number
   everyFrame: number
   timeScale: number
-  isRegionalComputing: boolean
 }
 
 type TLiquidProps = {
