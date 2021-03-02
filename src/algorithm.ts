@@ -362,13 +362,16 @@ export function simple(liquid: CLiquid, dt: number) {
     computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
 
     const b = Store.world.bounds;
-    // part[PARTICLE_PROPS.X] = mathWrap(part[PARTICLE_PROPS.X], b.min.x, b.max.x);
-    // part[PARTICLE_PROPS.Y] = mathWrap(part[PARTICLE_PROPS.Y], b.min.y, b.max.y);
-    const delta = -0.5;
-    if(part[PARTICLE_PROPS.X] < b.min.x && part[PARTICLE_PROPS.VEL_X] < 0) part[PARTICLE_PROPS.VEL_X] *= delta;
-    if(part[PARTICLE_PROPS.X] > b.max.x && part[PARTICLE_PROPS.VEL_X] > 0) part[PARTICLE_PROPS.VEL_X] *= delta;
-    if(part[PARTICLE_PROPS.Y] < b.min.y && part[PARTICLE_PROPS.VEL_Y] < 0) part[PARTICLE_PROPS.VEL_Y] *= delta;
-    if(part[PARTICLE_PROPS.Y] > b.max.y && part[PARTICLE_PROPS.VEL_Y] > 0) part[PARTICLE_PROPS.VEL_Y] *= delta;
+    if(liquid.store.isWorldWrapped){
+      part[PARTICLE_PROPS.X] = mathWrap(part[PARTICLE_PROPS.X], b.min.x, b.max.x);
+      part[PARTICLE_PROPS.Y] = mathWrap(part[PARTICLE_PROPS.Y], b.min.y, b.max.y);
+    }else{
+      const delta = -0.5;
+      if(part[PARTICLE_PROPS.X] < b.min.x && part[PARTICLE_PROPS.VEL_X] < 0) part[PARTICLE_PROPS.VEL_X] *= delta;
+      if(part[PARTICLE_PROPS.X] > b.max.x && part[PARTICLE_PROPS.VEL_X] > 0) part[PARTICLE_PROPS.VEL_X] *= delta;
+      if(part[PARTICLE_PROPS.Y] < b.min.y && part[PARTICLE_PROPS.VEL_Y] < 0) part[PARTICLE_PROPS.VEL_Y] *= delta;
+      if(part[PARTICLE_PROPS.Y] > b.max.y && part[PARTICLE_PROPS.VEL_Y] > 0) part[PARTICLE_PROPS.VEL_Y] *= delta;
+    }
 
     Store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
   });

@@ -8,6 +8,7 @@ type TLiquidConfig = {
   isPaused?: boolean
   updateEveryFrame?: number
   timeScale?: number
+  isWorldWrapped?: boolean
 };
 
 type TStore = {
@@ -16,6 +17,7 @@ type TStore = {
   readonly world: Matter.World
   readonly radius: number             // Interaction radius
   readonly isRegionalComputing: boolean
+  readonly isWorldWrapped: boolean
 
   isPaused: boolean
   gravityRatio: number

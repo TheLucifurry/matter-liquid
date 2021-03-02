@@ -1,4 +1,4 @@
-import { GRAVITY_RATIO, INTERACTION_RADIUS, EVERY_FRAME, TIME_SCALE, IS_REGIONAL_COMPUTING } from './constants';
+import { GRAVITY_RATIO, INTERACTION_RADIUS, EVERY_FRAME, TIME_SCALE, IS_REGIONAL_COMPUTING, IS_WORLD_WRAPPED } from './constants';
 import SpatialHash from './spatialHash';
 import createEventsObject from './events';
 
@@ -21,6 +21,7 @@ export default abstract class State {
       world: config.engine.world,
       radius: config.radius || INTERACTION_RADIUS,
       isRegionalComputing: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
+      isWorldWrapped: config.isWorldWrapped || IS_WORLD_WRAPPED,
 
       isPaused: false,
       gravityRatio: GRAVITY_RATIO,
