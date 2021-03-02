@@ -36,6 +36,7 @@ type TStore = {
 type TLiquidProps = {
   // isStatic?: boolean
   color?: string
+  texture?: OffscreenCanvas
   plasticity?: number // a
   // stiffness?: number // k
 };

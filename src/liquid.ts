@@ -1,6 +1,6 @@
 import Matter from 'matter-js';
 import * as Algorithm from './algorithm';
-import updateRender from './render';
+import * as Renderer from './render';
 import { WORLD_WIDTH, PARTICLE_PROPS } from './constants';
 import State from './state';
 import { checkPointInRect, getWorldWidth } from './utils';
@@ -8,6 +8,7 @@ import { checkPointInRect, getWorldWidth } from './utils';
 const LiquidPropDefaults: Required<TLiquidProps> = {
   color: '#fff',
   plasticity: 0.3,
+  texture: null,
   // stiffness: 0.004,
 }
 
@@ -56,13 +57,16 @@ export default class Liquid extends State {
     }
   }
   updateRender(){
-    updateRender(this);
+    Renderer.update(this);
   }
 
 
   createLiquid(props: TLiquidProps) {
     const lid = this.store.liquids.length;
-    this.store.liquids[lid] = { ...LiquidPropDefaults, ...props };
+    const radius = this.store.radius / 3;
+    const prototype = { ...LiquidPropDefaults, ...props };
+    prototype.texture = props.texture || Renderer.generateParticleTexture(prototype.color, radius)
+    this.store.liquids[lid] = prototype;
     return lid;
   }
 

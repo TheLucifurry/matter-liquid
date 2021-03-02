@@ -45,7 +45,18 @@ function renderGrid(store: TStore) {
 
 export const partColors: Map<number, string> = new Map();
 
-export default function update(liquid: CLiquid) {
+export function generateParticleTexture(color: string, radius: number): OffscreenCanvas {
+  const particleTexture = new OffscreenCanvas(radius * 2, radius * 2);
+  const partTexCtx = particleTexture.getContext('2d');
+  partTexCtx.beginPath();
+  partTexCtx.fillStyle = color;
+  partTexCtx.arc(radius, radius, radius, 0, 2 * Math.PI);
+  partTexCtx.fill();
+  return particleTexture;
+}
+
+
+export function update(liquid: CLiquid) {
   const Store = liquid.store;
   const { particles, liquids } = Store;
 
@@ -53,7 +64,7 @@ export default function update(liquid: CLiquid) {
   //@ts-ignore
   Matter.Render.startViewTransform(Store.render);
 
-  renderGrid(Store);
+  // renderGrid(Store);
 
   const worldRect = getRectWithPaddingsFromBounds(Store.world.bounds, [0, 0, 0, 0]);
   const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
@@ -61,9 +72,9 @@ export default function update(liquid: CLiquid) {
 
   arrayEach(particles, (part, id) => {
     if(part === null || !liquid.checkRectContainsParticle(renderRect, part))return;
-    const x = part[PARTICLE_PROPS.X], y = part[PARTICLE_PROPS.Y];
-    const color = partColors.get(id) || liquids[part[PARTICLE_PROPS.LIQUID_ID]].color;
-    drawAtom(ctx, x, y, color);
+    const x =  Math.floor(part[PARTICLE_PROPS.X]), y =  Math.floor(part[PARTICLE_PROPS.Y]);
+    const particleTexture = liquids[part[PARTICLE_PROPS.LIQUID_ID]].texture;
+    ctx.drawImage(particleTexture, x, y);
   })
 
   //   Draw world zone
