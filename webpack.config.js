@@ -66,6 +66,9 @@ module.exports = {
       },
     ],
   },
+  optimization: {
+    usedExports: true,
+  },
   resolve: {
     extensions: ['.ts', '.js'],
   },
