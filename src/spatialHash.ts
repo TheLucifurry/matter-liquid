@@ -22,7 +22,7 @@ const aroundCellRelatives: number[] = [
 
 export default class SpatialHash{
   hash: { [key: string]: TSHItem[] } = {}
-  prevItemCell: { [key: number]: TSHCellId }= {}
+  private prevItemCell: { [key: number]: TSHCellId }= {}
   cellSize: number
   // itemCount: number
   // cellCount: number = 0
@@ -34,17 +34,17 @@ export default class SpatialHash{
     // this.itemCount = 0;
   }
 
-  _find(cellid: TSHCellId, item: TSHItem): number{
+  private find(cellid: TSHCellId, item: TSHItem): number{
     return (this.hash[cellid] || []).indexOf(item)
   }
 
-  _save(item: TSHItem, cellid: TSHCellId){
+  private save(item: TSHItem, cellid: TSHCellId){
     const cell = this.hash[cellid];
     if(cell === undefined){ // Потестить вариант: typeof value === "undefined"
       this.hash[cellid] = [item];
       this.prevItemCell[item] = cellid;
       // this.itemCount++;
-    }else if(this._find(cellid, item) === -1) { // потестить вариант с .includes, должен быть быстрее
+    }else if(this.find(cellid, item) === -1) { // потестить вариант с .includes, должен быть быстрее
       cell.push(item);
       this.prevItemCell[item] = cellid;
       // this.itemCount++;
@@ -52,7 +52,7 @@ export default class SpatialHash{
   }
 
   _delete(item: TSHItem, cellid: TSHCellId){
-    const itemIndex = this._find(cellid, item);
+    const itemIndex = this.find(cellid, item);
     this.hash[cellid].splice(itemIndex, 1);
     delete this.prevItemCell[item];
     if(this.hash[cellid].length === 0){
@@ -70,7 +70,7 @@ export default class SpatialHash{
       if(prevCellid !== undefined){ // Потестить вариант: typeof value === "undefined"
         this._delete(item, prevCellid);
       }
-      this._save(item, nextCellid);
+      this.save(item, nextCellid);
     }
   }
 
@@ -83,7 +83,7 @@ export default class SpatialHash{
     const cellX = trunc(x, this.cellSize);
     const cellY = trunc(y, this.cellSize);
     const сellid = getIndex(cellX, cellY);
-    this._save(item, сellid);
+    this.save(item, сellid);
   }
 
   remove(item: TSHItem) {
