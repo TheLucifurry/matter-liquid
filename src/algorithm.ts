@@ -1,6 +1,6 @@
 import Matter from 'matter-js';
 import { PARTICLE_PROPS } from './constants';
-import { arrayEach, checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, mathWrap, vectorClampMaxLength, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './utils';
+import { arrayEach, checkBodyContainsPoint, checkPointInRect, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, mathWrap, vectorClampMaxLength, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './utils';
 
 const p0 = 10 // rest density
 const k = 0.004 // stiffness
@@ -15,7 +15,7 @@ const alpha = 0.03 // α - константа пластичности
 
 function foreachActive(liquid: CLiquid, activeRect: TRect, arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
   arrayEach(arr, (part, id)=>{
-    if(part === null  || (activeRect && !liquid.checkRectContainsParticle(activeRect, part))) return; // Ignore static or inactive particles
+    if(part === null  || (activeRect && !checkPointInRect(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y], ...activeRect))) return; // Ignore static or inactive particles
     callback(part, id);
   })
 }

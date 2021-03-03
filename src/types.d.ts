@@ -9,6 +9,7 @@ type TLiquidConfig = {
   updateEveryFrame?: number
   timeScale?: number
   isWorldWrapped?: boolean
+  isDebug?: boolean
 };
 
 type TStore = {

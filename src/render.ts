@@ -1,6 +1,6 @@
 import Matter from 'matter-js';
 import { PARTICLE_PROPS } from './constants';
-import { arrayEach, getRectWithPaddingsFromBounds } from './utils';
+import { arrayEach, checkPointInRect, getRectWithPaddingsFromBounds } from './utils';
 
 // function getCoordsFromCellid(spatialHash: CSpatialHash, cellid: TSHCellId) {
 //   return [cellid % spatialHash._columns, Math.trunc(cellid / spatialHash._columns)];
@@ -11,18 +11,6 @@ function getCoordsFromCellid(cellid: TSHCellId, cellSize: number): TVector {
   return [p[0] * cellSize, p[1] * cellSize];
 }
 
-function drawAtom(ctx: CanvasRenderingContext2D, x: number, y: number, color: string) {
-  const radius = 10;
-  ctx.beginPath();
-  ctx.fillStyle = color;
-  ctx.arc(x, y, radius, 0, 2 * Math.PI);
-  ctx.fill();
-}
-
-// const colors: string[] = [];
-// for (let i = 0; i < 1000; i++) {
-//   colors.push('#'+Math.floor(Math.random()*16777215).toString(16));
-// }
 
 function renderGrid(store: TStore) {
   const ctx = store.render.context
@@ -43,7 +31,7 @@ function renderGrid(store: TStore) {
   }
 }
 
-export const partColors: Map<number, string> = new Map();
+// export const partColors: Map<number, string> = new Map();
 
 export function generateParticleTexture(color: string, radius: number): OffscreenCanvas {
   const particleTexture = new OffscreenCanvas(radius * 2, radius * 2);
@@ -55,27 +43,38 @@ export function generateParticleTexture(color: string, radius: number): Offscree
   return particleTexture;
 }
 
-
-export function update(liquid: CLiquid) {
-  const Store = liquid.store;
-  const { particles, liquids } = Store;
-
-  const ctx = Store.render.context;
-  //@ts-ignore
-  Matter.Render.startViewTransform(Store.render);
-
-  // renderGrid(Store);
-
-  const worldRect = getRectWithPaddingsFromBounds(Store.world.bounds, [0, 0, 0, 0]);
-  const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
-  const renderRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.renderBoundsPadding);
-
+function drawParticles(store: TStore) {
+  const { particles, liquids } = store, ctx = store.render.context;
+  const renderRect = getRectWithPaddingsFromBounds(store.render.bounds, store.renderBoundsPadding);
   arrayEach(particles, (part, id) => {
-    if(part === null || !liquid.checkRectContainsParticle(renderRect, part))return;
+    if(part === null || !checkPointInRect(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y], ...renderRect))return;
     const x =  Math.floor(part[PARTICLE_PROPS.X]), y =  Math.floor(part[PARTICLE_PROPS.Y]);
     const particleTexture = liquids[part[PARTICLE_PROPS.LIQUID_ID]].texture;
-    ctx.drawImage(particleTexture, x, y);
+    const texSizeHalf = particleTexture.height / 2;
+    ctx.drawImage(particleTexture, x - texSizeHalf, y - texSizeHalf);
   })
+}
+
+export function update(liquid: CLiquid) {
+  //@ts-ignore
+  Matter.Render.startViewTransform(liquid.store.render);
+  drawParticles(liquid.store);
+}
+
+
+export function updateDebug(liquid: CLiquid) {
+  const store = liquid.store, ctx = store.render.context;
+
+  //@ts-ignore
+  Matter.Render.startViewTransform(store.render);
+
+  const renderRect = getRectWithPaddingsFromBounds(store.render.bounds, store.renderBoundsPadding);
+  const worldRect = getRectWithPaddingsFromBounds(store.world.bounds, [0, 0, 0, 0]);
+  const activeRect = getRectWithPaddingsFromBounds(store.render.bounds, store.activeBoundsPadding);
+
+  renderGrid(store);
+
+  drawParticles(store);
 
   //   Draw world zone
   ctx.strokeStyle = 'violet';

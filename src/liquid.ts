@@ -13,7 +13,8 @@ const LiquidPropDefaults: Required<TLiquidProps> = {
 }
 
 export default class Liquid extends State {
-  private algorithm: any
+  private computeUpdater: any
+  private renderUpdater: any
 
   constructor(config: TLiquidConfig){
     super(config);
@@ -26,7 +27,7 @@ export default class Liquid extends State {
     this.setTimeScale(config.timeScale);
 
     // Set compute updater
-    this.setComputeUpdater(config);
+    this.setUpdaters(config);
 
     // Set render updater
     Matter.Events.on(config.render, 'afterRender', this.updateRender.bind(this))
@@ -37,18 +38,19 @@ export default class Liquid extends State {
     window.Liquid = this;
   }
 
-  private setComputeUpdater(config: TLiquidConfig){
-    this.algorithm = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple
+  private setUpdaters(config: TLiquidConfig){
+    this.renderUpdater = config.isDebug ? Renderer.updateDebug : Renderer.update;
+    this.computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
     this.updateCompute = this.updateCompute.bind(this);
     this.setPause(!!config.isPaused); // Enable updating
   }
   private updateCompute(){
     if(this.store.tick++ % this.store.everyFrame === 0){
-      this.algorithm(this, this.store.engine.timing.timeScale * this.store.timeScale);
+      this.computeUpdater(this, this.store.engine.timing.timeScale * this.store.timeScale);
     }
   }
   private updateRender(){
-    Renderer.update(this);
+    this.renderUpdater(this);
   }
 
   setPause(isPause = true) {
