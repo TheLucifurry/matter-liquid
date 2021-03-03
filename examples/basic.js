@@ -38,7 +38,19 @@ export default function () {
   const runner = Runner.create();
   Runner.run(runner, engine);
 
-  const liquid = Liquid.create({ engine, render });
+  const liquid = Liquid.create({
+    engine,
+    render,
+    // isAdvancedAlgorithm: true,
+    // isRegionalComputing: true,
+    // gravityRatio: 0.5,
+    // radius: 64,
+    // isPaused: true,
+    // isDebug: true,
+    updateEveryFrame: 1,
+    // timeScale: 1.5,
+    // isWorldWrapped: true,
+  });
 
   const bodyStyle = { fillStyle: '#fff' };
   // add bodies
@@ -141,15 +153,16 @@ function setDripper(render, liquid, mouseConstraint) {
     } else {
       liquid.clearZoneByLiquid(x, y, radius * 2, radius * 2, dynamicid);
     }
-  }, 100);
+  }, 50);
 }
 
 function setGravityManipulator(engine) {
   const { gravity } = engine.world;
   const defGravity = { x: 0, y: 0 };
 
-  Util.onkey(Util.KEY_CODES.UP, () => gravity.y = -1, () => gravity.y = defGravity.y);
-  Util.onkey(Util.KEY_CODES.LEFT, () => gravity.x = -1, () => gravity.x = defGravity.x);
-  Util.onkey(Util.KEY_CODES.DOWN, () => gravity.y = 1, () => gravity.y = defGravity.y);
-  Util.onkey(Util.KEY_CODES.RIGHT, () => gravity.x = 1, () => gravity.x = defGravity.x);
+  Util.onkey(Util.KEY_CODES.UP, () => gravity.y = -1);
+  Util.onkey(Util.KEY_CODES.LEFT, () => gravity.x = -1);
+  Util.onkey(Util.KEY_CODES.DOWN, () => gravity.y = 1);
+  Util.onkey(Util.KEY_CODES.RIGHT, () => gravity.x = 1);
+  Util.onkey(Util.KEY_CODES.SPACE, () => Object.assign(gravity, defGravity));
 }
