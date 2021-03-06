@@ -32,6 +32,7 @@ export default abstract class State {
       particles: [],
       springs: {},
       freeParticleIds: [],
+      liquidOfParticleId: {},
       tick: 0,
       everyFrame: EVERY_FRAME,
       timeScale: TIME_SCALE,

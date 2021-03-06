@@ -25,8 +25,9 @@ type TStore = {
   spatialHash: CSpatialHash
   renderBoundsPadding: TFourNumbers
   activeBoundsPadding: TFourNumbers
-  liquids:  Required<TLiquidProps>[]
+  liquids: Required<TLiquidProps>[]
   particles: TLiquidParticle[]
+  liquidOfParticleId: { [key: number]: TLiquidProps },
   freeParticleIds: number[]
   springs: TSpringList
   tick: number
