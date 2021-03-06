@@ -140,7 +140,7 @@ function adjustSprings(store: TStore, updatedPids: number[], dt: number) {
   })
 }
 function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) {
-  const kNear = store.radius / 4 // stiffness near (вроде, влияет на текучесть)
+  const kNear = store.radius / 3 // stiffness near (вроде, влияет на текучесть)
 
   let p = 0;
   let pNear = 0;

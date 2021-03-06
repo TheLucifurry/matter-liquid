@@ -91,7 +91,8 @@ export default class SpatialHash{
     this._delete(item, cellid);
   }
 
-  getAroundCellsItems(x: number, y: number){
+  // Special
+  getAroundCellsItems(x: number, y: number, particles: TLiquidParticle[]){
     const centerCellX = trunc(x, this.cellSize);
     const centerCellY = trunc(y, this.cellSize);
     const selfItemId = getIndex(centerCellX, centerCellY);
@@ -102,10 +103,20 @@ export default class SpatialHash{
       const x = centerCellX + aroundCellRelatives[i], y = centerCellY + aroundCellRelatives[i+1];
       res.push(...(this.hash[getIndex(x, y)] || []))
     }
-    return res;
-  }
 
-  // Special
+    // Filter only parts in radius
+    const filteredRes: TSHItem[] = [];
+    for (let i = 0; i < res.length; i++) {
+      const pid = res[i];
+      const part = particles[pid];
+      const partX: number = trunc(part[PARTICLE_PROPS.X], this.cellSize), partY: number = trunc(part[PARTICLE_PROPS.Y], this.cellSize);
+      if((partX - centerCellX) ** 2 + (partY - centerCellY) ** 2 <= 1){
+        filteredRes.push(pid);
+      }
+    }
+
+    return filteredRes;
+  }
   fill(particles: TLiquidParticle[]){
     particles.forEach((part, pid)=>{
       const x = part[PARTICLE_PROPS.X], y = part[PARTICLE_PROPS.Y];

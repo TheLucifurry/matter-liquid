@@ -24,7 +24,7 @@ export function foreachIds(particles: TLiquidParticle[], pids: number[], callbac
 export function getNeighbors(store: TStore, part: TLiquidParticle) {
   // const Math.sqrt((x1-x0)*(x1-x0) + (y1-y0)*(y1-y0)) < r
   // const x = part[PARTICLE_PROPS.X], y = part[PARTICLE_PROPS.Y];
-  return store.spatialHash.getAroundCellsItems(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y])
+  return store.spatialHash.getAroundCellsItems(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y], store.particles)
     // .filter(neighborPid=>{
     //   const nPart = store.particles[neighborPid];
     //   const nx = nPart[PARTICLE_PROPS.X], ny = nPart[PARTICLE_PROPS.Y];
