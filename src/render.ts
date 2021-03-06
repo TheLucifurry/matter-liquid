@@ -59,10 +59,16 @@ export function update(liquid: CLiquid) {
   //@ts-ignore
   Matter.Render.startViewTransform(liquid.store.render);
   drawParticles(liquid.store);
-}
 
-function pointInCircle(x: number, y: number, cx: number, cy: number, radius: number) {
-  return (x - cx) * (x - cx) + (y - cy) * (y - cy) <= radius * radius;
+  // TEST pointInCircle
+  // if(mousePosition){
+  //   const ctx = liquid.store.render.context;
+  //   const cX = 0, cY = 0, radius = 100;
+  //   ctx.beginPath();
+  //   ctx.fillStyle = pointInCircle(mousePosition.x, mousePosition.y, cX, cY, radius) ? 'green' : 'orange';
+  //   ctx.arc(cX, cY, radius, 0, 2 * Math.PI);
+  //   ctx.fill();
+  // }
 }
 
 let mousePosition: any;
@@ -109,13 +115,4 @@ export function updateDebug(liquid: CLiquid) {
   ctx.moveTo(0, -radius);
   ctx.lineTo(0, radius);
   ctx.stroke();
-
-  // TEST pointInCircle
-  // if(mousePosition){
-  //   const cX = 500, cY = 500, radius = 50;
-  //   ctx.beginPath();
-  //   ctx.fillStyle = pointInCircle(mousePosition.x, mousePosition.y, cX, cY, radius) ? 'green' : 'orange';
-  //   ctx.arc(cX, cY, radius, 0, 2 * Math.PI);
-  //   ctx.fill();
-  // }
 }
