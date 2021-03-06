@@ -1,7 +1,7 @@
 import * as Util from './lib/utils.js';
 
 export default function () {
-  const { Engine, Render, Runner, MouseConstraint, Mouse, World, Bodies, Liquid } = Matter;
+  const { Engine, Render, Runner, MouseConstraint, Mouse, World, Body, Bodies, Constraint, Vector, Liquid } = Matter;
 
   // create engine
   const engine = Engine.create();
@@ -21,11 +21,13 @@ export default function () {
   });
   Render.run(render);
 
-  const worldWidth = 1000;
-  world.bounds.min.x = -worldWidth / 2;
-  world.bounds.min.y = -worldWidth / 2;
-  world.bounds.max.x = worldWidth / 2;
-  world.bounds.max.y = worldWidth / 2;
+  const worldSize = 1000;
+  const wallWidth = 100;
+
+  world.bounds.min.x = -worldSize / 2;
+  world.bounds.min.y = -worldSize / 2;
+  world.bounds.max.x = worldSize / 2;
+  world.bounds.max.y = worldSize / 2;
 
   const renderPadding = 100;
   Render.lookAt(render, {
@@ -46,7 +48,7 @@ export default function () {
     // gravityRatio: 0.5,
     // radius: 64,
     // isPaused: true,
-    // isDebug: true,
+    isDebug: true,
     updateEveryFrame: 1,
     // timeScale: 1.5,
     // isWorldWrapped: true,
@@ -54,12 +56,22 @@ export default function () {
 
   const bodyStyle = { fillStyle: '#fff' };
   // add bodies
+
+  const catapult = Bodies.rectangle(0, 0, 520, 40);
   World.add(world, [
     // walls
-    // Bodies.rectangle(400, 25, 1200, 50, { isStatic: true, render: bodyStyle }),
-    // Bodies.rectangle(1000, 300, 50, 900, { isStatic: true, render: bodyStyle }),
-    // Bodies.rectangle(400, 750, 1200, 50, { isStatic: true, render: bodyStyle }),
-    // Bodies.rectangle(25, 300, 50, 850, { isStatic: true, render: bodyStyle }),
+    Bodies.rectangle(0, world.bounds.min.y + wallWidth / 2, worldSize, wallWidth, { isStatic: true, render: bodyStyle }),
+    Bodies.rectangle(world.bounds.max.x - wallWidth / 2, 0, wallWidth, worldSize, { isStatic: true, render: bodyStyle }),
+    Bodies.rectangle(0, world.bounds.max.y - wallWidth / 2, worldSize, wallWidth, { isStatic: true, render: bodyStyle }),
+    Bodies.rectangle(world.bounds.min.x + wallWidth / 2, 0, wallWidth, worldSize, { isStatic: true, render: bodyStyle }),
+
+    Constraint.create({
+      bodyA: catapult,
+      pointB: Vector.clone(catapult.position),
+    }),
+    catapult,
+    // Bodies.rectangle(400, 750, 1200, wallWidth, { isStatic: true, render: bodyStyle }),
+    // Bodies.rectangle(25, 300, wallWidth, 850, { isStatic: true, render: bodyStyle }),
 
     // Bodies.rectangle(400, 0, 800, 20, { isStatic: true }),
     // Bodies.rectangle(400, 600, 800, 20, { isStatic: true }),
@@ -75,7 +87,7 @@ export default function () {
     // Bodies.rectangle(300, 430, 40, 40),
     // Bodies.circle(100, 100, 10)
 
-    // Bodies.circle(200, 100, 60),
+    Bodies.circle(0, -100, 60),
 
     // Bodies.rectangle(400, 250, 50, 50),
     // Bodies.rectangle(600, 250, 20, 100),
@@ -146,6 +158,7 @@ function setDripper(render, liquid, mouseConstraint) {
   const dynamicid = 0;
   const radius = 100;
   Util.onpressedPointer(render.canvas, (event, isMainButton) => {
+    if (!event.shiftKey) return;
     let point = mouseConstraint.mouse.position;
     const x = point.x - radius, y = point.y - radius;
     if (isMainButton) {
