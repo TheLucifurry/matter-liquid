@@ -11,6 +11,7 @@ type TLiquidConfig = {
   timeScale?: number
   isWorldWrapped?: boolean
   isDebug?: boolean
+  particleTextureScale?: number
 };
 
 type TStore = {

@@ -28,6 +28,7 @@ export default abstract class State {
 
   constructor(config: TLiquidConfig){
     const radius = config.radius || INTERACTION_RADIUS;
+    const particleTextureSize = radius * (config.particleTextureScale || PARTICLE_TEX_RADIUS_SCALE);
     this.store = {
       radius,
       engine: config.engine,
@@ -35,7 +36,7 @@ export default abstract class State {
       world: config.engine.world,
       isRegionalComputing: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
       isWorldWrapped: config.isWorldWrapped || IS_WORLD_WRAPPED,
-      liquids: config.liquids.map((l)=>createLiquid(l, radius * PARTICLE_TEX_RADIUS_SCALE)),
+      liquids: config.liquids.map((l)=>createLiquid(l, particleTextureSize)),
 
       isPaused: false,
       gravityRatio: GRAVITY_RATIO,
