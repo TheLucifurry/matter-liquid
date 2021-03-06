@@ -1,6 +1,7 @@
 import { PARTICLE_PROPS } from './constants';
 import { vectorClampMaxLength, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './helpers/vector';
-import { arrayEach, checkBodyContainsPoint, checkPointInRect, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, mathWrap } from './helpers/utils';
+import { checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, mathWrap } from './helpers/utils';
+import { eachNeighborsOf, foreachIds, eachSpring, getNeighbors, eachNeighbors, foreachActive } from './helpers/cycles';
 
 const p0 = 10 // rest density
 const k = 0.004 // stiffness
@@ -13,40 +14,6 @@ const L = 10; // длина упора пружины; (хорошо ведут 
 const kSpring = 0.001; // (в доке по дефолту 0.3)
 const alpha = 0.03 // α - константа пластичности
 
-function foreachActive(liquid: CLiquid, activeRect: TRect, arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
-  arrayEach(arr, (part, id)=>{
-    if(part === null  || (activeRect && !checkPointInRect(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y], ...activeRect))) return; // Ignore static or inactive particles
-    callback(part, id);
-  })
-}
-function foreachDynamic(liquid: CLiquid, arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
-  arrayEach(arr, (part, id)=>{
-    if(part === null) return; // Ignore static or inactive particles
-    callback(part, id);
-  })
-}
-function foreachIds(particles: TLiquidParticle[], pids: number[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
-  arrayEach(pids, (pid)=>callback(particles[pid], pid));
-}
-function pointInCircle(x: number, y: number, cx: number, cy: number, radius: number) {
-  return (x - cx) * (x - cx) + (y - cy) * (y - cy) <= radius * radius;
-}
-function getNeighbors(store: TStore, part: TLiquidParticle) {
-  // const Math.sqrt((x1-x0)*(x1-x0) + (y1-y0)*(y1-y0)) < r
-  // const x = part[PARTICLE_PROPS.X], y = part[PARTICLE_PROPS.Y];
-  return store.spatialHash.getAroundCellsItems(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y])
-    // .filter(neighborPid=>{
-    //   const nPart = store.particles[neighborPid];
-    //   const nx = nPart[PARTICLE_PROPS.X], ny = nPart[PARTICLE_PROPS.Y];
-    //   return pointInCircle(nx, ny, x, y, store.radius);
-    // });
-}
-function eachNeighbors(particles: TLiquidParticle[], neighbors: number[], cb: (neighborParticle: TLiquidParticle, neighborPid: number)=>void ) {
-  arrayEach(neighbors, (pid)=>cb(particles[pid], pid));
-}
-function eachNeighborsOf(store: TStore, part: TLiquidParticle, cb: (neighborParticle: TLiquidParticle, neighborPid: number)=>void ) {
-  eachNeighbors(store.particles, getNeighbors(store, part), cb);
-}
 function getR(a: TLiquidParticle, b: TLiquidParticle) {
   return vectorFromTwo([a[PARTICLE_PROPS.X], a[PARTICLE_PROPS.Y]], [b[PARTICLE_PROPS.X], b[PARTICLE_PROPS.Y]]);
 }
@@ -92,11 +59,6 @@ function getSpringKey(currentParticleid: number, neighborPid: number) {
 function getPidsFromSpringKey(springKey: string) {
   const [currentPid, neighborPid] = springKey.split('.');
   return [+currentPid, +neighborPid];
-}
-function eachSpring(springs: TSpringList, cb: (springKey: string, spring: TSpring)=>void) {
-  for (let [key, value] of Object.entries(springs)) {
-    cb(key, springs[key])
-  }
 }
 
 

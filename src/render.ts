@@ -1,5 +1,6 @@
 import { PARTICLE_PROPS } from './constants';
-import { arrayEach, checkPointInRect, getRectWithPaddingsFromBounds } from './helpers/utils';
+import { arrayEach } from './helpers/cycles';
+import { checkPointInRect, getRectWithPaddingsFromBounds } from './helpers/utils';
 
 // function getCoordsFromCellid(spatialHash: CSpatialHash, cellid: TSHCellId) {
 //   return [cellid % spatialHash._columns, Math.trunc(cellid / spatialHash._columns)];

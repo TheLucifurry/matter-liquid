@@ -5,11 +5,6 @@ export function checkPointInRect(pointX: number, pointY: number, rectX1: number,
   return (pointX > rectX1 && pointX < rectX2) && (pointY > rectY1 && pointY < rectY2)
 }
 
-export function arrayEach(array: any[], iteratee: (element: any, index: number)=>void) { // From lodash
-  let index = -1
-  const length = array.length
-  while (++index < length) iteratee(array[index], index);
-}
 export function mathWrap(value: number, min: number, max: number): number{
   const range = max - min;
   return (min + ((((value - min) % range) + range) % range));
