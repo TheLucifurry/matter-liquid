@@ -73,12 +73,12 @@ export default class Liquid extends State {
 
   spawnParticle(liquidid: number, x: number, y: number) {
     const pid = this.store.freeParticleIds.length === 0 ? this.store.particles.length : this.store.freeParticleIds.pop();
-    const particle = new Float32Array(5);
+    const particle = new Float32Array(4);
     particle[PARTICLE_PROPS.X] = x;
     particle[PARTICLE_PROPS.Y] = y;
     particle[PARTICLE_PROPS.VEL_X] = 0;
     particle[PARTICLE_PROPS.VEL_Y] = 0;
-    particle[PARTICLE_PROPS.LIQUID_ID] = liquidid;
+    this.store.liquidOfParticleId[pid] = this.store.liquids[liquidid];
     //@ts-ignore
     this.store.particles[pid] = particle;
     this.store.spatialHash.insert(pid, x, y);
@@ -87,7 +87,7 @@ export default class Liquid extends State {
     const particle = this.store.particles[particleId];
     this.store.particles[particleId] = null;
     this.store.spatialHash.remove(particleId);
-    this.events.particleRemove(particle, particleId, this.store.liquids[particle[PARTICLE_PROPS.LIQUID_ID]]);
+    this.events.particleRemove(particle, particleId, this.store.liquidOfParticleId[particleId]);
     this.store.freeParticleIds.push(particleId);
     // TODO: remove associated springs
   }

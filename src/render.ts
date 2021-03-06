@@ -44,12 +44,12 @@ export function generateParticleTexture(color: string, radius: number): Offscree
 }
 
 function drawParticles(store: TStore) {
-  const { particles, liquids } = store, ctx = store.render.context;
+  const { particles, liquidOfParticleId } = store, ctx = store.render.context;
   const renderRect = getRectWithPaddingsFromBounds(store.render.bounds, store.renderBoundsPadding);
-  arrayEach(particles, (part, id) => {
+  arrayEach(particles, (part, pid) => {
     if(part === null || !checkPointInRect(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y], ...renderRect))return;
     const x =  Math.floor(part[PARTICLE_PROPS.X]), y =  Math.floor(part[PARTICLE_PROPS.Y]);
-    const particleTexture = liquids[part[PARTICLE_PROPS.LIQUID_ID]].texture;
+    const particleTexture = liquidOfParticleId[pid].texture;
     const texSizeHalf = particleTexture.height / 2;
     ctx.drawImage(particleTexture, x - texSizeHalf, y - texSizeHalf);
   })
