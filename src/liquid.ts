@@ -3,7 +3,7 @@ import * as Algorithm from './algorithm';
 import * as Renderer from './render';
 import { WORLD_WIDTH, PARTICLE_PROPS } from './constants';
 import State from './state';
-import { checkPointInRect, getWorldWidth } from './utils';
+import { checkPointInRect, getWorldWidth } from './helpers/utils';
 
 const LiquidPropDefaults: Required<TLiquidProps> = {
   color: '#fff',
