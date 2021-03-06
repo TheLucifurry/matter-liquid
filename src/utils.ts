@@ -68,6 +68,12 @@ export function vectorClampMaxLength(vec: TVector, max: number): TVector {
   const div = vectorDiv(vec, length || 1)
   return vectorMul(div,  Math.max( 0, Math.min( max, length ) ) );
 }
+export function vectorRotate(vec: TVector, angle: number): TVector {
+  const cos = Math.cos(angle), sin = Math.sin(angle);
+  const x = vec[0] * cos - vec[1] * sin;
+  const y = vec[0] * sin + vec[1] * cos;
+  return [x, y];
+};
 
 // Matter dependant
 export function getBodiesInRect(bodies: Matter.Body[], zone: TRect): Matter.Body[] {
