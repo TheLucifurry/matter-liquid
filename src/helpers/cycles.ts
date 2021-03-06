@@ -21,9 +21,6 @@ export function foreachDynamic(liquid: CLiquid, arr: TLiquidParticle[], callback
 export function foreachIds(particles: TLiquidParticle[], pids: number[], callback: (particle: TLiquidParticle, particleid: number)=>void) {
   arrayEach(pids, (pid)=>callback(particles[pid], pid));
 }
-export function pointInCircle(x: number, y: number, cx: number, cy: number, radius: number) {
-  return (x - cx) * (x - cx) + (y - cy) * (y - cy) <= radius * radius;
-}
 export function getNeighbors(store: TStore, part: TLiquidParticle) {
   // const Math.sqrt((x1-x0)*(x1-x0) + (y1-y0)*(y1-y0)) < r
   // const x = part[PARTICLE_PROPS.X], y = part[PARTICLE_PROPS.Y];

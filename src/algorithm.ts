@@ -265,22 +265,6 @@ function _limitMoving(part: TLiquidParticle) {
   part[PARTICLE_PROPS.VEL_X] = Math.min(Math.max(part[PARTICLE_PROPS.VEL_X], -limit), limit);
   part[PARTICLE_PROPS.VEL_Y] = Math.min(Math.max(part[PARTICLE_PROPS.VEL_Y], -limit), limit);
 }
-// @ts-ignore
-// window.TEST_MOUSE_MOVE = function(mouseConstraint: Matter.MouseConstraint) {
-//   var mouse = mouseConstraint.mouse,
-//     constraint = mouseConstraint.constraint,
-//     body = mouseConstraint.body,
-//     point = mouse.position;
-//   if(!body)return ;
-// const pIds = particles.map((v, ix)=>ix);
-//   body.render.fillStyle = '#0f5'
-//   // @ts-ignore
-//   const partIds = getParticlesInsideBodyIds(particles, body, spatialHash, pIds);
-//   // debugger
-//   partIds.forEach(pid=>{
-//     partColors.set(pid, '#0af')
-//   })
-// };
 
 function applyGravity(part: TLiquidParticle, dt: number, gravity: TVector) {
   part[PARTICLE_PROPS.VEL_X] += dt * gravity[0];
@@ -321,7 +305,7 @@ export function simple(liquid: CLiquid, dt: number) {
   foreachIds(Store.particles, updatedPids, function(part) {
     doubleDensityRelaxation(Store, part, dt);
   });
-  resolveCollisions(Store, activeRect, updatedPids);
+  // resolveCollisions(Store, activeRect, updatedPids);
   foreachIds(Store.particles, updatedPids, function(part, pid) {
     computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
 
