@@ -1,6 +1,7 @@
 import Matter from 'matter-js';
 import { PARTICLE_PROPS } from './constants';
-import { arrayEach, checkBodyContainsPoint, checkPointInRect, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, mathWrap, vectorClampMaxLength, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './utils';
+import { vectorClampMaxLength, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './helpers/vector';
+import { arrayEach, checkBodyContainsPoint, checkPointInRect, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, mathWrap } from './helpers/utils';
 
 const p0 = 10 // rest density
 const k = 0.004 // stiffness
@@ -222,43 +223,45 @@ function applyI(part: TLiquidParticle, I: TVector) {
   // }
 }
 
-function resolveCollisions(store: TStore, particles: TLiquidParticle[], activeZone: TRect, updatablePids: number[]) {
-  const bodies = getBodiesInRect(store.world.bodies, activeZone);
+function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: number[]) {
+  const { particles } = store;
+  const bodies = activeZone ? getBodiesInRect(store.world.bodies, activeZone) : store.world.bodies;
   const originalBodiesData: TOriginalBodyData[] = [];
   // const bodiesContainsParticleIds: number[][] = [];
   const processedBodies: Matter.Body[] = [];
   const buffer: TVector[] = [];
-  bodies.forEach((body, ix)=>{
-    if(body.isStatic)return;
-    originalBodiesData[ix] = {...body.position, a: body.angle} // save original body position and orientation
-    // advance body using V and ω
-    // clear force and torque buffers
-    const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, store.spatialHash, updatablePids);
-    if(!particlesInBodyIds.length)return;
+  // bodies.forEach((body, ix)=>{
+  //   // if(body.isStatic)return;
+  //   originalBodiesData[ix] = {...body.position, a: body.angle} // save original body position and orientation
+  //   // advance body using V and ω
+  //   // clear force and torque buffers
+  //   const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, store.spatialHash, updatablePids);
+  //   if(!particlesInBodyIds.length)return;
 
-    processedBodies.push(body);
-    // bodiesContainsParticleIds[ix] = particlesInBodyIds;
-    const buf: TVector = [0, 0];
-    foreachIds(particles, particlesInBodyIds, function(part) { // foreach particle inside the body
-      const I = computeI(part, body); // compute collision impulse I
-      // buf[0] += I[0];
-      // buf[1] += I[1];
-      // body.position.x += I[0];
-      // body.position.y += I[1];
-      // add I contribution to force and torque buffers
-    })
-    buffer.push(buf)
-  })
-  processedBodies.forEach((body, bodyid)=>{  // foreach body
-    const buf = buffer[bodyid];
-    // body.velocity.x
-    body.position.x += buf[0];
-    body.position.y += buf[1];
-    // modify V with force and ω with torque
-    // advance from original position using V and ω
-  })
+  //   processedBodies.push(body);
+  //   // bodiesContainsParticleIds[ix] = particlesInBodyIds;
+  //   const buf: TVector = [0, 0];
+  //   foreachIds(particles, particlesInBodyIds, function(part) { // foreach particle inside the body
+  //     const I = computeI(part, body); // compute collision impulse I
+  //     // buf[0] += I[0];
+  //     // buf[1] += I[1];
+  //     // body.position.x += I[0];
+  //     // body.position.y += I[1];
+  //     // add I contribution to force and torque buffers
+  //   })
+  //   buffer.push(buf)
+  // })
+  // processedBodies.forEach((body, bodyid)=>{  // foreach body
+  //   const buf = buffer[bodyid];
+  //   // body.velocity.x
+  //   body.position.x += buf[0];
+  //   body.position.y += buf[1];
+  //   // modify V with force and ω with torque
+  //   // advance from original position using V and ω
+  // })
   // resolve collisions and contacts between bodies
-  processedBodies.forEach(body=>{
+  // processedBodies.forEach(body=>{
+    bodies.forEach(body=>{
     const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, store.spatialHash, updatablePids);
     foreachIds(particles, particlesInBodyIds, function(part) { // foreach particle inside the body
       const I = computeI(part, body); // compute collision impulse I
@@ -357,7 +360,7 @@ export function simple(liquid: CLiquid, dt: number) {
   foreachIds(Store.particles, updatedPids, function(part) {
     doubleDensityRelaxation(Store, part, dt);
   });
-  // resolveCollisions(Store, Store.particles, activeRect, updatedPids);
+  resolveCollisions(Store, activeRect, updatedPids);
   foreachIds(Store.particles, updatedPids, function(part, pid) {
     computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
 
