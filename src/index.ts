@@ -1,4 +1,3 @@
-import Matter from 'matter-js';
 import Package from '../package.json';
 import Liquid from './liquid';
 // import ASL from '@assemblyscript/loader';

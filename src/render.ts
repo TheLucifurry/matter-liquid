@@ -1,4 +1,3 @@
-import Matter from 'matter-js';
 import { PARTICLE_PROPS } from './constants';
 import { arrayEach, checkPointInRect, getRectWithPaddingsFromBounds } from './helpers/utils';
 

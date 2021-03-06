@@ -8,9 +8,6 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
-    "typeRoots": [
-      "./node_modules/@types/matter-js",
-    ]
   },
   "exclude": ["assembly_script/**/*.ts", "build", "node_modules", "src/worker"]
 }

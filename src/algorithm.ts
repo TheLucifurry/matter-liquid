@@ -1,4 +1,3 @@
-import Matter from 'matter-js';
 import { PARTICLE_PROPS } from './constants';
 import { vectorClampMaxLength, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './helpers/vector';
 import { arrayEach, checkBodyContainsPoint, checkPointInRect, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, mathWrap } from './helpers/utils';
