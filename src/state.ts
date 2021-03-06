@@ -1,6 +1,7 @@
-import { GRAVITY_RATIO, INTERACTION_RADIUS, EVERY_FRAME, TIME_SCALE, IS_REGIONAL_COMPUTING, IS_WORLD_WRAPPED } from './constants';
+import { GRAVITY_RATIO, INTERACTION_RADIUS, EVERY_FRAME, TIME_SCALE, IS_REGIONAL_COMPUTING, IS_WORLD_WRAPPED, PARTICLE_TEX_RADIUS_SCALE } from './constants';
 import SpatialHash from './spatialHash';
 import createEventsObject from './events';
+import * as Renderer from './render';
 
 function setPaddings(data: TFourNumbers, padding: number | TPadding) {
   if(typeof padding === 'number'){
@@ -9,26 +10,38 @@ function setPaddings(data: TFourNumbers, padding: number | TPadding) {
     Object.assign(data, [padding[0], padding[1], padding[2] || padding[0], padding[3] || padding[1]]);
   }
 }
+function createLiquid(props: TLiquidProps, particleRadius: number): Required<TLiquidProps> {
+  const propsDefaults: Required<TLiquidProps> = {
+    color: '#fff',
+    plasticity: 0.3,
+    texture: null,
+    // stiffness: 0.004,
+  }
+  const prototype = { ...propsDefaults, ...props };
+  prototype.texture = props.texture || Renderer.generateParticleTexture(prototype.color, particleRadius)
+  return prototype;
+}
 
 export default abstract class State {
   store: TStore
   events = createEventsObject()
 
   constructor(config: TLiquidConfig){
+    const radius = config.radius || INTERACTION_RADIUS;
     this.store = {
+      radius,
       engine: config.engine,
       render: config.render,
       world: config.engine.world,
-      radius: config.radius || INTERACTION_RADIUS,
       isRegionalComputing: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
       isWorldWrapped: config.isWorldWrapped || IS_WORLD_WRAPPED,
+      liquids: config.liquids.map((l)=>createLiquid(l, radius * PARTICLE_TEX_RADIUS_SCALE)),
 
       isPaused: false,
       gravityRatio: GRAVITY_RATIO,
       spatialHash: new SpatialHash,
       renderBoundsPadding: [0, 0, 0, 0],
       activeBoundsPadding: [0, 0, 0, 0],
-      liquids: [],
       particles: [],
       springs: {},
       freeParticleIds: [],

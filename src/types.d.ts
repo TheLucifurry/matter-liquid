@@ -1,6 +1,7 @@
 type TLiquidConfig = {
   engine: Matter.Engine
   render: Matter.Render
+  liquids: TLiquidProps[]
   isAdvancedAlgorithm?: boolean
   isRegionalComputing?: boolean
   gravityRatio?: number
@@ -19,13 +20,13 @@ type TStore = {
   readonly radius: number             // Interaction radius
   readonly isRegionalComputing: boolean
   readonly isWorldWrapped: boolean
+  readonly liquids: Required<TLiquidProps>[]
 
   isPaused: boolean
   gravityRatio: number
   spatialHash: CSpatialHash
   renderBoundsPadding: TFourNumbers
   activeBoundsPadding: TFourNumbers
-  liquids: Required<TLiquidProps>[]
   particles: TLiquidParticle[]
   liquidOfParticleId: { [key: number]: TLiquidProps },
   freeParticleIds: number[]

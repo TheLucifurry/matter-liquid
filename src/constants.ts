@@ -6,6 +6,7 @@ export const EVERY_FRAME = 2;
 export const TIME_SCALE = 1;
 export const IS_REGIONAL_COMPUTING = false;
 export const IS_WORLD_WRAPPED = false;
+export const PARTICLE_TEX_RADIUS_SCALE = 0.4;
 
 export const PARTICLE_PROPS = {
   X: 0,
