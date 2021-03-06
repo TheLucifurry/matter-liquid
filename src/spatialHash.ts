@@ -123,6 +123,20 @@ export default class SpatialHash{
       this.insert(pid, x, y);
     })
   }
+  getItemsOfCellsInBounds(bounds: Matter.Bounds): TSHItem[] {
+    const x1 = trunc(bounds.min.x, this.cellSize);
+    const y1 = trunc(bounds.min.y, this.cellSize);
+    const x2 = trunc(bounds.max.x, this.cellSize);
+    const y2 = trunc(bounds.max.y, this.cellSize);
+    const res = [];
+    for (let y = y1; y <= y2; y++) {
+      for (let x = x1; x <= x2; x++) {
+        const cellid = getIndex(x, y);
+        res.push(...(this.hash[getIndex(x, y)] || []));
+      }
+    }
+    return res;
+  }
   // getItemsNearBody(body: Matter.Body){
   //   const ewf = body.bounds
   // }

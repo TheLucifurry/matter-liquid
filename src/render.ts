@@ -1,6 +1,6 @@
 import { PARTICLE_PROPS } from './constants';
 import { arrayEach } from './helpers/cycles';
-import { checkPointInRect, getRectWithPaddingsFromBounds } from './helpers/utils';
+import { checkPointInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds } from './helpers/utils';
 
 // function getCoordsFromCellid(spatialHash: CSpatialHash, cellid: TSHCellId) {
 //   return [cellid % spatialHash._columns, Math.trunc(cellid / spatialHash._columns)];
@@ -55,31 +55,21 @@ function drawParticles(store: TStore) {
   })
 }
 
+
+let mouse: Matter.Mouse, constraint: Matter.Constraint, body: Matter.Body, point: Matter.Vector;
+// @ts-ignore
+window.TEST_MOUSE_MOVE = function(mouseConstraint: Matter.MouseConstraint) {
+  mouse = mouseConstraint.mouse;
+  constraint = mouseConstraint.constraint;
+  body = mouseConstraint.body;
+  point = mouse.position;
+};
+
 export function update(liquid: CLiquid) {
   //@ts-ignore
   Matter.Render.startViewTransform(liquid.store.render);
   drawParticles(liquid.store);
-
-  // TEST pointInCircle
-  // if(mousePosition){
-  //   const ctx = liquid.store.render.context;
-  //   const cX = 0, cY = 0, radius = 100;
-  //   ctx.beginPath();
-  //   ctx.fillStyle = pointInCircle(mousePosition.x, mousePosition.y, cX, cY, radius) ? 'green' : 'orange';
-  //   ctx.arc(cX, cY, radius, 0, 2 * Math.PI);
-  //   ctx.fill();
-  // }
 }
-
-let mousePosition: any;
-// @ts-ignore
-window.TEST_MOUSE_MOVE = function(mouseConstraint: Matter.MouseConstraint) {
-  const mouse = mouseConstraint.mouse,
-    constraint = mouseConstraint.constraint,
-    body = mouseConstraint.body,
-    point = mouse.position;
-  mousePosition =  point;
-};
 
 export function updateDebug(liquid: CLiquid) {
   const store = liquid.store, ctx = store.render.context;
@@ -115,4 +105,25 @@ export function updateDebug(liquid: CLiquid) {
   ctx.moveTo(0, -radius);
   ctx.lineTo(0, radius);
   ctx.stroke();
+
+
+  // TEST pointInCircle
+  if(mouse && body){
+    const insideBoundsPartids = getParticlesInsideBodyIds(liquid.store.particles, body, liquid.store.spatialHash);
+    const ctx = liquid.store.render.context;
+    ctx.strokeStyle = 'cyan';
+    ctx.strokeRect(body.bounds.min.x, body.bounds.min.y, body.bounds.max.x - body.bounds.min.x, body.bounds.max.y - body.bounds.min.y);
+    insideBoundsPartids.forEach(pid=>{
+      const part = liquid.store.particles[pid];
+      const x = part[PARTICLE_PROPS.X], y = part[PARTICLE_PROPS.Y];
+      ctx.fillStyle = 'yellow';
+      ctx.fillRect(x - 2, y - 2, 4, 4);
+    })
+    // const ctx = liquid.store.render.context;
+    // const cX = 0, cY = 0, radius = 100;
+    // ctx.beginPath();
+    // ctx.fillStyle = pointInCircle(point.x, point.y, cX, cY, radius) ? 'green' : 'orange';
+    // ctx.arc(cX, cY, radius, 0, 2 * Math.PI);
+    // ctx.fill();
+  }
 }

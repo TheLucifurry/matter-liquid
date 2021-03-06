@@ -41,10 +41,9 @@ export function getRectWithPaddingsFromBounds(bounds: Matter.Bounds, paddings: T
     bounds.max.y + bottom,
   ]
 }
-export function getParticlesInsideBodyIds(particles: TLiquidParticle[], body: Matter.Body, spatialHash: CSpatialHash, _test_particleIds: number[]): number[] {
+export function getParticlesInsideBodyIds(particles: TLiquidParticle[], body: Matter.Body, spatialHash: CSpatialHash, _test_particleIds?: number[]): number[] {
   const res: number[] = [];
-  // const nearParticlesIds: number[] = State.spatialHash.getItemsNearBody(body);
-  const nearParticlesIds: number[] = _test_particleIds;
+  const nearParticlesIds: number[] = spatialHash.getItemsOfCellsInBounds(body.bounds);
   for (let i = 0; i < nearParticlesIds.length; i++) {
     const pid = nearParticlesIds[i];
     const part = particles[pid];
