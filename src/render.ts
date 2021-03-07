@@ -2,12 +2,8 @@ import { PARTICLE_PROPS } from './constants';
 import { arrayEach } from './helpers/cycles';
 import { checkPointInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds } from './helpers/utils';
 
-// function getCoordsFromCellid(spatialHash: CSpatialHash, cellid: TSHCellId) {
-//   return [cellid % spatialHash._columns, Math.trunc(cellid / spatialHash._columns)];
-// }
 function getCoordsFromCellid(cellid: TSHCellId, cellSize: number): TVector {
-  const p = cellid.split('.');
-  // @ts-ignore
+  const p: any[] = cellid.split('.');
   return [p[0] * cellSize, p[1] * cellSize];
 }
 

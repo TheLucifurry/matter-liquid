@@ -38,14 +38,13 @@ type TStore = {
 }
 
 type TLiquidProps = {
-  // isStatic?: boolean
   color?: string
   texture?: OffscreenCanvas
   plasticity?: number // a
   // stiffness?: number // k
 };
 
-type TLiquidParticle = [ x: number, y: number, px: number, py: number, vx: number, vy: number, lid: number ];
+type TLiquidParticle = Float32Array;
 
 type TPadding = [top_vertical: number, right_horizontal: number, bottom?: number, left?: number];
 

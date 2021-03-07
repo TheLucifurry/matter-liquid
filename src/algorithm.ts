@@ -1,5 +1,5 @@
 import { PARTICLE_PROPS } from './constants';
-import { vectorClampMaxLength, vectorDiv, vectorFromTwo, vectorLength, vectorLengthAdd, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './helpers/vector';
+import { vectorClampMaxLength, vectorDiv, vectorFromTwo, vectorLength, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './helpers/vector';
 import { checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, mathWrap } from './helpers/utils';
 import { eachNeighborsOf, foreachIds, eachSpring, getNeighbors, eachNeighbors, foreachActive } from './helpers/cycles';
 
@@ -30,7 +30,6 @@ function getVelDiff(a: TLiquidParticle, b: TLiquidParticle): [number, number] {
     [b[PARTICLE_PROPS.VEL_X], b[PARTICLE_PROPS.VEL_Y]],
     [a[PARTICLE_PROPS.VEL_X], a[PARTICLE_PROPS.VEL_Y]],
   );
-  // return [a[PARTICLE_PROPS.VEL_X]-b[PARTICLE_PROPS.VEL_X], a[PARTICLE_PROPS.VEL_Y]-b[PARTICLE_PROPS.VEL_Y]];
 }
 function addVel(part: TLiquidParticle, vec: [number, number]) {
   part[PARTICLE_PROPS.VEL_X] += vec[0];
@@ -39,11 +38,6 @@ function addVel(part: TLiquidParticle, vec: [number, number]) {
 function subVel(part: TLiquidParticle, vec: [number, number]) {
   part[PARTICLE_PROPS.VEL_X] -= vec[0];
   part[PARTICLE_PROPS.VEL_Y] -= vec[1];
-}
-function addPos(part: TLiquidParticle, num: number) {
-  const vecAdded = vectorLengthAdd([part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]], num)
-  part[PARTICLE_PROPS.X] = vecAdded[0];
-  part[PARTICLE_PROPS.Y] = vecAdded[1];
 }
 function partPosAdd(part: TLiquidParticle, vec: TVector) {
   part[PARTICLE_PROPS.X] += vec[0];
@@ -172,16 +166,6 @@ function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) 
 function applyI(part: TLiquidParticle, I: TVector) {
   part[PARTICLE_PROPS.X] -= I[0];
   part[PARTICLE_PROPS.Y] -= I[1];
-  // if(I[0]>0){
-  //   part[PARTICLE_PROPS.X] += I[0];
-  // }else{
-  //   part[PARTICLE_PROPS.X] -= I[0];
-  // }
-  // if(I[1]>0){
-  //   part[PARTICLE_PROPS.Y] += I[1];
-  // }else{
-  //   part[PARTICLE_PROPS.Y] -= I[1];
-  // }
 }
 
 function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: number[]) {
@@ -242,29 +226,6 @@ function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: numb
   })
 }
 
-
-
-// DEBUG
-function isAnomaly(value: number) {
-  // return !isFinite(value) || Math.abs(value) >= 2.1e+100;
-  return Math.abs(value) >= 2.1e+100;
-}
-function isAnomalyVel(part: TLiquidParticle){
-  return isAnomaly(part[PARTICLE_PROPS.VEL_X]) || isAnomaly(part[PARTICLE_PROPS.VEL_Y]);
-}
-function checkAnomaly(part: TLiquidParticle, caption: string) {
-  if(isAnomaly(part[PARTICLE_PROPS.X]) || isAnomaly(part[PARTICLE_PROPS.Y])){
-    console.log(`[ ${caption} ] position is anomal`);
-  }
-  if(isAnomaly(part[PARTICLE_PROPS.VEL_X]) || isAnomaly(part[PARTICLE_PROPS.VEL_Y])){
-    console.log(`[ ${caption} ] velocity is anomal`);
-  }
-}
-function _limitMoving(part: TLiquidParticle) {
-  const limit = 5;
-  part[PARTICLE_PROPS.VEL_X] = Math.min(Math.max(part[PARTICLE_PROPS.VEL_X], -limit), limit);
-  part[PARTICLE_PROPS.VEL_Y] = Math.min(Math.max(part[PARTICLE_PROPS.VEL_Y], -limit), limit);
-}
 
 function applyGravity(part: TLiquidParticle, dt: number, gravity: TVector) {
   part[PARTICLE_PROPS.VEL_X] += dt * gravity[0];

@@ -1,14 +1,7 @@
 import Package from '../package.json';
 import Liquid from './liquid';
-// import ASL from '@assemblyscript/loader';
-
-// fetch('./build/wasmModule.wasm')
-//   .then(ASL.instantiateStreaming)
-//   .then(wasmModule=>{
-//     // const wasmModule = ASL.instantiateStreaming(data);
 
 const MatterLiquid = {
-  // Original
   name: Package.name,
   version: Package.version,
   for: `matter-js@0.16.1`,
@@ -16,8 +9,7 @@ const MatterLiquid = {
   // options: {
   //   something: true,
   // },
-  //@ts-ignore
-  install(matter) {
+  install(matter: any) {
     console.log('Matter.js Plugin installed:');
     console.dir({ MatterLiquid });
 
@@ -31,5 +23,3 @@ const MatterLiquid = {
 
 //@ts-ignore
 Matter.Plugin.register(MatterLiquid);
-  // })
-// export default MatterLiquid;

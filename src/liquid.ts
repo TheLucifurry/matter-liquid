@@ -63,7 +63,6 @@ export default class Liquid extends State {
     particle[PARTICLE_PROPS.VEL_X] = 0;
     particle[PARTICLE_PROPS.VEL_Y] = 0;
     this.store.liquidOfParticleId[pid] = this.store.liquids[liquidid];
-    //@ts-ignore
     this.store.particles[pid] = particle;
     this.store.spatialHash.insert(pid, x, y);
   }
@@ -75,7 +74,6 @@ export default class Liquid extends State {
     this.store.freeParticleIds.push(particleId);
     // TODO: remove associated springs
   }
-
   fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number, interval: number = this.store.radius) {
     const columns = Math.max(1, Math.trunc(zoneWidth / interval));
     const rows = Math.max(1, Math.trunc(zoneHeight / interval));
@@ -92,7 +90,6 @@ export default class Liquid extends State {
       }
     })
   }
-
   checkRectContainsParticle(rect: TRect, particle: TLiquidParticle) {
     return checkPointInRect(particle[PARTICLE_PROPS.X], particle[PARTICLE_PROPS.Y], ...rect);
   }

@@ -26,11 +26,9 @@ export default class SpatialHash{
   cellSize: number
   // itemCount: number
   // cellCount: number = 0
-  // _columns: number
 
   init(worldWidth: number, cellSize: number){
     this.cellSize = cellSize;
-    // this._columns = Math.ceil(worldWidth/cellSize);
     // this.itemCount = 0;
   }
 
@@ -137,12 +135,6 @@ export default class SpatialHash{
     }
     return res;
   }
-  // getItemsNearBody(body: Matter.Body){
-  //   const ewf = body.bounds
-  // }
-  // getCoordsFromCellid(cellid: number): [number, number] {
-  //   return [cellid % this._columns, Math.trunc(cellid / this._columns)];
-  // }
 }
 
 declare global {
