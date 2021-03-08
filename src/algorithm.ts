@@ -1,6 +1,6 @@
 import { PARTICLE_PROPS } from './constants';
 import { vectorClampMaxLength, vectorDiv, vectorFromTwo, vectorLength, vectorMul, vectorMulVector, vectorNormal, vectorSubVector } from './helpers/vector';
-import { checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, mathWrap } from './helpers/utils';
+import { checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, mathClamp, mathWrap } from './helpers/utils';
 import { eachNeighborsOf, foreachIds, eachSpring, getNeighbors, eachNeighbors, foreachActive } from './helpers/cycles';
 
 const p0 = 10 // rest density
@@ -149,7 +149,7 @@ function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) 
   let P = k * (p - p0);
   let PNear = kNear * pNear;
   let dx: TVector = [0, 0];
-  eachNeighbors(store.particles, neighbors, j=>{
+  eachNeighbors(store.particles, neighbors, (j, jPid)=>{
     const r = getR(i, j);
     const rNormal = vectorNormal(r);
     let q = vectorLength(vectorDiv(r, store.radius)); // q ← rij/h
@@ -225,6 +225,29 @@ function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: numb
     })
   })
 }
+function endComputing(store: TStore, updatedPids: number[], dt: number, particlesPrevPositions: TSavedParticlesPositions) {
+  foreachIds(store.particles, updatedPids, function(part, pid) {
+    const b = store.world.bounds;
+    if(store.isWorldWrapped){
+      part[PARTICLE_PROPS.X] = mathWrap(part[PARTICLE_PROPS.X], b.min.x, b.max.x);
+      part[PARTICLE_PROPS.Y] = mathWrap(part[PARTICLE_PROPS.Y], b.min.y, b.max.y);
+    }else{
+      const delta = 1
+      const oldX = part[PARTICLE_PROPS.X];
+      const oldY = part[PARTICLE_PROPS.Y];
+      part[PARTICLE_PROPS.X] = mathClamp(oldX, b.min.x, b.max.x);
+      part[PARTICLE_PROPS.Y] = mathClamp(oldY, b.min.y, b.max.y);
+      if(oldX !== part[PARTICLE_PROPS.X]){
+        part[PARTICLE_PROPS.VEL_X] *= -delta;
+      }
+      if(oldY !== part[PARTICLE_PROPS.Y]){
+        part[PARTICLE_PROPS.VEL_Y] *= -delta;
+      }
+    }
+    computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
+    store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
+  });
+}
 
 
 function applyGravity(part: TLiquidParticle, dt: number, gravity: TVector) {
@@ -267,23 +290,7 @@ export function simple(liquid: CLiquid, dt: number) {
     doubleDensityRelaxation(Store, part, dt);
   });
   // resolveCollisions(Store, activeRect, updatedPids);
-  foreachIds(Store.particles, updatedPids, function(part, pid) {
-    computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
-
-    const b = Store.world.bounds;
-    if(liquid.store.isWorldWrapped){
-      part[PARTICLE_PROPS.X] = mathWrap(part[PARTICLE_PROPS.X], b.min.x, b.max.x);
-      part[PARTICLE_PROPS.Y] = mathWrap(part[PARTICLE_PROPS.Y], b.min.y, b.max.y);
-    }else{
-      const delta = -0.5;
-      if(part[PARTICLE_PROPS.X] < b.min.x && part[PARTICLE_PROPS.VEL_X] < 0) part[PARTICLE_PROPS.VEL_X] *= delta;
-      if(part[PARTICLE_PROPS.X] > b.max.x && part[PARTICLE_PROPS.VEL_X] > 0) part[PARTICLE_PROPS.VEL_X] *= delta;
-      if(part[PARTICLE_PROPS.Y] < b.min.y && part[PARTICLE_PROPS.VEL_Y] < 0) part[PARTICLE_PROPS.VEL_Y] *= delta;
-      if(part[PARTICLE_PROPS.Y] > b.max.y && part[PARTICLE_PROPS.VEL_Y] > 0) part[PARTICLE_PROPS.VEL_Y] *= delta;
-    }
-
-    Store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
-  });
+  endComputing(Store, updatedPids, dt, particlesPrevPositions);
 }
 
 export function advanced(liquid: CLiquid, dt: number) {
@@ -311,19 +318,7 @@ export function advanced(liquid: CLiquid, dt: number) {
     doubleDensityRelaxation(Store, part, dt);
   });
   // resolveCollisions(Store, Store.particles, activeRect, updatedPids);
-  foreachIds(Store.particles, updatedPids, function(part, pid) {
-    computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
-
-
-    // const b = Store.world.bounds;
-    // const delta = -0.5;
-    // if(part[PARTICLE_PROPS.X] < b.min.x && part[PARTICLE_PROPS.VEL_X] < 0) part[PARTICLE_PROPS.VEL_X] *= delta;
-    // if(part[PARTICLE_PROPS.X] > b.max.x && part[PARTICLE_PROPS.VEL_X] > 0) part[PARTICLE_PROPS.VEL_X] *= delta;
-    // if(part[PARTICLE_PROPS.Y] < b.min.y && part[PARTICLE_PROPS.VEL_Y] < 0) part[PARTICLE_PROPS.VEL_Y] *= delta;
-    // if(part[PARTICLE_PROPS.Y] > b.max.y && part[PARTICLE_PROPS.VEL_Y] > 0) part[PARTICLE_PROPS.VEL_Y] *= delta;
-
-    Store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
-  });
+  endComputing(Store, updatedPids, dt, particlesPrevPositions);
 }
 /*
   foreach particle i
