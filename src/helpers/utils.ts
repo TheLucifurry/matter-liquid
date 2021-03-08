@@ -9,6 +9,18 @@ export function mathWrap(value: number, min: number, max: number): number{
   const range = max - min;
   return (min + ((((value - min) % range) + range) % range));
 }
+export function mathClamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+};
+// export function mathWrapInverse(value: number, min: number, max: number): number{
+//   if (value >= min && value <= max) {
+//     return value;
+//   } else {
+//     const range = Math.abs(max - min);
+//     const step = mathWrap(value - min, 0, range);
+//     return value >= max ? range - step + min : max - step;
+//   }
+// }
 
 // Matter dependant
 export function getBodiesInRect(bodies: Matter.Body[], zone: TRect): Matter.Body[] {
