@@ -1,3 +1,5 @@
+declare const DEV: boolean;
+
 type TLiquidConfig = {
   engine: Matter.Engine
   render: Matter.Render

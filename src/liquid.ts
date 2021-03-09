@@ -25,10 +25,12 @@ export default class Liquid extends State {
     // Set render updater
     Matter.Events.on(config.render, 'afterRender', this.updateRender.bind(this))
 
-    // DEV
-    console.log('Liquid:'); console.dir(this);
-    //@ts-ignore
-    window.Liquid = this;
+
+    if (DEV) {
+      console.log('Liquid:'); console.dir(this);
+      //@ts-ignore
+      window.Liquid = this;
+    }
   }
 
   private setUpdaters(config: TLiquidConfig){

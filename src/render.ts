@@ -53,13 +53,16 @@ function drawParticles(store: TStore) {
 
 
 let mouse: Matter.Mouse, constraint: Matter.Constraint, body: Matter.Body, point: Matter.Vector;
-// @ts-ignore
-window.TEST_MOUSE_MOVE = function(mouseConstraint: Matter.MouseConstraint) {
-  mouse = mouseConstraint.mouse;
-  constraint = mouseConstraint.constraint;
-  body = mouseConstraint.body;
-  point = mouse.position;
-};
+
+if (DEV) {
+  // @ts-ignore
+  window.TEST_MOUSE_MOVE = function(mouseConstraint: Matter.MouseConstraint) {
+    mouse = mouseConstraint.mouse;
+    constraint = mouseConstraint.constraint;
+    body = mouseConstraint.body;
+    point = mouse.position;
+  };
+}
 
 export function update(liquid: CLiquid) {
   //@ts-ignore
@@ -103,23 +106,24 @@ export function updateDebug(liquid: CLiquid) {
   ctx.stroke();
 
 
-  // TEST pointInCircle
-  if(mouse && body){
-    const insideBoundsPartids = getParticlesInsideBodyIds(liquid.store.particles, body, liquid.store.spatialHash);
-    const ctx = liquid.store.render.context;
-    ctx.strokeStyle = 'cyan';
-    ctx.strokeRect(body.bounds.min.x, body.bounds.min.y, body.bounds.max.x - body.bounds.min.x, body.bounds.max.y - body.bounds.min.y);
-    insideBoundsPartids.forEach(pid=>{
-      const part = liquid.store.particles[pid];
-      const x = part[PARTICLE_PROPS.X], y = part[PARTICLE_PROPS.Y];
-      ctx.fillStyle = 'yellow';
-      ctx.fillRect(x - 2, y - 2, 4, 4);
-    })
-    // const ctx = liquid.store.render.context;
-    // const cX = 0, cY = 0, radius = 100;
-    // ctx.beginPath();
-    // ctx.fillStyle = pointInCircle(point.x, point.y, cX, cY, radius) ? 'green' : 'orange';
-    // ctx.arc(cX, cY, radius, 0, 2 * Math.PI);
-    // ctx.fill();
+  if (DEV) {
+    if(mouse && body){
+      const insideBoundsPartids = getParticlesInsideBodyIds(liquid.store.particles, body, liquid.store.spatialHash);
+      const ctx = liquid.store.render.context;
+      ctx.strokeStyle = 'cyan';
+      ctx.strokeRect(body.bounds.min.x, body.bounds.min.y, body.bounds.max.x - body.bounds.min.x, body.bounds.max.y - body.bounds.min.y);
+      insideBoundsPartids.forEach(pid=>{
+        const part = liquid.store.particles[pid];
+        const x = part[PARTICLE_PROPS.X], y = part[PARTICLE_PROPS.Y];
+        ctx.fillStyle = 'yellow';
+        ctx.fillRect(x - 2, y - 2, 4, 4);
+      })
+      // const ctx = liquid.store.render.context;
+      // const cX = 0, cY = 0, radius = 100;
+      // ctx.beginPath();
+      // ctx.fillStyle = pointInCircle(point.x, point.y, cX, cY, radius) ? 'green' : 'orange';
+      // ctx.arc(cX, cY, radius, 0, 2 * Math.PI);
+      // ctx.fill();
+    }
   }
 }

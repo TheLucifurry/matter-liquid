@@ -10,8 +10,10 @@ const MatterLiquid = {
   //   something: true,
   // },
   install(matter: any) {
-    console.log('Matter.js Plugin installed:');
-    console.dir({ MatterLiquid });
+    if (DEV) {
+      console.log('Matter.js Plugin installed:');
+      console.dir({ MatterLiquid });
+    }
 
     matter.Liquid = {
       create(config: TLiquidConfig) {

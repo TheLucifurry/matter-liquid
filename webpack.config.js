@@ -37,7 +37,10 @@ const afterBuildTaskPlugin = {
   }
 };
 
+const isDevMode = process.argv.includes('--mode=development');
+
 module.exports = {
+  mode: isDevMode ? 'development' : 'production',
   entry: {
     [name]: `./src/index.ts`,
     // [name + '.min']: `./src/index.ts`
@@ -77,6 +80,9 @@ module.exports = {
     //   include: /\.min\.js$/,
     //   minimize: true
     // }),
+    new webpack.DefinePlugin({
+      DEV: `${isDevMode}`,
+    }),
     new webpack.BannerPlugin(banner),
     afterBuildTaskPlugin,
   ],
