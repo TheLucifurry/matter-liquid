@@ -28,14 +28,23 @@ export default abstract class State {
 
   constructor(config: TLiquidConfig){
     const radius = config.radius || INTERACTION_RADIUS;
+
     const particleTextureSize = radius * (config.particleTextureScale || PARTICLE_TEX_RADIUS_SCALE);
+
+    let isWrappedSides: [boolean, boolean] = [IS_WORLD_WRAPPED, IS_WORLD_WRAPPED];
+    let configWrapping: boolean | [boolean, boolean] = config.worldWrapping;
+    if(configWrapping != null){
+      isWrappedSides = typeof configWrapping === 'boolean' ? [configWrapping, configWrapping] : configWrapping;
+    }
+
     this.store = {
       radius,
+      isWrappedX: isWrappedSides[0],
+      isWrappedY: isWrappedSides[1],
       engine: config.engine,
       render: config.render,
       world: config.engine.world,
       isRegionalComputing: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
-      isWorldWrapped: config.isWorldWrapped || IS_WORLD_WRAPPED,
       liquids: config.liquids.map((l)=>createLiquid(l, particleTextureSize)),
 
       isPaused: false,

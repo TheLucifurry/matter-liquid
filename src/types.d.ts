@@ -9,7 +9,7 @@ type TLiquidConfig = {
   isPaused?: boolean
   updateEveryFrame?: number
   timeScale?: number
-  isWorldWrapped?: boolean
+  worldWrapping: boolean | [boolean, boolean]
   isDebug?: boolean
   particleTextureScale?: number
 };
@@ -20,7 +20,8 @@ type TStore = {
   readonly world: Matter.World
   readonly radius: number             // Interaction radius
   readonly isRegionalComputing: boolean
-  readonly isWorldWrapped: boolean
+  readonly isWrappedX: boolean
+  readonly isWrappedY: boolean
   readonly liquids: Required<TLiquidProps>[]
 
   isPaused: boolean

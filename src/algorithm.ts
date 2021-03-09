@@ -227,24 +227,26 @@ function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: numb
 }
 function endComputing(store: TStore, updatedPids: number[], dt: number, particlesPrevPositions: TSavedParticlesPositions) {
   foreachIds(store.particles, updatedPids, function(part, pid) {
-    const b = store.world.bounds;
-    if(store.isWorldWrapped){
-      part[PARTICLE_PROPS.X] = mathWrap(part[PARTICLE_PROPS.X], b.min.x, b.max.x);
-      part[PARTICLE_PROPS.Y] = mathWrap(part[PARTICLE_PROPS.Y], b.min.y, b.max.y);
-    }else{
-      const delta = 1
-      const oldX = part[PARTICLE_PROPS.X];
-      const oldY = part[PARTICLE_PROPS.Y];
-      part[PARTICLE_PROPS.X] = mathClamp(oldX, b.min.x, b.max.x);
-      part[PARTICLE_PROPS.Y] = mathClamp(oldY, b.min.y, b.max.y);
-      if(oldX !== part[PARTICLE_PROPS.X]){
-        part[PARTICLE_PROPS.VEL_X] *= -delta;
-      }
-      if(oldY !== part[PARTICLE_PROPS.Y]){
-        part[PARTICLE_PROPS.VEL_Y] *= -delta;
-      }
-    }
     computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
+    const b = store.world.bounds;
+    if(!store.isWrappedX){
+      const oldX = part[PARTICLE_PROPS.X];
+      part[PARTICLE_PROPS.X] = mathClamp(oldX, b.min.x, b.max.x);
+      if(oldX !== part[PARTICLE_PROPS.X]){
+        part[PARTICLE_PROPS.VEL_X] *= -1;
+      }
+    }else{
+      part[PARTICLE_PROPS.X] = mathWrap(part[PARTICLE_PROPS.X], b.min.x, b.max.x);
+    }
+    if(!store.isWrappedY){
+      const oldY = part[PARTICLE_PROPS.Y];
+      part[PARTICLE_PROPS.Y] = mathClamp(oldY, b.min.y, b.max.y);
+      if(oldY !== part[PARTICLE_PROPS.Y]){
+        part[PARTICLE_PROPS.VEL_Y] *= -1;
+      }
+    }else{
+      part[PARTICLE_PROPS.Y] = mathWrap(part[PARTICLE_PROPS.Y], b.min.y, b.max.y);
+    }
     store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
   });
 }
