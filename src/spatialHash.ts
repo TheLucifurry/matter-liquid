@@ -28,7 +28,7 @@ export default class SpatialHash {
   // itemCount: number
   // cellCount: number = 0
 
-  init(worldWidth: number, cellSize: number) {
+  init(cellSize: number): void {
     this.cellSize = cellSize;
     // this.itemCount = 0;
   }
