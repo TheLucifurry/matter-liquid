@@ -29,7 +29,9 @@
     "@typescript-eslint/no-explicit-any": 0,
     "@typescript-eslint/naming-convention": 0,
     "@typescript-eslint/no-shadow": 1,
-    "@typescript-eslint/no-unused-vars": 1
+    "@typescript-eslint/no-unused-vars": 1,
+
+    "compat/compat": 1
   },
   "env": {
     "browser": true
