@@ -1,11 +1,10 @@
 const webpack = require('webpack');
 const fs = require('fs');
 const path = require('path');
-const Case = require('case');
 const replace = require('replace-in-file');
 const pkg = require('./package.json');
 
-const name = Case.kebab(pkg.name);
+const name = pkg.name;
 const date = new Date().toISOString().slice(0, 10);
 const banner = `${name} ${pkg.version} by ${pkg.author} ${date}\n${pkg.homepage}\nLicense ${pkg.license}`;
 
@@ -46,11 +45,11 @@ module.exports = {
     // [name + '.min']: `./src/index.ts`
   },
   output: {
-    library: Case.pascal(name),
     path: path.resolve(__dirname, './build'),
     publicPath: '/build',
     filename: '[name].js',
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
+    library: name.replace(/^\w|(-\w)/g, l => l.toUpperCase().replace(/\W/, '')), // To PascalCase
   },
   externals: {
     'matter-js': {
