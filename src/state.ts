@@ -4,14 +4,8 @@ import {
 import SpatialHash from './spatialHash';
 import createEventsObject from './events';
 import * as Renderer from './render';
+import { calcPaddings } from './helpers/utils';
 
-function setPaddings(data: TFourNumbers, padding: number | TPadding) {
-  if (typeof padding === 'number') {
-    Object.assign(data, [padding, padding, padding, padding]);
-  } else {
-    Object.assign(data, [padding[0], padding[1], padding[2] || padding[0], padding[3] || padding[1]]);
-  }
-}
 function createLiquid(props: TLiquidProps, particleRadius: number): Required<TLiquidProps> {
   const propsDefaults: Required<TLiquidProps> = {
     color: '#fff',
@@ -71,11 +65,11 @@ export default abstract class State {
   }
 
   setRenderBoundsPadding(padding: number | TPadding): void {
-    setPaddings(this.store.renderBoundsPadding, padding);
+    this.store.renderBoundsPadding = calcPaddings(padding);
   }
 
   setActiveBoundsPadding(padding: number | TPadding): void {
-    setPaddings(this.store.activeBoundsPadding, padding);
+    this.store.activeBoundsPadding = calcPaddings(padding);
   }
 
   setGravityRatio(ratio: number = this.store.gravityRatio): void {

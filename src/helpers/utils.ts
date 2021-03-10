@@ -72,3 +72,9 @@ export function getWorldWidth(world: Matter.World, defaultValue: number): number
   const diff = world.bounds.max.x - world.bounds.min.x;
   return isFinite(diff) ? diff : defaultValue;
 }
+export function calcPaddings(padding: number | TPadding): TFourNumbers {
+  if (typeof padding === 'number') {
+    return [padding, padding, padding, padding];
+  }
+  return [padding[0], padding[1], padding[2] || padding[0], padding[3] || padding[1]];
+}
