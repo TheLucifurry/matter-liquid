@@ -1,32 +1,35 @@
 {
-  "plugins": ["lodash", "sonarjs"],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
   "extends": [
-    "airbnb",
-    "plugin:lodash/recommended",
-    "plugin:sonarjs/recommended"
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "airbnb-typescript",
+    "plugin:compat/recommended"
   ],
-  "ignorePatterns": ["_*", "webpack.config.js", "examples/", "static/", "example*.js", "assembly_script", "node_modules", "build"],
+  "ignorePatterns": ["_*", "webpack.config.js", "examples/", "assembly_script", "node_modules", "build"],
   "parserOptions": {
-    "ecmaVersion": 8,
-    "sourceType": "module"
+    "ecmaVersion": 9,
+    "sourceType": "module",
+    "project": ["./tsconfig.json"]
   },
   "rules": {
-    "func-names": 0,
-    "no-multi-assign": 0,
-    "no-param-reassign": 0,
-    "no-plusplus": 0,
-    "no-underscore-dangle": 0,
-    "no-continue": 0,
     "max-len": 0,
-    "import/extensions": 0,
-    "no-unused-vars": 1,
-    "valid-jsdoc": 1,
-    "no-mixed-operators": 0,
-    "lodash/prefer-lodash-typecheck": 0,
-    "lodash/prefer-get": 0,
-    "lodash/prefer-noop": 0,
-    "lodash/prefer-constant": 0,
-    "lodash/prefer-lodash-method": 0
+    "no-console": 0,
+    "no-plusplus": 0,
+    "no-param-reassign": 0,
+    "max-classes-per-file": 0,
+    "no-underscore-dangle": 0,
+    "no-restricted-syntax": 0,
+    "no-restricted-globals": 0,
+    "class-methods-use-this": 1,
+
+    "@typescript-eslint/ban-ts-comment": 0,
+    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/naming-convention": 0,
+    "@typescript-eslint/no-shadow": 1,
+    "@typescript-eslint/no-unused-vars": 1
   },
   "env": {
     "browser": true

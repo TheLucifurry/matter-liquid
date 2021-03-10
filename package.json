@@ -11,6 +11,11 @@
     "type": "git",
     "url": "https://github.com/Wexelus/matter-liquid.git"
   },
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "not safari > 0"
+  ],
   "keywords": [
     "matter-js",
     "matter",
@@ -25,20 +30,21 @@
   ],
   "scripts": {
     "dev": "webpack serve --mode=development",
-    "build": "webpack"
+    "build": "webpack",
+    "lint": "eslint . --ext .ts"
   },
   "devDependencies": {
     "@types/matter-js": "^0.14.10",
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
+    "@typescript-eslint/parser": "^4.17.0",
     "@webpack-cli/serve": "^1.3.0",
     "case": "^1.6.3",
-    "eslint": "^7.20.0",
-    "eslint-config-airbnb": "^18.2.1",
+    "eslint": "^7.21.0",
+    "eslint-config-airbnb-typescript": "^12.3.1",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-lodash": "^7.1.0",
+    "eslint-plugin-compat": "^3.9.0",
     "eslint-plugin-react": "^7.22.0",
-    "eslint-plugin-react-hooks": "^4.2.0",
-    "eslint-plugin-sonarjs": "^0.6.0",
     "replace-in-file": "^6.2.0",
     "ts-loader": "^8.0.17",
     "typescript": "^4.1.5",
