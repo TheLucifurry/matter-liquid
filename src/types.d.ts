@@ -20,7 +20,7 @@ type TStore = {
   readonly engine: Matter.Engine
   readonly render: Matter.Render
   readonly world: Matter.World
-  readonly radius: number             // Interaction radius
+  readonly radius: number // Interaction radius
   readonly isRegionalComputing: boolean
   readonly isWrappedX: boolean
   readonly isWrappedY: boolean
@@ -38,7 +38,7 @@ type TStore = {
   tick: number
   everyFrame: number
   timeScale: number
-}
+};
 
 type TLiquidProps = {
   color?: string
@@ -70,8 +70,9 @@ type TSpring = number;
 type TEvents = {
   pauseChange: (isPaused: boolean)=>void
   particleRemove: (particle: TLiquidParticle, particleId: number, liquid: TLiquidProps)=>void
-}
+};
 
 type TSavedParticlesPositions = {
   [key: number]: TVector
 }
+;

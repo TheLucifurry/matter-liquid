@@ -4,7 +4,7 @@ import Liquid from './liquid';
 const MatterLiquid = {
   name: Package.name,
   version: Package.version,
-  for: `matter-js@0.16.1`,
+  for: 'matter-js@0.16.1',
   // uses: [],
   // options: {
   //   something: true,
@@ -19,9 +19,9 @@ const MatterLiquid = {
       create(config: TLiquidConfig) {
         return new Liquid(config);
       },
-    }
+    };
   },
 };
 
-//@ts-ignore
+// @ts-ignore
 Matter.Plugin.register(MatterLiquid);

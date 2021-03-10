@@ -5,6 +5,7 @@ const eventsNames: Array<keyof TEvents> = [
 
 export default function createEventsObject(): TEvents {
   const res: Partial<TEvents> = {};
-  eventsNames.forEach(name=>res[name] = ()=>0);
+  // eslint-disable-next-line no-return-assign
+  eventsNames.forEach((name) => res[name] = () => 0);
   return res as TEvents;
 }
