@@ -78,11 +78,17 @@ export default class Liquid extends State {
   }
 
   fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number, interval: number = this.store.radius): void {
+    const halfInterval = interval / 2;
     const columns = Math.max(1, Math.trunc(zoneWidth / interval));
     const rows = Math.max(1, Math.trunc(zoneHeight / interval));
     for (let c = 0; c < columns; c++) {
       for (let r = 0; r < rows; r++) {
-        this.spawnParticle(liquidid, zoneX + c * interval, zoneY + r * interval);
+        const x = zoneX + halfInterval + c * interval;
+        const y = zoneY + halfInterval + r * interval;
+        this.spawnParticle(liquidid, x, y);
+        if (c !== columns - 1 && r !== rows - 1) {
+          this.spawnParticle(liquidid, x + halfInterval, y + halfInterval);
+        }
       }
     }
   }
