@@ -43,6 +43,14 @@ export default function () {
   const liquid = Liquid.create({
     engine,
     render,
+    liquids: [{
+      color: 'lime',
+    }, {
+      color: 'red',
+    }, {
+      color: 'blue',
+    }],
+    // particleTextureScale: 0.7,
     // isAdvancedAlgorithm: true,
     // isRegionalComputing: true,
     // gravityRatio: 0.5,
@@ -51,7 +59,7 @@ export default function () {
     isDebug: true,
     updateEveryFrame: 1,
     // timeScale: 1.5,
-    // isWorldWrapped: true,
+    // worldWrapping: [true, false],
   });
 
   const bodyStyle = { fillStyle: '#fff' };
@@ -60,16 +68,16 @@ export default function () {
   const catapult = Bodies.rectangle(0, 0, 520, 40);
   World.add(world, [
     // walls
-    Bodies.rectangle(0, world.bounds.min.y + wallWidth / 2, worldSize, wallWidth, { isStatic: true, render: bodyStyle }),
-    Bodies.rectangle(world.bounds.max.x - wallWidth / 2, 0, wallWidth, worldSize, { isStatic: true, render: bodyStyle }),
-    Bodies.rectangle(0, world.bounds.max.y - wallWidth / 2, worldSize, wallWidth, { isStatic: true, render: bodyStyle }),
-    Bodies.rectangle(world.bounds.min.x + wallWidth / 2, 0, wallWidth, worldSize, { isStatic: true, render: bodyStyle }),
+    // Bodies.rectangle(0, world.bounds.min.y + wallWidth / 2, worldSize, wallWidth, { isStatic: true, render: bodyStyle }),
+    // Bodies.rectangle(world.bounds.max.x - wallWidth / 2, 0, wallWidth, worldSize, { isStatic: true, render: bodyStyle }),
+    // Bodies.rectangle(0, world.bounds.max.y - wallWidth / 2, worldSize, wallWidth, { isStatic: true, render: bodyStyle }),
+    // Bodies.rectangle(world.bounds.min.x + wallWidth / 2, 0, wallWidth, worldSize, { isStatic: true, render: bodyStyle }),
 
-    Constraint.create({
-      bodyA: catapult,
-      pointB: Vector.clone(catapult.position),
-    }),
-    catapult,
+    // Constraint.create({
+    //   bodyA: catapult,
+    //   pointB: Vector.clone(catapult.position),
+    // }),
+    // catapult,
     // Bodies.rectangle(400, 750, 1200, wallWidth, { isStatic: true, render: bodyStyle }),
     // Bodies.rectangle(25, 300, wallWidth, 850, { isStatic: true, render: bodyStyle }),
 
@@ -136,16 +144,16 @@ export default function () {
 };
 
 function pluginUsingExample(liquid) {
-  liquid.createLiquid({
-    color: 'cyan',
-  });
   const dynamicid = 0;
+  const orangeid = 1;
+  const violedid = 2;
   // liquid.fillZoneByLiquid(100, 50, 800, 500, dynamicid);
 
   // liquid.fillZoneByLiquid(-100, -100, 200, 200, dynamicid);
   // liquid.fillZoneByLiquid(150, 150, 100, 100, dynamicid);
-  liquid.fillZoneByLiquid(-250, -250, 500, 500, dynamicid);
-  liquid.fillZoneByLiquid(-500, -500, 1000, 1000, dynamicid);
+  liquid.fillZoneByLiquid(-500, 300, 1000, 300, dynamicid);
+  liquid.fillZoneByLiquid(-500, -500, 300, 500, orangeid);
+  liquid.fillZoneByLiquid(200, -500, 300, 500, violedid);
 
   const space = 12;
 
