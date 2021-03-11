@@ -105,18 +105,18 @@ export default class SpatialHash {
     }
 
     // Filter only parts in radius
-    const filteredRes: TSHItem[] = [];
-    for (let i = 0; i < res.length; i++) {
-      const pid = res[i];
-      const part = particles[pid];
-      const partX: number = trunc(part[PARTICLE_PROPS.X], this.cellSize); const
-        partY: number = trunc(part[PARTICLE_PROPS.Y], this.cellSize);
-      if ((partX - centerCellX) ** 2 + (partY - centerCellY) ** 2 <= 1) {
-        filteredRes.push(pid);
-      }
-    }
-
-    return filteredRes;
+    // const filteredRes: TSHItem[] = [];
+    // for (let i = 0; i < res.length; i++) {
+    //   const pid = res[i];
+    //   const part = particles[pid];
+    //   const partX: number = trunc(part[PARTICLE_PROPS.X], this.cellSize); const
+    //     partY: number = trunc(part[PARTICLE_PROPS.Y], this.cellSize);
+    //   if ((partX - centerCellX) ** 2 + (partY - centerCellY) ** 2 <= 1) {
+    //     filteredRes.push(pid);
+    //   }
+    // }
+    // return filteredRes;
+    return res;
   }
 
   fill(particles: TLiquidParticle[]): void {
