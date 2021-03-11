@@ -4,21 +4,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,minimal-ui">
-  <meta name="theme-color" content="#000000">
-  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="theme-color" content="#00ffff">
+  <meta name="msapplication-navbutton-color" content="#00ffff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Liquid simulation JS</title>
   <style type="text/css">
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-    }
-
+    body { margin: 0; }
+    /* stats.js dependent */
     .counter-caption {
       width: 80px;
       padding-top: 22px;
@@ -28,10 +21,9 @@
       text-align: center;
       user-select: none;
     }
-
     /* matter-tools dependent */
-    .matter-demo canvas {
-      outline: 1px solid #fff;
+    .matter-demo>canvas {
+      border: 1px solid #777;
     }
   </style>
 </head>
@@ -44,6 +36,7 @@
   <script src="./build/matter-liquid.js"></script>
   <script type="module">
     import examBasic from './examples/basic.js';
+    import examDev from './examples/dev.js';
 
     let pluginName = 'matter-liquid'; // PLUGIN_NAME
     let repoUrl = 'https://github.com/Wexelus/matter-liquid'; // PLUGIN_REPO_URL
@@ -98,7 +91,13 @@
           id: 'basic',
           init: examBasic,
           sourceLink: repoUrl + '/blob/master/examples/basic.js'
-        }
+        },
+        {
+          name: 'Dev',
+          id: 'dev',
+          init: examDev,
+          sourceLink: repoUrl + '/blob/master/examples/dev.js'
+        },
       ]
     });
 
