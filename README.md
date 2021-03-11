@@ -4,14 +4,17 @@
 
 The matter-liquid plugin
 
-## Features
+## Demos
+[Basic](https://wexelus.github.io/matter-liquid)
+
+<!-- ## Features
 
 - Multiple liquid types support
 
 ## Install
 
 ```
-    npm install matter-liquid
+npm install matter-liquid
 ```
 
 Include plugin [using plugins](https://github.com/liabru/matter-js/wiki/Using-plugins)
@@ -19,4 +22,4 @@ Include plugin [using plugins](https://github.com/liabru/matter-js/wiki/Using-pl
 ## Usage
 
 ```javascript
-```
+``` -->
