@@ -29,11 +29,13 @@ function renderGrid(store: TStore) {
 // export const partColors: Map<number, string> = new Map();
 
 export function generateParticleTexture(color: string, radius: number): OffscreenCanvas {
-  const particleTexture = new OffscreenCanvas(radius * 2, radius * 2);
+  const particleTexture = new OffscreenCanvas(radius * 4, radius * 4);
   const partTexCtx = particleTexture.getContext('2d');
+  partTexCtx.shadowColor = color;
+  partTexCtx.shadowBlur = radius;
   partTexCtx.beginPath();
   partTexCtx.fillStyle = color;
-  partTexCtx.arc(radius, radius, radius, 0, 2 * Math.PI);
+  partTexCtx.arc(radius * 2, radius * 2, radius, 0, 2 * Math.PI);
   partTexCtx.fill();
   return particleTexture;
 }
