@@ -156,34 +156,37 @@ function adjustSprings(store: TStore, updatedPids: number[], dt: number) {
   });
 }
 function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) {
-  const kNear = store.radius / 3; // stiffness near (вроде, влияет на текучесть)
+  const p0 = store.radius * 0.2; // rest density
+  const k = 0.3; // stiffness range[0..1]
+  const kNear = store.radius * 0.3; // stiffness near (вроде, влияет на текучесть)
 
   let p = 0;
   let pNear = 0;
   const neighbors = getNeighbors(store, i);
-  eachNeighbors(store.particles, neighbors, (j) => {
-    const q = vectorLength(vectorDiv(getR(i, j), store.radius)); // q ← rij/h
+  const pairsDataList: [number, TVector, TLiquidParticle][] = [];
+  for (let n = 0; n < neighbors.length; n++) {
+    const j = store.particles[neighbors[n]];
+    const r = getR(i, j);
+    const q = vectorLength(vectorDiv(r, store.radius)); // q ← rij/h
     if (q < 1) {
-      p += (1 - q) ** 2;
-      pNear += (1 - q) ** 3;
+      const oneMinQ = 1 - q;
+      p += oneMinQ ** 2;
+      pNear += oneMinQ ** 3;
+      pairsDataList.push([oneMinQ, r, j]);
     }
-  });
+  }
   const P = k * (p - p0);
   const PNear = kNear * pNear;
   const dx: TVector = [0, 0];
-  eachNeighbors(store.particles, neighbors, (j) => {
-    const r = getR(i, j);
+  for (let n = 0; n < pairsDataList.length; n++) {
+    const [oneMinQ, r, j] = pairsDataList[n];
     const rNormal = vectorNormal(r);
-    const q = vectorLength(vectorDiv(r, store.radius)); // q ← rij/h
-    // console.log(`q: ${q}`);
-    if (q < 1) {
-      const D = vectorMul(rNormal, dt ** 2 * (P * (1 - q) + PNear * (1 - q) ** 2));
-      const halfD = vectorDiv(D, 2);
-      dx[0] -= halfD[0];
-      dx[1] -= halfD[1];
-      partPosAdd(j, halfD);
-    }
-  });
+    const D = vectorMul(rNormal, dt ** 2 * (P * oneMinQ + PNear * oneMinQ ** 2));
+    const halfD = vectorDiv(D, 2);
+    dx[0] -= halfD[0];
+    dx[1] -= halfD[1];
+    partPosAdd(j, halfD);
+  }
   partPosAdd(i, dx);
 }
 function applyI(part: TLiquidParticle, I: TVector) {
@@ -286,7 +289,7 @@ export function simple(liquid: CLiquid, dt: number): void {
     applyGravity(part, dt, gravity); // vi ← vi + ∆tg
     particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]]; // Save previous position: xi^prev ← xi
 
-    limitVelocity(part, Store.radius * 0.65);
+    limitVelocity(part, Store.radius * 0.6);
 
     addParticlePositionByVelocity(part, dt); // Add Particle Position By Velocity: xi ← xi + ∆tvi
   });
