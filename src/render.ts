@@ -57,7 +57,7 @@ let mouse: Matter.Mouse; let constraint: Matter.Constraint; let body: Matter.Bod
 
 if (DEV) {
   // @ts-ignore
-  window.TEST_MOUSE_MOVE = function (mouseConstraint: Matter.MouseConstraint) {
+  window.TEST_MOUSE_MOVE = (mouseConstraint: Matter.MouseConstraint) => {
     mouse = mouseConstraint.mouse;
     constraint = mouseConstraint.constraint;
     body = mouseConstraint.body;
@@ -65,13 +65,13 @@ if (DEV) {
   };
 }
 
-export function update(liquid: CLiquid) {
+export function update(liquid: CLiquid): void {
   // @ts-ignore
   Matter.Render.startViewTransform(liquid.store.render);
   drawParticles(liquid.store);
 }
 
-export function updateDebug(liquid: CLiquid) {
+export function updateDebug(liquid: CLiquid): void {
   const { store } = liquid; const
     ctx = store.render.context;
 
