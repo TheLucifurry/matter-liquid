@@ -115,7 +115,7 @@ export default function () {
   });
   // TEST
   Matter.Events.on(mouseConstraint, "mousemove", function () {
-    window.TEST_MOUSE_MOVE(mouseConstraint);
+    if (window.TEST_MOUSE_MOVE) window.TEST_MOUSE_MOVE(mouseConstraint);
   });
 
   World.add(world, mouseConstraint);
