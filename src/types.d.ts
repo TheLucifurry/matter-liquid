@@ -12,6 +12,7 @@ type TLiquidConfig = {
   updateEveryFrame?: number
   timeScale?: number
   worldWrapping: boolean | [boolean, boolean]
+  bordersBounce : number
   isDebug?: boolean
   particleTextureScale?: number
 };
@@ -26,6 +27,7 @@ type TStore = {
   readonly isWrappedY: boolean
   readonly liquids: Required<TLiquidProps>[]
 
+  bordersBounce: number
   isPaused: boolean
   gravityRatio: number
   spatialHash: CSpatialHash

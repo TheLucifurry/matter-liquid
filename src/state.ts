@@ -1,5 +1,5 @@
 import {
-  GRAVITY_RATIO, INTERACTION_RADIUS, EVERY_FRAME, TIME_SCALE, IS_REGIONAL_COMPUTING, IS_WORLD_WRAPPED, PARTICLE_TEX_RADIUS_SCALE,
+  GRAVITY_RATIO, INTERACTION_RADIUS, EVERY_FRAME, TIME_SCALE, IS_REGIONAL_COMPUTING, IS_WORLD_WRAPPED, PARTICLE_TEX_RADIUS_SCALE, BORDERS_BOUNCE_VALUE,
 } from './constants';
 import SpatialHash from './spatialHash';
 import createEventsObject from './events';
@@ -44,6 +44,7 @@ export default abstract class State {
       isRegionalComputing: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
       liquids: config.liquids.map((l) => createLiquid(l, particleTextureSize)),
 
+      bordersBounce: config.bordersBounce || BORDERS_BOUNCE_VALUE,
       isPaused: false,
       gravityRatio: GRAVITY_RATIO,
       spatialHash: new SpatialHash(),
