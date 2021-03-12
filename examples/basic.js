@@ -1,69 +1,35 @@
-import * as Util from './lib/utils.js';
+import { setWorldSize, setWorldBackground, init, cameraLookAt, initMouse, setDripper, getWorldParams } from './lib/fragments.js';
+import { randomArrayItem } from './lib/utils.js';
 
 export default function () {
-  const { Engine, Render, Runner, MouseConstraint, Mouse, World, Body, Bodies, Constraint, Vector, Liquid } = Matter;
+  const { Liquid } = Matter;
+  const { engine, world, render, runner } = init();
 
-  // create engine
-  const engine = Engine.create();
-  const { world } = engine;
-
-  // create renderer
-  const render = Render.create({
-    element: document.body,
-    engine,
-    options: {
-      width: document.documentElement.clientWidth * 0.9,
-      height: document.documentElement.clientHeight * 0.9,
-      wireframes: false,
-    },
-  });
-  Render.run(render);
-
-  // world bounds
   const worldSize = 1024;
-  world.bounds.min.x = -worldSize / 2;
-  world.bounds.min.y = -worldSize / 2;
-  world.bounds.max.x = worldSize / 2;
-  world.bounds.max.y = worldSize / 2;
+  const color = randomArrayItem(['cyan', 'orange', 'lime', 'violet']);
+  const bgColor = {
+    'cyan': '#050820',
+    'orange': '#140B02',
+    'lime': '#051102',
+    'violet': '#150320',
+  }[color];
 
-  // Background
-  const background = Bodies.rectangle(0, 0, world.bounds.max.x - world.bounds.min.x, world.bounds.max.y - world.bounds.min.y, {
-    isStatic: true,
-    render: {
-      fillStyle: '#101840',
-    }
-  });
-  World.add(world, background);
-
-  const renderPadding = 50;
-  Render.lookAt(render, {
-    min: { x: world.bounds.min.x - renderPadding, y: world.bounds.min.y - renderPadding },
-    max: { x: world.bounds.max.x + renderPadding, y: world.bounds.max.y + renderPadding },
-  });
-
-  // create runner
-  const runner = Runner.create();
-  Runner.run(runner, engine);
+  setWorldSize(world, worldSize);
+  setWorldBackground(world, bgColor);
+  cameraLookAt(render, world.bounds);
+  const { mouseConstraint } = initMouse(render);
 
   const liquid = Liquid.create({
     engine,
     render,
-    liquids: [{ color: 'cyan' }], // Define one liquid type with cyan color
-    updateEveryFrame: 1,          // Set max 60 FPS
+    liquids: [{ color }], // Define one liquid
+    updateEveryFrame: 1,  // Set max 60 FPS
   });
+  const { minX, maxX, minY, maxY, width } = getWorldParams(world);
+  const liquidCyanId = 0;
+  const seaHeight = 400;
+  liquid.fillZoneByLiquid(minX, maxY - seaHeight, width, seaHeight, liquidCyanId);
 
-  // add mouse control
-  const mouse = Mouse.create(render.canvas);
-  const mouseConstraint = MouseConstraint.create(engine, {
-    mouse,
-    constraint: {
-      render: { visible: false },
-    },
-  });
-  World.add(world, mouseConstraint);
-  render.mouse = mouse; // keep the mouse in sync with rendering
-
-  pluginUsing(liquid);
   setDripper(render, liquid, mouseConstraint);
 
   // For stats
@@ -81,31 +47,3 @@ export default function () {
     },
   };
 };
-
-function setDripper(render, liquid, mouseConstraint) {
-  const liquidCyanId = 0;
-  const radius = 100;
-  Util.onpressedPointer(render.canvas, (event, isMainButton) => {
-    let point = mouseConstraint.mouse.position;
-    const x = point.x - radius, y = point.y - radius;
-    if (isMainButton) {
-      liquid.fillZoneByLiquid(x, y, radius * 2, radius * 2, liquidCyanId);
-    } else {
-      liquid.clearZoneByLiquid(x, y, radius * 2, radius * 2, liquidCyanId);
-    }
-  }, 50);
-}
-
-function pluginUsing(liquid) {
-  const liquidCyanId = 0;
-  const worldBounds = liquid.store.world.bounds;
-  const worldXmin = worldBounds.min.x;
-  const worldXmax = worldBounds.max.x;
-  const worldYmin = worldBounds.min.y;
-  const worldYmax = worldBounds.max.y;
-  const worldWidth = worldXmax - worldXmin;
-
-  const seaHeight = 400;
-
-  liquid.fillZoneByLiquid(worldXmin, worldYmax - seaHeight, worldWidth, seaHeight, liquidCyanId);
-}

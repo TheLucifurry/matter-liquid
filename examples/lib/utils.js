@@ -53,3 +53,7 @@ export const KEY_CODES = {
   RIGHT: 'ArrowRight',
   DOWN: 'ArrowDown',
 }
+
+export function randomArrayItem(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
