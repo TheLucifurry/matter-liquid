@@ -1,4 +1,4 @@
-import { PARTICLE_PROPS } from './constants';
+import { P } from './constants';
 import { arrayEach } from './helpers/cycles';
 import { checkPointInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds } from './helpers/utils';
 
@@ -45,9 +45,9 @@ function drawParticles(store: TStore) {
     ctx = store.render.context;
   const renderRect = getRectWithPaddingsFromBounds(store.render.bounds, store.renderBoundsPadding);
   arrayEach(particles, (part, pid) => {
-    if (part === null || !checkPointInRect(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y], ...renderRect)) return;
-    const x = Math.floor(part[PARTICLE_PROPS.X]);
-    const y = Math.floor(part[PARTICLE_PROPS.Y]);
+    if (part === null || !checkPointInRect(part[P.X], part[P.Y], ...renderRect)) return;
+    const x = Math.floor(part[P.X]);
+    const y = Math.floor(part[P.Y]);
     const particleTexture = liquidOfParticleId[pid].texture;
     const texSizeHalf = particleTexture.height / 2;
     ctx.drawImage(particleTexture, x - texSizeHalf, y - texSizeHalf);
@@ -117,8 +117,8 @@ export function updateDebug(liquid: CLiquid): void {
       ctx.strokeRect(body.bounds.min.x, body.bounds.min.y, body.bounds.max.x - body.bounds.min.x, body.bounds.max.y - body.bounds.min.y);
       insideBoundsPartids.forEach((pid) => {
         const part = liquid.store.particles[pid];
-        const x = part[PARTICLE_PROPS.X]; const
-          y = part[PARTICLE_PROPS.Y];
+        const x = part[P.X];
+        const y = part[P.Y];
         ctx.fillStyle = 'yellow';
         ctx.fillRect(x - 2, y - 2, 4, 4);
       });

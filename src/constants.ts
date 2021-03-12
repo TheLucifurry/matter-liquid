@@ -9,7 +9,7 @@ export const IS_WORLD_WRAPPED = false;
 export const PARTICLE_TEX_RADIUS_SCALE = 0.3;
 export const BORDERS_BOUNCE_VALUE = 0.8;
 
-export const PARTICLE_PROPS = {
+export const P = {
   X: 0,
   Y: 1,
   VEL_X: 2,

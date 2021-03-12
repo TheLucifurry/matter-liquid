@@ -1,4 +1,4 @@
-import { PARTICLE_PROPS } from './constants';
+import { P } from './constants';
 
 function trunc(number: number, divider: number): number {
   return Math.round(number / divider);
@@ -121,8 +121,8 @@ export default class SpatialHash {
 
   fill(particles: TLiquidParticle[]): void {
     particles.forEach((part, pid) => {
-      const x = part[PARTICLE_PROPS.X]; const
-        y = part[PARTICLE_PROPS.Y];
+      const x = part[P.X];
+      const y = part[P.Y];
       this.insert(pid, x, y);
     });
   }

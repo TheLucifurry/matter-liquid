@@ -1,4 +1,4 @@
-import { PARTICLE_PROPS } from '../constants';
+import { P } from '../constants';
 import { checkPointInRect } from './utils';
 
 export function arrayEach(array: any[], iteratee: (element: any, index: number)=>void): void { // From lodash
@@ -8,7 +8,7 @@ export function arrayEach(array: any[], iteratee: (element: any, index: number)=
 }
 export function foreachActive(liquid: CLiquid, activeRect: TRect, arr: TLiquidParticle[], callback: (particle: TLiquidParticle, particleid: number)=>void): void {
   arrayEach(arr, (part, id) => {
-    if (part === null || (activeRect && !checkPointInRect(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y], ...activeRect))) return; // Ignore static or inactive particles
+    if (part === null || (activeRect && !checkPointInRect(part[P.X], part[P.Y], ...activeRect))) return; // Ignore static or inactive particles
     callback(part, id);
   });
 }
@@ -22,7 +22,7 @@ export function foreachIds(particles: TLiquidParticle[], pids: number[], callbac
   arrayEach(pids, (pid) => callback(particles[pid], pid));
 }
 export function getNeighbors(store: TStore, part: TLiquidParticle): number[] {
-  return store.spatialHash.getAroundCellsItems(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y], store.particles);
+  return store.spatialHash.getAroundCellsItems(part[P.X], part[P.Y], store.particles);
 }
 export function eachNeighbors(particles: TLiquidParticle[], neighbors: number[], cb: (neighborParticle: TLiquidParticle, neighborPid: number)=>void): void {
   arrayEach(neighbors, (pid) => cb(particles[pid], pid));

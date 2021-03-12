@@ -1,5 +1,5 @@
 import Matter from 'matter-js';
-import { PARTICLE_PROPS } from '../constants';
+import { P } from '../constants';
 
 export function checkPointInRect(pointX: number, pointY: number, rectX1: number, rectY1: number, rectX2: number, rectY2: number): boolean {
   return (pointX > rectX1 && pointX < rectX2) && (pointY > rectY1 && pointY < rectY2);
@@ -59,8 +59,8 @@ export function getParticlesInsideBodyIds(particles: TLiquidParticle[], body: Ma
   for (let i = 0; i < nearParticlesIds.length; i++) {
     const pid = nearParticlesIds[i];
     const part = particles[pid];
-    const x = part[PARTICLE_PROPS.X]; const
-      y = part[PARTICLE_PROPS.Y];
+    const x = part[P.X];
+    const y = part[P.Y];
     if (checkBodyContainsPoint(body, x, y)) {
       res.push(pid);
     }

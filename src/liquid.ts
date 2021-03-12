@@ -1,7 +1,7 @@
 import Matter from 'matter-js';
 import * as Algorithm from './algorithm';
 import * as Renderer from './render';
-import { PARTICLE_PROPS } from './constants';
+import { P } from './constants';
 import State from './state';
 import { checkPointInRect } from './helpers/utils';
 
@@ -59,10 +59,10 @@ export default class Liquid extends State {
   spawnParticle(liquidid: number, x: number, y: number): void {
     const pid = this.store.freeParticleIds.length === 0 ? this.store.particles.length : this.store.freeParticleIds.pop();
     const particle = new Float32Array(4);
-    particle[PARTICLE_PROPS.X] = x;
-    particle[PARTICLE_PROPS.Y] = y;
-    particle[PARTICLE_PROPS.VEL_X] = 0;
-    particle[PARTICLE_PROPS.VEL_Y] = 0;
+    particle[P.X] = x;
+    particle[P.Y] = y;
+    particle[P.VEL_X] = 0;
+    particle[P.VEL_Y] = 0;
     this.store.liquidOfParticleId[pid] = this.store.liquids[liquidid];
     this.store.particles[pid] = particle;
     this.store.spatialHash.insert(pid, x, y);
@@ -95,14 +95,14 @@ export default class Liquid extends State {
 
   clearZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number): void {
     this.store.particles.forEach((part, pid) => {
-      if (part !== null && checkPointInRect(part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y], zoneX, zoneY, zoneX + zoneWidth, zoneY + zoneHeight)) {
+      if (part !== null && checkPointInRect(part[P.X], part[P.Y], zoneX, zoneY, zoneX + zoneWidth, zoneY + zoneHeight)) {
         this.removeParticle(pid);
       }
     });
   }
 
   checkRectContainsParticle(rect: TRect, particle: TLiquidParticle): boolean {
-    return checkPointInRect(particle[PARTICLE_PROPS.X], particle[PARTICLE_PROPS.Y], ...rect);
+    return checkPointInRect(particle[P.X], particle[P.Y], ...rect);
   }
 }
 

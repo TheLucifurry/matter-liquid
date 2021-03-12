@@ -1,4 +1,4 @@
-import { PARTICLE_PROPS } from './constants';
+import { P } from './constants';
 import {
   vectorClampMaxLength, vectorDiv, vectorFromTwo, vectorLength, vectorMul, vectorMulVector, vectorNormal, vectorSubVector,
 } from './helpers/vector';
@@ -21,11 +21,11 @@ const kSpring = 0.001; // (в доке по дефолту 0.3)
 const alpha = 0.03; // α - константа пластичности
 
 function getR(a: TLiquidParticle, b: TLiquidParticle): TVector {
-  return vectorFromTwo([a[PARTICLE_PROPS.X], a[PARTICLE_PROPS.Y]], [b[PARTICLE_PROPS.X], b[PARTICLE_PROPS.Y]]);
+  return vectorFromTwo([a[P.X], a[P.Y]], [b[P.X], b[P.Y]]);
 }
 function computeI(part: TLiquidParticle, body: Matter.Body): TVector {
   const bodyVelVector: TVector = [body.velocity.x, body.velocity.y];
-  const v_ = vectorSubVector([part[PARTICLE_PROPS.VEL_X], part[PARTICLE_PROPS.VEL_Y]], bodyVelVector); // vi − vp
+  const v_ = vectorSubVector([part[P.VEL_X], part[P.VEL_Y]], bodyVelVector); // vi − vp
   const n_ = vectorNormal(bodyVelVector);
   const vNormal = vectorMulVector(vectorMulVector(v_, n_), n_); // = (v¯ * nˆ)nˆ
   const vTangent = vectorSubVector(v_, vNormal); // v¯ − v¯normal
@@ -33,25 +33,25 @@ function computeI(part: TLiquidParticle, body: Matter.Body): TVector {
 }
 function getVelDiff(a: TLiquidParticle, b: TLiquidParticle): TVector {
   return vectorFromTwo(
-    [b[PARTICLE_PROPS.VEL_X], b[PARTICLE_PROPS.VEL_Y]],
-    [a[PARTICLE_PROPS.VEL_X], a[PARTICLE_PROPS.VEL_Y]],
+    [b[P.VEL_X], b[P.VEL_Y]],
+    [a[P.VEL_X], a[P.VEL_Y]],
   );
 }
 function addVel(part: TLiquidParticle, vec: TVector) {
-  part[PARTICLE_PROPS.VEL_X] += vec[0];
-  part[PARTICLE_PROPS.VEL_Y] += vec[1];
+  part[P.VEL_X] += vec[0];
+  part[P.VEL_Y] += vec[1];
 }
 function subVel(part: TLiquidParticle, vec: TVector) {
-  part[PARTICLE_PROPS.VEL_X] -= vec[0];
-  part[PARTICLE_PROPS.VEL_Y] -= vec[1];
+  part[P.VEL_X] -= vec[0];
+  part[P.VEL_Y] -= vec[1];
 }
 function partPosAdd(part: TLiquidParticle, vec: TVector) {
-  part[PARTICLE_PROPS.X] += vec[0];
-  part[PARTICLE_PROPS.Y] += vec[1];
+  part[P.X] += vec[0];
+  part[P.Y] += vec[1];
 }
 function partPosSub(part: TLiquidParticle, vec: TVector) {
-  part[PARTICLE_PROPS.X] -= vec[0];
-  part[PARTICLE_PROPS.Y] -= vec[1];
+  part[P.X] -= vec[0];
+  part[P.Y] -= vec[1];
 }
 function getSpringKey(currentParticleid: number, neighborPid: number): TSHCellId {
   return `${currentParticleid}.${neighborPid}`;
@@ -61,21 +61,21 @@ function getPidsFromSpringKey(springKey: string): TVector {
   return [+currentPid, +neighborPid];
 }
 function applyGravity(part: TLiquidParticle, dt: number, gravity: TVector) {
-  part[PARTICLE_PROPS.VEL_X] += dt * gravity[0];
-  part[PARTICLE_PROPS.VEL_Y] += dt * gravity[1];
+  part[P.VEL_X] += dt * gravity[0];
+  part[P.VEL_Y] += dt * gravity[1];
 }
 function addParticlePositionByVelocity(part: TLiquidParticle, dt: number) {
-  part[PARTICLE_PROPS.X] += dt * part[PARTICLE_PROPS.VEL_X];
-  part[PARTICLE_PROPS.Y] += dt * part[PARTICLE_PROPS.VEL_Y];
+  part[P.X] += dt * part[P.VEL_X];
+  part[P.Y] += dt * part[P.VEL_Y];
 }
 function computeNextVelocity(part: TLiquidParticle, dt: number, prevPositions: TVector) {
-  part[PARTICLE_PROPS.VEL_X] = (part[PARTICLE_PROPS.X] - prevPositions[0]) / dt;
-  part[PARTICLE_PROPS.VEL_Y] = (part[PARTICLE_PROPS.Y] - prevPositions[1]) / dt;
+  part[P.VEL_X] = (part[P.X] - prevPositions[0]) / dt;
+  part[P.VEL_Y] = (part[P.Y] - prevPositions[1]) / dt;
 }
 function limitVelocity(part: TLiquidParticle, maxValue: number) {
-  const [limX, limY]: TVector = vectorClampMaxLength([part[PARTICLE_PROPS.VEL_X], part[PARTICLE_PROPS.VEL_Y]], maxValue);
-  part[PARTICLE_PROPS.VEL_X] = limX;
-  part[PARTICLE_PROPS.VEL_Y] = limY;
+  const [limX, limY]: TVector = vectorClampMaxLength([part[P.VEL_X], part[P.VEL_Y]], maxValue);
+  part[P.VEL_X] = limX;
+  part[P.VEL_Y] = limY;
 }
 
 function applyViscosity(store: TStore, i: TLiquidParticle, dt: number) {
@@ -190,8 +190,8 @@ function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) 
   partPosAdd(i, dx);
 }
 function applyI(part: TLiquidParticle, I: TVector) {
-  part[PARTICLE_PROPS.X] -= I[0];
-  part[PARTICLE_PROPS.Y] -= I[1];
+  part[P.X] -= I[0];
+  part[P.Y] -= I[1];
 }
 
 function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: number[]) {
@@ -237,7 +237,7 @@ function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: numb
     foreachIds(particles, particlesInBodyIds, (part) => { // foreach particle inside the body
       const I = computeI(part, body); // compute collision impulse I
       applyI(part, I); // apply I to the particle
-      if (checkBodyContainsPoint(body, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y])) {
+      if (checkBodyContainsPoint(body, part[P.X], part[P.Y])) {
         // extract the particle if still inside the body
         // const bodyCenterPos: TVector = [body.position.x, body.position.y];
         // const partPrevPos: TVector = [part[PARTICLE_PROPS.PREV_X], part[PARTICLE_PROPS.PREV_Y]];
@@ -258,27 +258,27 @@ function endComputing(store: TStore, updatedPids: number[], dt: number, particle
     const bounce = store.bordersBounce;
     const b = store.world.bounds;
     if (!store.isWrappedX) {
-      const oldX = part[PARTICLE_PROPS.X];
-      part[PARTICLE_PROPS.X] = mathClamp(oldX, b.min.x, b.max.x);
-      if (oldX !== part[PARTICLE_PROPS.X]) {
-        part[PARTICLE_PROPS.VEL_X] *= -bounce;
-        part[PARTICLE_PROPS.VEL_Y] *= bounce;
+      const oldX = part[P.X];
+      part[P.X] = mathClamp(oldX, b.min.x, b.max.x);
+      if (oldX !== part[P.X]) {
+        part[P.VEL_X] *= -bounce;
+        part[P.VEL_Y] *= bounce;
       }
     } else {
-      part[PARTICLE_PROPS.X] = mathWrap(part[PARTICLE_PROPS.X], b.min.x, b.max.x);
+      part[P.X] = mathWrap(part[P.X], b.min.x, b.max.x);
     }
     if (!store.isWrappedY) {
-      const oldY = part[PARTICLE_PROPS.Y];
-      part[PARTICLE_PROPS.Y] = mathClamp(oldY, b.min.y, b.max.y);
-      if (oldY !== part[PARTICLE_PROPS.Y]) {
-        part[PARTICLE_PROPS.VEL_X] *= bounce;
-        part[PARTICLE_PROPS.VEL_Y] *= -bounce;
+      const oldY = part[P.Y];
+      part[P.Y] = mathClamp(oldY, b.min.y, b.max.y);
+      if (oldY !== part[P.Y]) {
+        part[P.VEL_X] *= bounce;
+        part[P.VEL_Y] *= -bounce;
       }
     } else {
-      part[PARTICLE_PROPS.Y] = mathWrap(part[PARTICLE_PROPS.Y], b.min.y, b.max.y);
+      part[P.Y] = mathWrap(part[P.Y], b.min.y, b.max.y);
     }
 
-    store.spatialHash.update(pid, part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]);
+    store.spatialHash.update(pid, part[P.X], part[P.Y]);
   });
 }
 
@@ -292,7 +292,7 @@ export function simple(liquid: CLiquid, dt: number): void {
   foreachActive(liquid, activeRect, Store.particles, (part, pid) => {
     updatedPids.push(pid);
     applyGravity(part, dt, gravity); // vi ← vi + ∆tg
-    particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]]; // Save previous position: xi^prev ← xi
+    particlesPrevPositions[pid] = [part[P.X], part[P.Y]]; // Save previous position: xi^prev ← xi
 
     limitVelocity(part, Store.radius * 0.6);
 
@@ -321,7 +321,7 @@ export function advanced(liquid: CLiquid, dt: number): void {
   });
   foreachIds(Store.particles, updatedPids, (part, pid) => {
     // _limitMoving(part); // Custom
-    particlesPrevPositions[pid] = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]]; // Save previous position: xi^prev ← xi
+    particlesPrevPositions[pid] = [part[P.X], part[P.Y]]; // Save previous position: xi^prev ← xi
     addParticlePositionByVelocity(part, dt); // Add Particle Position By Velocity: xi ← xi + ∆tvi
   });
   adjustSprings(Store, updatedPids, dt);
