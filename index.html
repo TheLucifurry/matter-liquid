@@ -36,6 +36,7 @@
   <script src="./build/matter-liquid.js"></script>
   <script type="module">
     import examBasic from './examples/basic.js';
+    import examView from './examples/view.js';
     import examDev from './examples/dev.js';
 
     let pluginName = 'matter-liquid'; // PLUGIN_NAME
@@ -91,6 +92,12 @@
           id: 'basic',
           init: examBasic,
           sourceLink: repoUrl + '/blob/master/examples/basic.js'
+        },
+        {
+          name: 'View',
+          id: 'view',
+          init: examView,
+          sourceLink: repoUrl + '/blob/master/examples/view.js'
         },
         {
           name: 'Dev',

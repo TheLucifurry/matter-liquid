@@ -1,41 +1,76 @@
+import { setWorldSize, setWorldBackground, init, cameraLookAt, initMouse, setDripper, getWorldParams } from './lib/fragments.js';
+import { randomArrayItem } from './lib/utils.js';
+
+export default function () {
+  const { Liquid } = Matter;
+  const { engine, world, render, runner } = init();
+
+  const worldSize = 1024;
+  const color = randomArrayItem(['cyan', 'orange', 'lime', 'violet']);
+  const bgColor = {
+    'cyan': '#050820',
+    'orange': '#140B02',
+    'lime': '#051102',
+    'violet': '#150320',
+  }[color];
 
 
-// fit the render viewport to the scene
-Render.lookAt(render, {
-  min: { x: -100, y: -100 },
-  max: { x: 800 + 100, y: 600 + 100 },
-});
+  setWorldSize(world, worldSize);
+  setWorldBackground(world, bgColor);
+  cameraLookAt(render, world.bounds, -100);
+  const { mouseConstraint } = initMouse(render);
+  viewControl(engine, render, mouseConstraint);
 
-mouseControl(engine, render, mouse, mouseConstraint)
+  const liquid = Liquid.create({
+    engine,
+    render,
+    liquids: [{ color }], // Define one liquid
+    updateEveryFrame: 1,  // Set max 60 FPS
+  });
+  const { minX, maxX, minY, maxY, width, height } = getWorldParams(world);
+  const liquidCyanId = 0;
+  const seaHeight = 400;
+  liquid.fillZoneByLiquid(minX, maxY - seaHeight, width, seaHeight, liquidCyanId);
 
-function mouseControl(engine, render, mouse, mouseConstraint) {
+  setDripper(render, liquid, mouseConstraint);
+
+  // For stats
+  window.ON_LIQUID_STARTED(liquid);
+
+  // context for MatterTools.Demo
+  return {
+    engine,
+    runner,
+    render,
+    canvas: render.canvas,
+    stop() {
+      Matter.Render.stop(render);
+      Matter.Runner.stop(runner);
+    },
+  };
+};
+
+function viewControl(engine, render, mouseConstraint) {
   const { Mouse, Bounds, Events, Vector } = Matter;
-
 
   const viewportCentre = {
     x: render.options.width * 0.5,
     y: render.options.height * 0.5
   };
 
-  // make the world bounds a little bigger than the render bounds
-  engine.world.bounds.min.x = -300;
-  engine.world.bounds.min.y = -300;
-  engine.world.bounds.max.x = 1000;
-  engine.world.bounds.max.y = 1000;
-
   // keep track of current bounds scale (view zoom)
   let boundsScaleTarget = 1;
   let boundsScale = { x: 1, y: 1 };
 
   Events.on(engine, 'beforeTick', function () {
-    var world = engine.world,
+    let world = engine.world,
       mouse = mouseConstraint.mouse,
       translate;
 
     // mouse wheel controls zoom
-    var scaleFactor = mouse.wheelDelta * -0.1;
+    let scaleFactor = mouse.wheelDelta * -0.1;
     if (scaleFactor !== 0) {
-      if ((scaleFactor < 0 && boundsScale.x >= 0.6) || (scaleFactor > 0 && boundsScale.x <= 1.4)) {
+      if ((scaleFactor < 0 && boundsScale.x >= 0.6) || (scaleFactor > 0 && boundsScale.x <= 0.6)) {
         boundsScaleTarget += scaleFactor;
       }
     }
@@ -65,13 +100,13 @@ function mouseControl(engine, render, mouse, mouseConstraint) {
     }
 
     // get vector from mouse relative to centre of viewport
-    var deltaCentre = Vector.sub(mouse.absolute, viewportCentre),
+    let deltaCentre = Vector.sub(mouse.absolute, viewportCentre),
       centreDist = Vector.magnitude(deltaCentre);
 
     // translate the view if mouse has moved over 50px from the centre of viewport
-    if (centreDist > 200) {
+    if (centreDist > 50) {
       // create a vector to translate the view, allowing the user to control view speed
-      var direction = Vector.normalise(deltaCentre),
+      let direction = Vector.normalise(deltaCentre),
         speed = Math.min(10, Math.pow(centreDist - 50, 2) * 0.0002);
 
       translate = Vector.mult(direction, speed);
