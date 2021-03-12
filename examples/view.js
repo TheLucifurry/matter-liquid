@@ -1,19 +1,13 @@
 import { setWorldSize, setWorldBackground, init, cameraLookAt, initMouse, setDripper, getWorldParams } from './lib/fragments.js';
-import { randomArrayItem } from './lib/utils.js';
+import Colors from './lib/colors.js';
 
 export default function () {
   const { Liquid } = Matter;
   const { engine, world, render, runner } = init();
 
   const worldSize = 1024;
-  const color = randomArrayItem(['cyan', 'orange', 'lime', 'violet']);
-  const bgColor = {
-    'cyan': '#050820',
-    'orange': '#140B02',
-    'lime': '#051102',
-    'violet': '#150320',
-  }[color];
-
+  const color = Colors.getRandom();
+  const bgColor = Colors.getBackgroundFor(color);
 
   setWorldSize(world, worldSize);
   setWorldBackground(world, bgColor);
