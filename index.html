@@ -67,6 +67,7 @@
     statsContainer.prepend(stats.dom, counter);
     counter.onclick = () => stats.dom.click();
     window.ON_LIQUID_STARTED = (liquid) => {
+      document.getElementById('info').textContent = '';
       const engine = liquid.store.engine;
       Matter.Events.on(engine, 'beforeUpdate', stats.begin);
       Matter.Events.on(engine, 'afterUpdate', () => {
