@@ -78,6 +78,16 @@
       // liquid.setPause(!document.hasFocus())
     };
 
+    function example(name, init){
+      const id = name.toLowerCase();
+      return {
+        name,
+        id,
+        init,
+        sourceLink: `${repoUrl}/blob/master/examples/${id}.js`
+      }
+    }
+
     // Init
     MatterTools.Demo.create({
       fullPage: true,
@@ -99,30 +109,10 @@
         // gui: true
       },
       examples: [
-        {
-          name: 'Basic',
-          id: 'basic',
-          init: examBasic,
-          sourceLink: repoUrl + '/blob/master/examples/basic.js'
-        },
-        {
-          name: 'View',
-          id: 'view',
-          init: examView,
-          sourceLink: repoUrl + '/blob/master/examples/view.js'
-        },
-        {
-          name: 'Gravity',
-          id: 'gravity',
-          init: examGravity,
-          sourceLink: repoUrl + '/blob/master/examples/gravity.js'
-        },
-        {
-          name: 'Wrap',
-          id: 'wrap',
-          init: examWrap,
-          sourceLink: repoUrl + '/blob/master/examples/wrap.js'
-        },
+        example('Basic', examBasic),
+        example('View', examView),
+        example('Gravity', examGravity),
+        example('Wrap', examWrap),
         {
           name: '(Dev)',
           id: 'dev',
