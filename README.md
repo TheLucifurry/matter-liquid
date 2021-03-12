@@ -6,6 +6,9 @@ The matter-liquid plugin
 
 ## Demos
 [Basic](https://wexelus.github.io/matter-liquid)
+[View](https://wexelus.github.io/matter-liquid/#view)
+[Gravity](https://wexelus.github.io/matter-liquid/#gravity)
+[Wrap](https://wexelus.github.io/matter-liquid/#wrap)
 
 <!-- ## Features
 
