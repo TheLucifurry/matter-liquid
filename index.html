@@ -21,6 +21,16 @@
       text-align: center;
       user-select: none;
     }
+    #info{
+      position: absolute;
+      z-index: 100000;
+      color: #fff;
+      font-size: 20px;
+      top: 50px;
+      width: 100vw;
+      text-align: center;
+      font-family: monospace;
+    }
     /* matter-tools dependent */
     .matter-demo>canvas {
       border: 1px solid #777;
@@ -37,6 +47,7 @@
   <script type="module">
     import examBasic from './examples/basic.js';
     import examView from './examples/view.js';
+    import examGravity from './examples/gravity.js';
     import examDev from './examples/dev.js';
 
     let pluginName = 'matter-liquid'; // PLUGIN_NAME
@@ -100,7 +111,13 @@
           sourceLink: repoUrl + '/blob/master/examples/view.js'
         },
         {
-          name: 'Dev',
+          name: 'Gravity',
+          id: 'gravity',
+          init: examGravity,
+          sourceLink: repoUrl + '/blob/master/examples/gravity.js'
+        },
+        {
+          name: '(Dev)',
           id: 'dev',
           init: examDev,
           sourceLink: repoUrl + '/blob/master/examples/dev.js'
@@ -110,6 +127,7 @@
 
     document.querySelector('.matter-header-outer').prepend(statsContainer);
   </script>
+  <div id="info"></div>
 </body>
 
 </html>
