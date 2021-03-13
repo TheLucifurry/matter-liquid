@@ -52,7 +52,7 @@ type TLiquidPrototype = {
 };
 type TLiquidPrototypeComputed = [
   string, // Color
-  OffscreenCanvas, // Texture
+  TVirtualCanvas, // Texture
 ];
 type TParticle = Float32Array;
 
@@ -80,3 +80,4 @@ type TEvents = {
 type TRect = [ x1: number, y1: number, x2: number, y2: number ];
 type TVector = [number, number];
 type TFourNumbers = [ number, number, number, number ];
+type TVirtualCanvas = OffscreenCanvas | HTMLCanvasElement;

@@ -1,6 +1,7 @@
 import { L, P } from './constants';
 import { arrayEach } from './helpers/cycles';
 import { checkPointInRect, getParticlesInsideBodyIds, getRectFromBoundsWithPadding } from './helpers/utils';
+import VirtualCanvas from './helpers/virtualCanvas';
 
 function getCoordsFromCellid(cellid: TSHCellId, cellSize: number): TVector {
   const p: any[] = cellid.split('.');
@@ -29,8 +30,8 @@ function renderGrid(store: TStore) {
 
 // export const partColors: Map<number, string> = new Map();
 
-export function generateParticleTexture(color: string, radius: number): OffscreenCanvas {
-  const particleTexture = new OffscreenCanvas(radius * 4, radius * 4);
+export function generateParticleTexture(color: string, radius: number): TVirtualCanvas {
+  const particleTexture = VirtualCanvas(radius * 4, radius * 4);
   const partTexCtx = particleTexture.getContext('2d');
   partTexCtx.shadowColor = color;
   partTexCtx.shadowBlur = radius;
