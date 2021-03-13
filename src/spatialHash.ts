@@ -7,7 +7,7 @@ function getIndex(x: number, y: number /* , columnCount: number */): TSHCellId {
   return `${x}.${y}`;
   // return y * columnCount + x;
 }
-function arrayDeleteItem(arr: any[] = [], item: any) {
+function arrayDeleteItem(arr: any[], item: any) {
   const ix = arr.indexOf(item);
   if (ix !== -1) { arr.splice(ix, 1); }
   return arr;
@@ -48,6 +48,10 @@ export default class SpatialHash {
       this.prevItemCell[item] = cellid;
       // this.itemCount++;
     }
+  }
+
+  private getCell(x: number, y: number): TSHItem[] {
+    return this.hash[getIndex(x, y)] || [];
   }
 
   _delete(item: TSHItem, cellid: TSHCellId): void {
@@ -92,17 +96,28 @@ export default class SpatialHash {
 
   // Special
   getAroundCellsItems(x: number, y: number, particles: TParticle[]): number[] {
-    const centerCellX = trunc(x, this.cellSize);
-    const centerCellY = trunc(y, this.cellSize);
-    const selfItemId = getIndex(centerCellX, centerCellY);
+    const ccx = trunc(x, this.cellSize);
+    const ccy = trunc(y, this.cellSize);
+    const selfItemId = getIndex(ccx, ccy);
+    // const res: TSHItem[] = [
+    //   ...arrayDeleteItem(this.hash[selfItemId], selfItemId),
+    // ];
+    // for (let i = 0; i < aroundCellRelatives.length; i += 2) {
+    //   const aroundCellX = centerCellX + aroundCellRelatives[i];
+    //   const aroundCellY = centerCellY + aroundCellRelatives[i + 1];
+    //   res.push(...(this.hash[getIndex(aroundCellX, aroundCellY)] || []));
+    // }
     const res: TSHItem[] = [
-      ...arrayDeleteItem(this.hash[selfItemId], selfItemId),
+      ...this.getCell(ccx - 1, ccy - 1),
+      ...this.getCell(ccx, ccy - 1),
+      ...this.getCell(ccx + 1, ccy - 1),
+      ...this.getCell(ccx - 1, ccy),
+      ...arrayDeleteItem(this.hash[selfItemId] || [], selfItemId),
+      ...this.getCell(ccx + 1, ccy),
+      ...this.getCell(ccx - 1, ccy + 1),
+      ...this.getCell(ccx, ccy + 1),
+      ...this.getCell(ccx + 1, ccy + 1),
     ];
-    for (let i = 0; i < aroundCellRelatives.length; i += 2) {
-      const aroundCellX = centerCellX + aroundCellRelatives[i];
-      const aroundCellY = centerCellY + aroundCellRelatives[i + 1];
-      res.push(...(this.hash[getIndex(aroundCellX, aroundCellY)] || []));
-    }
 
     // Filter only parts in radius
     // const filteredRes: TSHItem[] = [];
