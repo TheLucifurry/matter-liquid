@@ -13,7 +13,7 @@ export default class Liquid extends State {
   constructor(config: TLiquidConfig) {
     super(config);
     this.setGravityRatio(config.gravityRatio);
-    this.store.spatialHash.init(this.store.radius);
+    this.store.sh.init(this.store.h);
     this.setUpdateEveryFrame(config.updateEveryFrame);
     this.setTimeScale(config.timeScale);
 
@@ -38,8 +38,8 @@ export default class Liquid extends State {
   }
 
   private updateCompute() {
-    if (this.store.tick++ % this.store.everyFrame === 0) {
-      this.computeUpdater(this, this.store.engine.timing.timeScale * this.store.timeScale);
+    if (this.store.t++ % this.store.ef === 0) {
+      this.computeUpdater(this, this.store.e.timing.timeScale * this.store.dt);
     }
   }
 
@@ -49,35 +49,35 @@ export default class Liquid extends State {
 
   setPause(isPause = true): void {
     if (isPause) {
-      Matter.Events.off(this.store.engine, 'afterUpdate', this.updateCompute);
+      Matter.Events.off(this.store.e, 'afterUpdate', this.updateCompute);
     } else {
-      Matter.Events.on(this.store.engine, 'afterUpdate', this.updateCompute);
+      Matter.Events.on(this.store.e, 'afterUpdate', this.updateCompute);
     }
     super.setPause(isPause);
   }
 
   spawnParticle(liquidid: number, x: number, y: number): void {
-    const pid = this.store.freeParticleIds.length === 0 ? this.store.particles.length : this.store.freeParticleIds.pop();
+    const pid = this.store.fpids.length === 0 ? this.store.p.length : this.store.fpids.pop();
     const particle = new Float32Array(4);
     particle[P.X] = x;
     particle[P.Y] = y;
     particle[P.VEL_X] = 0;
     particle[P.VEL_Y] = 0;
-    this.store.liquidOfParticleId[pid] = this.store.liquids[liquidid];
-    this.store.particles[pid] = particle;
-    this.store.spatialHash.insert(pid, x, y);
+    this.store.lpl[pid] = this.store.l[liquidid];
+    this.store.p[pid] = particle;
+    this.store.sh.insert(pid, x, y);
   }
 
   removeParticle(particleId: number): void {
-    const particle = this.store.particles[particleId];
-    this.store.particles[particleId] = null;
-    this.store.spatialHash.remove(particleId);
-    this.events.particleRemove(particle, particleId, this.store.liquidOfParticleId[particleId]);
-    this.store.freeParticleIds.push(particleId);
+    const particle = this.store.p[particleId];
+    this.store.p[particleId] = null;
+    this.store.sh.remove(particleId);
+    this.events.particleRemove(particle, particleId, this.store.lpl[particleId]);
+    this.store.fpids.push(particleId);
     // TODO: remove associated springs
   }
 
-  fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number, interval: number = this.store.radius): void {
+  fillZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number, interval: number = this.store.h): void {
     const halfInterval = interval / 2;
     const columns = Math.max(1, Math.trunc(zoneWidth / interval));
     const rows = Math.max(1, Math.trunc(zoneHeight / interval));
@@ -94,7 +94,7 @@ export default class Liquid extends State {
   }
 
   clearZoneByLiquid(zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, liquidid: number): void {
-    this.store.particles.forEach((part, pid) => {
+    this.store.p.forEach((part, pid) => {
       if (part !== null && checkPointInRect(part[P.X], part[P.Y], zoneX, zoneY, zoneX + zoneWidth, zoneY + zoneHeight)) {
         this.removeParticle(pid);
       }

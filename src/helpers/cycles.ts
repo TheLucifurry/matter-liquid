@@ -22,13 +22,13 @@ export function foreachIds(particles: TParticle[], pids: number[], callback: (pa
   arrayEach(pids, (pid) => callback(particles[pid], pid));
 }
 export function getNeighbors(store: TStore, part: TParticle): number[] {
-  return store.spatialHash.getAroundCellsItems(part[P.X], part[P.Y], store.particles);
+  return store.sh.getAroundCellsItems(part[P.X], part[P.Y], store.p);
 }
 export function eachNeighbors(particles: TParticle[], neighbors: number[], cb: (neighborParticle: TParticle, neighborPid: number)=>void): void {
   arrayEach(neighbors, (pid) => cb(particles[pid], pid));
 }
 export function eachNeighborsOf(store: TStore, part: TParticle, cb: (neighborParticle: TParticle, neighborPid: number)=>void): void {
-  eachNeighbors(store.particles, getNeighbors(store, part), cb);
+  eachNeighbors(store.p, getNeighbors(store, part), cb);
 }
 export function eachSpring(springs: TSpringList, cb: (springKey: string, spring: TSpring)=>void): void {
   for (const [key, spring] of Object.entries(springs)) {

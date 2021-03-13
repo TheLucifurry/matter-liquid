@@ -82,7 +82,7 @@ function applyViscosity(store: TStore, i: TParticle, dt: number) {
   eachNeighborsOf(store, i, (j) => {
     const r = getR(i, j);
     const rNormal = vectorNormal(r);
-    const q = vectorLength(vectorDiv(r, store.radius));
+    const q = vectorLength(vectorDiv(r, store.h));
     if (q < 1) {
       const velDiff = getVelDiff(i, j);
       const u = vectorLength(vectorMulVector(rNormal, velDiff));
@@ -100,10 +100,10 @@ function applyViscosity(store: TStore, i: TParticle, dt: number) {
 function adjustSprings(store: TStore, updatedPids: number[], dt: number) {
   // const alpha = 0.01; // 0 до 0,2
   const y = 0.1; // 0 до 0,2
-  foreachIds(store.particles, updatedPids, (i, currentPid) => {
+  foreachIds(store.p, updatedPids, (i, currentPid) => {
     eachNeighborsOf(store, i, (j, neighborPid) => {
       const r = getR(i, j);
-      const q = vectorLength(vectorDiv(r, store.radius));
+      const q = vectorLength(vectorDiv(r, store.h));
       if (q < 1) {
         const r = getR(i, j);
         const rLength = vectorLength(r);
@@ -121,8 +121,8 @@ function adjustSprings(store: TStore, updatedPids: number[], dt: number) {
           Lij -= dt * alpha * (L - d - rLength);
         }
 
-        if (store.springs[springKey] === undefined) {
-          store.springs[springKey] = Lij;
+        if (store.s[springKey] === undefined) {
+          store.s[springKey] = Lij;
         }
 
         // if(Lij > store.radius){
@@ -131,15 +131,15 @@ function adjustSprings(store: TStore, updatedPids: number[], dt: number) {
       }
     });
   });
-  eachSpring(store.springs, (springKey, spring) => {
-    if (Math.abs(spring) > store.radius) {
-      store.springs[springKey] = undefined;
+  eachSpring(store.s, (springKey, spring) => {
+    if (Math.abs(spring) > store.h) {
+      store.s[springKey] = undefined;
     }
   });
-  eachSpring(store.springs, (springKey, spring) => {
+  eachSpring(store.s, (springKey, spring) => {
     const [iPid, jPid] = getPidsFromSpringKey(springKey);
-    const i = store.particles[iPid]; const
-      j = store.particles[jPid];
+    const i = store.p[iPid]; const
+      j = store.p[jPid];
 
     const r = getR(i, j);
     const rNormal = vectorNormal(r);
@@ -149,25 +149,25 @@ function adjustSprings(store: TStore, updatedPids: number[], dt: number) {
 
     // dt**2 * kSpring * (1 − Lij / h) * (Lij − Rij) * R^ij
     //       4         5    2     1    6      3      7
-    const D = vectorMul(rNormal, dt ** 2 * kSpring * (1 - Lij / store.radius) * (Lij - rLength));
+    const D = vectorMul(rNormal, dt ** 2 * kSpring * (1 - Lij / store.h) * (Lij - rLength));
     const DHalf = vectorDiv(D, 2);
     partPosSub(i, DHalf); // xi -= D/2;
     partPosAdd(j, DHalf); // xj += D/2;
   });
 }
 function doubleDensityRelaxation(store: TStore, i: TParticle, dt: number) {
-  const p0 = store.radius * 0.2; // rest density
+  const p0 = store.h * 0.2; // rest density
   const k = 0.3; // stiffness range[0..1]
-  const kNear = store.radius * 0.3; // stiffness near (вроде, влияет на текучесть)
+  const kNear = store.h * 0.3; // stiffness near (вроде, влияет на текучесть)
 
   let p = 0;
   let pNear = 0;
   const neighbors = getNeighbors(store, i);
   const pairsDataList: [number, TVector, TParticle][] = [];
   for (let n = 0; n < neighbors.length; n++) {
-    const j = store.particles[neighbors[n]];
+    const j = store.p[neighbors[n]];
     const r = getR(i, j);
-    const q = vectorLength(vectorDiv(r, store.radius)); // q ← rij/h
+    const q = vectorLength(vectorDiv(r, store.h)); // q ← rij/h
     if (q < 1) {
       const oneMinQ = 1 - q;
       p += oneMinQ ** 2;
@@ -195,8 +195,8 @@ function applyI(part: TParticle, I: TVector) {
 }
 
 function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: number[]) {
-  const { particles } = store;
-  const bodies = activeZone ? getBodiesInRect(store.world.bodies, activeZone) : store.world.bodies;
+  const { p: particles } = store;
+  const bodies = activeZone ? getBodiesInRect(store.w.bodies, activeZone) : store.w.bodies;
   const originalBodiesData: TOriginalBodyData[] = [];
   // const bodiesContainsParticleIds: number[][] = [];
   const processedBodies: Matter.Body[] = [];
@@ -233,7 +233,7 @@ function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: numb
   // resolve collisions and contacts between bodies
   // processedBodies.forEach(body=>{
   bodies.forEach((body) => {
-    const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, store.spatialHash, updatablePids);
+    const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, store.sh, updatablePids);
     foreachIds(particles, particlesInBodyIds, (part) => { // foreach particle inside the body
       const I = computeI(part, body); // compute collision impulse I
       applyI(part, I); // apply I to the particle
@@ -252,12 +252,12 @@ function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: numb
   });
 }
 function endComputing(store: TStore, updatedPids: number[], dt: number, particlesPrevPositions: TSavedParticlesPositions) {
-  foreachIds(store.particles, updatedPids, (part, pid) => {
+  foreachIds(store.p, updatedPids, (part, pid) => {
     computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
 
-    const bounce = store.bordersBounce;
-    const b = store.world.bounds;
-    if (!store.isWrappedX) {
+    const bounce = store.bb;
+    const b = store.w.bounds;
+    if (!store.iwx) {
       const oldX = part[P.X];
       part[P.X] = mathClamp(oldX, b.min.x, b.max.x);
       if (oldX !== part[P.X]) {
@@ -267,7 +267,7 @@ function endComputing(store: TStore, updatedPids: number[], dt: number, particle
     } else {
       part[P.X] = mathWrap(part[P.X], b.min.x, b.max.x);
     }
-    if (!store.isWrappedY) {
+    if (!store.iwy) {
       const oldY = part[P.Y];
       part[P.Y] = mathClamp(oldY, b.min.y, b.max.y);
       if (oldY !== part[P.Y]) {
@@ -278,7 +278,7 @@ function endComputing(store: TStore, updatedPids: number[], dt: number, particle
       part[P.Y] = mathWrap(part[P.Y], b.min.y, b.max.y);
     }
 
-    store.spatialHash.update(pid, part[P.X], part[P.Y]);
+    store.sh.update(pid, part[P.X], part[P.Y]);
   });
 }
 
@@ -287,18 +287,18 @@ export function simple(liquid: CLiquid, dt: number): void {
   const updatedPids: number[] = [];
   const gravity = liquid.getGravity();
   const particlesPrevPositions: TSavedParticlesPositions = {};
-  const activeRect: TRect = Store.isRegionalComputing ? getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding) : null;
+  const activeRect: TRect = Store.irc ? getRectWithPaddingsFromBounds(Store.r.bounds, Store.abp) : null;
 
-  foreachActive(liquid, activeRect, Store.particles, (part, pid) => {
+  foreachActive(liquid, activeRect, Store.p, (part, pid) => {
     updatedPids.push(pid);
     applyGravity(part, dt, gravity); // vi ← vi + ∆tg
     particlesPrevPositions[pid] = [part[P.X], part[P.Y]]; // Save previous position: xi^prev ← xi
 
-    limitVelocity(part, Store.radius * 0.6);
+    limitVelocity(part, Store.h * 0.6);
 
     addParticlePositionByVelocity(part, dt); // Add Particle Position By Velocity: xi ← xi + ∆tvi
   });
-  foreachIds(Store.particles, updatedPids, (part) => {
+  foreachIds(Store.p, updatedPids, (part) => {
     doubleDensityRelaxation(Store, part, dt);
   });
   // resolveCollisions(Store, activeRect, updatedPids);
@@ -307,26 +307,26 @@ export function simple(liquid: CLiquid, dt: number): void {
 
 export function advanced(liquid: CLiquid, dt: number): void {
   const Store = liquid.store;
-  const activeRect = getRectWithPaddingsFromBounds(Store.render.bounds, Store.activeBoundsPadding);
+  const activeRect = getRectWithPaddingsFromBounds(Store.r.bounds, Store.abp);
   const updatedPids: number[] = [];
   const gravity = liquid.getGravity();
   const particlesPrevPositions: TSavedParticlesPositions = {};
 
-  foreachActive(liquid, activeRect, Store.particles, (part, pid) => {
+  foreachActive(liquid, activeRect, Store.p, (part, pid) => {
     updatedPids.push(pid);
     applyGravity(part, dt, gravity); // vi ← vi + ∆tg
   });
-  foreachIds(Store.particles, updatedPids, (part) => {
+  foreachIds(Store.p, updatedPids, (part) => {
     applyViscosity(Store, part, dt);
   });
-  foreachIds(Store.particles, updatedPids, (part, pid) => {
+  foreachIds(Store.p, updatedPids, (part, pid) => {
     // _limitMoving(part); // Custom
     particlesPrevPositions[pid] = [part[P.X], part[P.Y]]; // Save previous position: xi^prev ← xi
     addParticlePositionByVelocity(part, dt); // Add Particle Position By Velocity: xi ← xi + ∆tvi
   });
   adjustSprings(Store, updatedPids, dt);
   // applySpringDisplacements
-  foreachIds(Store.particles, updatedPids, (part) => {
+  foreachIds(Store.p, updatedPids, (part) => {
     doubleDensityRelaxation(Store, part, dt);
   });
   // resolveCollisions(Store, Store.particles, activeRect, updatedPids);

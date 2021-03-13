@@ -1,21 +1,17 @@
 import {
-  GRAVITY_RATIO, INTERACTION_RADIUS, EVERY_FRAME, TIME_SCALE, IS_REGIONAL_COMPUTING, IS_WORLD_WRAPPED, PARTICLE_TEX_RADIUS_SCALE, BORDERS_BOUNCE_VALUE,
+  GRAVITY_RATIO, INTERACTION_RADIUS, EVERY_FRAME, TIME_SCALE, IS_REGIONAL_COMPUTING, IS_WORLD_WRAPPED, PARTICLE_TEX_RADIUS_SCALE, BORDERS_BOUNCE_VALUE, PARTICLE_COLOR,
 } from './constants';
 import SpatialHash from './spatialHash';
 import createEventsObject from './events';
 import * as Renderer from './render';
 import { calcPaddings } from './helpers/utils';
 
-function createLiquid(props: TLiquidPrototype, particleRadius: number): Required<TLiquidPrototype> {
-  const propsDefaults: Required<TLiquidPrototype> = {
-    color: '#fff',
-    plasticity: 0.3,
-    texture: null,
-    // stiffness: 0.004,
-  };
-  const prototype = { ...propsDefaults, ...props };
-  prototype.texture = props.texture || Renderer.generateParticleTexture(prototype.color, particleRadius);
-  return prototype;
+function createLiquid(props: TLiquidPrototype, particleRadius: number): TLiquidPrototypeComputed {
+  const color: string = props.color || PARTICLE_COLOR as string;
+  return [
+    color,
+    props.texture || Renderer.generateParticleTexture(color, particleRadius),
+  ];
 }
 
 export default abstract class State {
@@ -35,61 +31,61 @@ export default abstract class State {
     }
 
     this.store = {
-      radius,
-      isWrappedX: isWrappedSides[0],
-      isWrappedY: isWrappedSides[1],
-      engine: config.engine,
-      render: config.render,
-      world: config.engine.world,
-      isRegionalComputing: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
-      liquids: config.liquids.map((l) => createLiquid(l, particleTextureSize)),
+      h: radius,
+      iwx: isWrappedSides[0],
+      iwy: isWrappedSides[1],
+      e: config.engine,
+      r: config.render,
+      w: config.engine.world,
+      irc: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
+      l: config.liquids.map((l) => createLiquid(l, particleTextureSize)),
 
-      bordersBounce: config.bordersBounce || BORDERS_BOUNCE_VALUE,
-      isPaused: false,
-      gravityRatio: GRAVITY_RATIO,
-      spatialHash: new SpatialHash(),
-      renderBoundsPadding: [0, 0, 0, 0],
-      activeBoundsPadding: [0, 0, 0, 0],
-      particles: [],
-      springs: {},
-      freeParticleIds: [],
-      liquidOfParticleId: {},
-      tick: 0,
-      everyFrame: EVERY_FRAME,
-      timeScale: TIME_SCALE,
+      bb: config.bordersBounce || BORDERS_BOUNCE_VALUE,
+      ip: false,
+      g: GRAVITY_RATIO,
+      sh: new SpatialHash(),
+      rbp: [0, 0, 0, 0],
+      abp: [0, 0, 0, 0],
+      p: [],
+      s: {},
+      fpids: [],
+      lpl: {},
+      t: 0,
+      ef: EVERY_FRAME,
+      dt: TIME_SCALE,
     };
   }
 
   setPause(isPause = true): void {
-    this.store.isPaused = isPause;
+    this.store.ip = isPause;
     this.events.pauseChange(isPause);
   }
 
   setRenderBoundsPadding(padding: number | TPadding): void {
-    this.store.renderBoundsPadding = calcPaddings(padding);
+    this.store.rbp = calcPaddings(padding);
   }
 
   setActiveBoundsPadding(padding: number | TPadding): void {
-    this.store.activeBoundsPadding = calcPaddings(padding);
+    this.store.abp = calcPaddings(padding);
   }
 
-  setGravityRatio(ratio: number = this.store.gravityRatio): void {
-    this.store.gravityRatio = ratio;
+  setGravityRatio(ratio: number = this.store.g): void {
+    this.store.g = ratio;
   }
 
-  setUpdateEveryFrame(value: number = this.store.everyFrame): void {
-    this.store.everyFrame = value;
+  setUpdateEveryFrame(value: number = this.store.ef): void {
+    this.store.ef = value;
   }
 
-  setTimeScale(value: number = this.store.timeScale): void {
-    this.store.timeScale = value;
+  setTimeScale(value: number = this.store.dt): void {
+    this.store.dt = value;
   }
 
   getGravity(): TVector {
-    return [this.store.world.gravity.x * this.store.gravityRatio, this.store.world.gravity.y * this.store.gravityRatio];
+    return [this.store.w.gravity.x * this.store.g, this.store.w.gravity.y * this.store.g];
   }
 
   getParticlesCount(): number {
-    return this.store.particles.length - this.store.freeParticleIds.length;
+    return this.store.p.length - this.store.fpids.length;
   }
 }

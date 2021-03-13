@@ -19,37 +19,41 @@ type TLiquidConfig = {
   particleTextureScale?: number
 };
 type TStore = {
-  readonly engine: Matter.Engine
-  readonly render: Matter.Render
-  readonly world: Matter.World
-  readonly radius: number // Interaction radius
-  readonly isRegionalComputing: boolean
-  readonly isWrappedX: boolean
-  readonly isWrappedY: boolean
-  readonly liquids: Required<TLiquidPrototype>[]
+  readonly e: Matter.Engine // Engine
+  readonly r: Matter.Render // Render
+  readonly w: Matter.World // World
+  readonly h: number // Interaction radius
+  readonly irc: boolean // isRegionalComputing
+  readonly iwx: boolean // isWrappedX
+  readonly iwy: boolean // isWrappedX
+  readonly l: TLiquidPrototypeComputed[] // Liquids prototypes
+  readonly sh: CSpatialHash // SpatialHash
+  readonly p: TParticle[] // Particles
+  readonly lpl: { [key: number]: TLiquidPrototypeComputed }, // LiquidPrototypeLink
+  readonly fpids: number[] // FreeParticleIds
+  readonly s: TSpringList // Springs
 
-  bordersBounce: number
-  isPaused: boolean
-  gravityRatio: number
-  spatialHash: CSpatialHash
-  renderBoundsPadding: TFourNumbers
-  activeBoundsPadding: TFourNumbers
-  particles: TParticle[]
-  liquidOfParticleId: { [key: number]: TLiquidPrototype },
-  freeParticleIds: number[]
-  springs: TSpringList
-  tick: number
-  everyFrame: number
-  timeScale: number
+  bb: number // BordersBounce
+  ip: boolean // IsPaused
+  g: number // GravityRatio
+  rbp: TFourNumbers // RenderBoundsPadding
+  abp: TFourNumbers // ActiveBoundsPadding
+  t: number // Tick
+  ef: number // EveryFrame
+  dt: number // Delta time
 };
 
 // Liquid & particle
 type TLiquidPrototype = {
   color?: string
   texture?: OffscreenCanvas
-  plasticity?: number // a
+  // plasticity?: number // a
   // stiffness?: number // k
 };
+type TLiquidPrototypeComputed = [
+  string, // Color
+  OffscreenCanvas, // Texture
+];
 type TParticle = Float32Array;
 
 // Spatial hash
@@ -69,7 +73,7 @@ type TSavedParticlesPositions = {
 // Events
 type TEvents = {
   pauseChange: (isPaused: boolean)=>void
-  particleRemove: (particle: TParticle, particleId: number, liquid: TLiquidPrototype)=>void
+  particleRemove: (particle: TParticle, particleId: number, liquid: TLiquidPrototypeComputed)=>void
 };
 
 // Basic
