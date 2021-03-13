@@ -31,15 +31,15 @@ function renderGrid(store: TStore) {
 // export const partColors: Map<number, string> = new Map();
 
 export function generateParticleTexture(color: string, radius: number): TVirtualCanvas {
-  const particleTexture = VirtualCanvas(radius * 4, radius * 4);
-  const partTexCtx = particleTexture.getContext('2d');
-  partTexCtx.shadowColor = color;
-  partTexCtx.shadowBlur = radius;
-  partTexCtx.beginPath();
-  partTexCtx.fillStyle = color;
-  partTexCtx.arc(radius * 2, radius * 2, radius, 0, 2 * Math.PI);
-  partTexCtx.fill();
-  return particleTexture;
+  const canvas = VirtualCanvas(radius * 6, radius * 6);
+  const ctx = canvas.getContext('2d');
+  ctx.shadowColor = color;
+  ctx.shadowBlur = radius * 2;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(radius * 3, radius * 3, radius, 0, 2 * Math.PI);
+  ctx.fill();
+  return canvas;
 }
 
 function drawParticles(store: TStore) {
