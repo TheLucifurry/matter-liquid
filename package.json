@@ -11,11 +11,6 @@
     "type": "git",
     "url": "https://github.com/Wexelus/matter-liquid.git"
   },
-  "browserslist": [
-    "defaults",
-    "not IE 11",
-    "not safari > 0"
-  ],
   "keywords": [
     "matter-js",
     "matter",

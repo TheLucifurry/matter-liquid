@@ -8,10 +8,16 @@ export const IS_REGIONAL_COMPUTING = false;
 export const IS_WORLD_WRAPPED = false;
 export const PARTICLE_TEX_RADIUS_SCALE = 0.3;
 export const BORDERS_BOUNCE_VALUE = 0.8;
+export const PARTICLE_COLOR = '#fff';
 
 export const P = {
   X: 0,
   Y: 1,
   VEL_X: 2,
   VEL_Y: 3,
+};
+
+export const L = {
+  COLOR: 0,
+  TEXTURE: 1,
 };

@@ -44,13 +44,12 @@ export function checkBodyContainsPoint(body: Matter.Body, x: number, y: number):
   // }
   return false;
 }
-export function getRectWithPaddingsFromBounds(bounds: Matter.Bounds, paddings: TPadding): TRect {
-  const [top, right, bottom, left] = paddings;
+export function getRectFromBoundsWithPadding(bounds: Matter.Bounds, padding = 0): TRect {
   return [
-    bounds.min.x - left,
-    bounds.min.y - top,
-    bounds.max.x + right,
-    bounds.max.y + bottom,
+    bounds.min.x - padding,
+    bounds.min.y - padding,
+    bounds.max.x + padding,
+    bounds.max.y + padding,
   ];
 }
 export function getParticlesInsideBodyIds(particles: TParticle[], body: Matter.Body, spatialHash: CSpatialHash, _test_particleIds?: number[]): number[] {
@@ -71,10 +70,4 @@ export function getParticlesInsideBodyIds(particles: TParticle[], body: Matter.B
 export function getWorldWidth(world: Matter.World, defaultValue: number): number {
   const diff = world.bounds.max.x - world.bounds.min.x;
   return isFinite(diff) ? diff : defaultValue;
-}
-export function calcPaddings(padding: number | TPadding): TFourNumbers {
-  if (typeof padding === 'number') {
-    return [padding, padding, padding, padding];
-  }
-  return [padding[0], padding[1], padding[2] || padding[0], padding[3] || padding[1]];
 }

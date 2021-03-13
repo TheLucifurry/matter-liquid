@@ -1,6 +1,7 @@
-import { P } from './constants';
+import { L, P } from './constants';
 import { arrayEach } from './helpers/cycles';
-import { checkPointInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds } from './helpers/utils';
+import { checkPointInRect, getParticlesInsideBodyIds, getRectFromBoundsWithPadding } from './helpers/utils';
+import VirtualCanvas from './helpers/virtualCanvas';
 
 function getCoordsFromCellid(cellid: TSHCellId, cellSize: number): TVector {
   const p: any[] = cellid.split('.');
@@ -8,12 +9,12 @@ function getCoordsFromCellid(cellid: TSHCellId, cellSize: number): TVector {
 }
 
 function renderGrid(store: TStore) {
-  const ctx = store.render.context;
-  const { cellSize } = store.spatialHash;
+  const ctx = store.r.context;
+  const { cellSize } = store.sh;
   const csh = cellSize / 2;
 
   // @ts-ignore
-  const hashCells: Array<[TSHCellId, TSHItem[]]> = Object.entries(store.spatialHash.hash);
+  const hashCells: Array<[TSHCellId, TSHItem[]]> = Object.entries(store.sh.hash);
 
   ctx.textAlign = 'center';
   ctx.lineWidth = 1;
@@ -21,15 +22,16 @@ function renderGrid(store: TStore) {
   ctx.strokeStyle = 'green';
   for (const [cellid, cell] of hashCells) {
     const [fX, fY] = getCoordsFromCellid(cellid, cellSize);
-    ctx.fillText(`${cell.length}`, fX + csh, fY + csh);
-    ctx.strokeRect(fX, fY, cellSize, cellSize);
+    // @ts-ignore
+    ctx.fillText(cell.length, fX, fY);
+    ctx.strokeRect(fX - csh, fY - csh, cellSize, cellSize);
   }
 }
 
 // export const partColors: Map<number, string> = new Map();
 
-export function generateParticleTexture(color: string, radius: number): OffscreenCanvas {
-  const particleTexture = new OffscreenCanvas(radius * 4, radius * 4);
+export function generateParticleTexture(color: string, radius: number): TVirtualCanvas {
+  const particleTexture = VirtualCanvas(radius * 4, radius * 4);
   const partTexCtx = particleTexture.getContext('2d');
   partTexCtx.shadowColor = color;
   partTexCtx.shadowBlur = radius;
@@ -41,14 +43,13 @@ export function generateParticleTexture(color: string, radius: number): Offscree
 }
 
 function drawParticles(store: TStore) {
-  const { particles, liquidOfParticleId } = store; const
-    ctx = store.render.context;
-  const renderRect = getRectWithPaddingsFromBounds(store.render.bounds, store.renderBoundsPadding);
-  arrayEach(particles, (part, pid) => {
+  const ctx = store.r.context;
+  const renderRect = getRectFromBoundsWithPadding(store.r.bounds, store.rbp);
+  arrayEach(store.p, (part, pid) => {
     if (part === null || !checkPointInRect(part[P.X], part[P.Y], ...renderRect)) return;
     const x = Math.floor(part[P.X]);
     const y = Math.floor(part[P.Y]);
-    const particleTexture = liquidOfParticleId[pid].texture;
+    const particleTexture = store.lpl[pid][L.TEXTURE] as OffscreenCanvas;
     const texSizeHalf = particleTexture.height / 2;
     ctx.drawImage(particleTexture, x - texSizeHalf, y - texSizeHalf);
   });
@@ -69,20 +70,20 @@ if (DEV) {
 
 export function update(liquid: CLiquid): void {
   // @ts-ignore
-  Matter.Render.startViewTransform(liquid.store.render);
+  Matter.Render.startViewTransform(liquid.store.r);
   drawParticles(liquid.store);
 }
 
 export function updateDebug(liquid: CLiquid): void {
   const { store } = liquid; const
-    ctx = store.render.context;
+    ctx = store.r.context;
 
   // @ts-ignore
-  Matter.Render.startViewTransform(store.render);
+  Matter.Render.startViewTransform(store.r);
 
-  const renderRect = getRectWithPaddingsFromBounds(store.render.bounds, store.renderBoundsPadding);
-  const worldRect = getRectWithPaddingsFromBounds(store.world.bounds, [0, 0, 0, 0]);
-  const activeRect = getRectWithPaddingsFromBounds(store.render.bounds, store.activeBoundsPadding);
+  const renderRect = getRectFromBoundsWithPadding(store.r.bounds, store.rbp);
+  const worldRect = getRectFromBoundsWithPadding(store.w.bounds);
+  const activeRect = getRectFromBoundsWithPadding(store.r.bounds, store.abp);
 
   renderGrid(store);
 
@@ -111,12 +112,12 @@ export function updateDebug(liquid: CLiquid): void {
 
   if (DEV) {
     if (mouse && body) {
-      const insideBoundsPartids = getParticlesInsideBodyIds(liquid.store.particles, body, liquid.store.spatialHash);
-      const ctx = liquid.store.render.context;
+      const insideBoundsPartids = getParticlesInsideBodyIds(liquid.store.p, body, liquid.store.sh);
+      const ctx = liquid.store.r.context;
       ctx.strokeStyle = 'cyan';
       ctx.strokeRect(body.bounds.min.x, body.bounds.min.y, body.bounds.max.x - body.bounds.min.x, body.bounds.max.y - body.bounds.min.y);
       insideBoundsPartids.forEach((pid) => {
-        const part = liquid.store.particles[pid];
+        const part = liquid.store.p[pid];
         const x = part[P.X];
         const y = part[P.Y];
         ctx.fillStyle = 'yellow';
