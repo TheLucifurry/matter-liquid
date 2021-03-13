@@ -1,20 +1,19 @@
 import { randomArrayItem } from './utils.js';
 
-const particlePalette = ['cyan', 'orange', 'lime', 'violet', 'white'];
-
-const bgPaletteTable = {
-  'cyan': '#050820',
-  'orange': '#140B02',
-  'lime': '#051102',
-  'violet': '#150320',
-  'white': '#111',
-};
+function palette(particle, background) {
+  return { particle, background };
+}
+const palettes = [
+  palette('cyan', '#050820'),
+  palette('orange', '#140B02'),
+  palette('lime', '#051102'),
+  palette('violet', '#150320'),
+  palette('white', '#111'),
+]
 
 export default {
-  getRandom() {
-    return randomArrayItem(particlePalette);
+  getRandomPalette() {
+    return randomArrayItem(palettes);
   },
-  getBackgroundFor(color) {
-    return bgPaletteTable[color];
-  },
+  palettes,
 }
