@@ -101,7 +101,7 @@ export default class Liquid extends State {
     });
   }
 
-  checkRectContainsParticle(rect: TRect, particle: TLiquidParticle): boolean {
+  checkRectContainsParticle(rect: TRect, particle: TParticle): boolean {
     return checkPointInRect(particle[P.X], particle[P.Y], ...rect);
   }
 }

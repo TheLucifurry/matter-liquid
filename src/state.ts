@@ -6,8 +6,8 @@ import createEventsObject from './events';
 import * as Renderer from './render';
 import { calcPaddings } from './helpers/utils';
 
-function createLiquid(props: TLiquidProps, particleRadius: number): Required<TLiquidProps> {
-  const propsDefaults: Required<TLiquidProps> = {
+function createLiquid(props: TLiquidPrototype, particleRadius: number): Required<TLiquidPrototype> {
+  const propsDefaults: Required<TLiquidPrototype> = {
     color: '#fff',
     plasticity: 0.3,
     texture: null,

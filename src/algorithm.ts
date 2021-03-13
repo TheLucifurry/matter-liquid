@@ -20,10 +20,10 @@ const L = 10; // длина упора пружины; (хорошо ведут 
 const kSpring = 0.001; // (в доке по дефолту 0.3)
 const alpha = 0.03; // α - константа пластичности
 
-function getR(a: TLiquidParticle, b: TLiquidParticle): TVector {
+function getR(a: TParticle, b: TParticle): TVector {
   return vectorFromTwo([a[P.X], a[P.Y]], [b[P.X], b[P.Y]]);
 }
-function computeI(part: TLiquidParticle, body: Matter.Body): TVector {
+function computeI(part: TParticle, body: Matter.Body): TVector {
   const bodyVelVector: TVector = [body.velocity.x, body.velocity.y];
   const v_ = vectorSubVector([part[P.VEL_X], part[P.VEL_Y]], bodyVelVector); // vi − vp
   const n_ = vectorNormal(bodyVelVector);
@@ -31,25 +31,25 @@ function computeI(part: TLiquidParticle, body: Matter.Body): TVector {
   const vTangent = vectorSubVector(v_, vNormal); // v¯ − v¯normal
   return vectorSubVector(vNormal, vectorMul(vTangent, mu)); // v¯normal - µ * v¯tangent
 }
-function getVelDiff(a: TLiquidParticle, b: TLiquidParticle): TVector {
+function getVelDiff(a: TParticle, b: TParticle): TVector {
   return vectorFromTwo(
     [b[P.VEL_X], b[P.VEL_Y]],
     [a[P.VEL_X], a[P.VEL_Y]],
   );
 }
-function addVel(part: TLiquidParticle, vec: TVector) {
+function addVel(part: TParticle, vec: TVector) {
   part[P.VEL_X] += vec[0];
   part[P.VEL_Y] += vec[1];
 }
-function subVel(part: TLiquidParticle, vec: TVector) {
+function subVel(part: TParticle, vec: TVector) {
   part[P.VEL_X] -= vec[0];
   part[P.VEL_Y] -= vec[1];
 }
-function partPosAdd(part: TLiquidParticle, vec: TVector) {
+function partPosAdd(part: TParticle, vec: TVector) {
   part[P.X] += vec[0];
   part[P.Y] += vec[1];
 }
-function partPosSub(part: TLiquidParticle, vec: TVector) {
+function partPosSub(part: TParticle, vec: TVector) {
   part[P.X] -= vec[0];
   part[P.Y] -= vec[1];
 }
@@ -60,25 +60,25 @@ function getPidsFromSpringKey(springKey: string): TVector {
   const [currentPid, neighborPid] = springKey.split('.');
   return [+currentPid, +neighborPid];
 }
-function applyGravity(part: TLiquidParticle, dt: number, gravity: TVector) {
+function applyGravity(part: TParticle, dt: number, gravity: TVector) {
   part[P.VEL_X] += dt * gravity[0];
   part[P.VEL_Y] += dt * gravity[1];
 }
-function addParticlePositionByVelocity(part: TLiquidParticle, dt: number) {
+function addParticlePositionByVelocity(part: TParticle, dt: number) {
   part[P.X] += dt * part[P.VEL_X];
   part[P.Y] += dt * part[P.VEL_Y];
 }
-function computeNextVelocity(part: TLiquidParticle, dt: number, prevPositions: TVector) {
+function computeNextVelocity(part: TParticle, dt: number, prevPositions: TVector) {
   part[P.VEL_X] = (part[P.X] - prevPositions[0]) / dt;
   part[P.VEL_Y] = (part[P.Y] - prevPositions[1]) / dt;
 }
-function limitVelocity(part: TLiquidParticle, maxValue: number) {
+function limitVelocity(part: TParticle, maxValue: number) {
   const [limX, limY]: TVector = vectorClampMaxLength([part[P.VEL_X], part[P.VEL_Y]], maxValue);
   part[P.VEL_X] = limX;
   part[P.VEL_Y] = limY;
 }
 
-function applyViscosity(store: TStore, i: TLiquidParticle, dt: number) {
+function applyViscosity(store: TStore, i: TParticle, dt: number) {
   eachNeighborsOf(store, i, (j) => {
     const r = getR(i, j);
     const rNormal = vectorNormal(r);
@@ -155,7 +155,7 @@ function adjustSprings(store: TStore, updatedPids: number[], dt: number) {
     partPosAdd(j, DHalf); // xj += D/2;
   });
 }
-function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) {
+function doubleDensityRelaxation(store: TStore, i: TParticle, dt: number) {
   const p0 = store.radius * 0.2; // rest density
   const k = 0.3; // stiffness range[0..1]
   const kNear = store.radius * 0.3; // stiffness near (вроде, влияет на текучесть)
@@ -163,7 +163,7 @@ function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) 
   let p = 0;
   let pNear = 0;
   const neighbors = getNeighbors(store, i);
-  const pairsDataList: [number, TVector, TLiquidParticle][] = [];
+  const pairsDataList: [number, TVector, TParticle][] = [];
   for (let n = 0; n < neighbors.length; n++) {
     const j = store.particles[neighbors[n]];
     const r = getR(i, j);
@@ -189,7 +189,7 @@ function doubleDensityRelaxation(store: TStore, i: TLiquidParticle, dt: number) 
   }
   partPosAdd(i, dx);
 }
-function applyI(part: TLiquidParticle, I: TVector) {
+function applyI(part: TParticle, I: TVector) {
   part[P.X] -= I[0];
   part[P.Y] -= I[1];
 }

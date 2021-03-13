@@ -91,7 +91,7 @@ export default class SpatialHash {
   }
 
   // Special
-  getAroundCellsItems(x: number, y: number, particles: TLiquidParticle[]): number[] {
+  getAroundCellsItems(x: number, y: number, particles: TParticle[]): number[] {
     const centerCellX = trunc(x, this.cellSize);
     const centerCellY = trunc(y, this.cellSize);
     const selfItemId = getIndex(centerCellX, centerCellY);
@@ -119,7 +119,7 @@ export default class SpatialHash {
     return res;
   }
 
-  fill(particles: TLiquidParticle[]): void {
+  fill(particles: TParticle[]): void {
     particles.forEach((part, pid) => {
       const x = part[P.X];
       const y = part[P.Y];
