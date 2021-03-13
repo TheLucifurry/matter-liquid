@@ -58,11 +58,7 @@ export default class Liquid extends State {
 
   spawnParticle(liquidid: number, x: number, y: number): void {
     const pid = this.store.fpids.length === 0 ? this.store.p.length : this.store.fpids.pop();
-    const particle = new Float32Array(4);
-    particle[P.X] = x;
-    particle[P.Y] = y;
-    particle[P.VEL_X] = 0;
-    particle[P.VEL_Y] = 0;
+    const particle = new Float32Array([x, y, 0, 0]);
     this.store.lpl[pid] = this.store.l[liquidid];
     this.store.p[pid] = particle;
     this.store.sh.insert(pid, x, y);
