@@ -1,4 +1,5 @@
 import Package from '../package.json';
+import VirtualCanvas from './helpers/virtualCanvas';
 import Liquid from './liquid';
 
 const MatterLiquid = {
@@ -14,6 +15,7 @@ const MatterLiquid = {
       create(config: TLiquidConfig) {
         return new Liquid(config);
       },
+      VirtualCanvas,
     };
   },
 };
