@@ -21,8 +21,9 @@ function renderGrid(store: TStore) {
   ctx.strokeStyle = 'green';
   for (const [cellid, cell] of hashCells) {
     const [fX, fY] = getCoordsFromCellid(cellid, cellSize);
-    ctx.fillText(`${cell.length}`, fX + csh, fY + csh);
-    ctx.strokeRect(fX, fY, cellSize, cellSize);
+    // @ts-ignore
+    ctx.fillText(cell.length, fX, fY);
+    ctx.strokeRect(fX - csh, fY - csh, cellSize, cellSize);
   }
 }
 

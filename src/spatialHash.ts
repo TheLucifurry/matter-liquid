@@ -1,7 +1,7 @@
 import { P } from './constants';
 
 function trunc(number: number, divider: number): number {
-  return Math.round(number / divider);
+  return Math.trunc(number / divider);
 }
 function getIndex(x: number, y: number /* , columnCount: number */): TSHCellId {
   return `${x}.${y}`;
