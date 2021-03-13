@@ -36,8 +36,8 @@ type TStore = {
   bb: number // BordersBounce
   ip: boolean // IsPaused
   g: number // GravityRatio
-  rbp: TFourNumbers // RenderBoundsPadding
-  abp: TFourNumbers // ActiveBoundsPadding
+  rbp: number // RenderBoundsPadding
+  abp: number // ActiveBoundsPadding
   t: number // Tick
   ef: number // EveryFrame
   dt: number // Delta time
@@ -78,6 +78,5 @@ type TEvents = {
 
 // Basic
 type TRect = [ x1: number, y1: number, x2: number, y2: number ];
-type TPadding = [top_vertical: number, right_horizontal: number, bottom?: number, left?: number];
 type TVector = [number, number];
 type TFourNumbers = [ number, number, number, number ];

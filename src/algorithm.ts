@@ -3,7 +3,7 @@ import {
   vectorClampMaxLength, vectorDiv, vectorFromTwo, vectorLength, vectorMul, vectorMulVector, vectorNormal, vectorSubVector,
 } from './helpers/vector';
 import {
-  checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds, mathClamp, mathWrap,
+  checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectFromBoundsWithPadding, mathClamp, mathWrap,
 } from './helpers/utils';
 import {
   eachNeighborsOf, foreachIds, eachSpring, getNeighbors, eachNeighbors, foreachActive,
@@ -287,7 +287,7 @@ export function simple(liquid: CLiquid, dt: number): void {
   const updatedPids: number[] = [];
   const gravity = liquid.getGravity();
   const particlesPrevPositions: TSavedParticlesPositions = {};
-  const activeRect: TRect = Store.irc ? getRectWithPaddingsFromBounds(Store.r.bounds, Store.abp) : null;
+  const activeRect: TRect = Store.irc ? getRectFromBoundsWithPadding(Store.r.bounds, Store.abp) : null;
 
   foreachActive(liquid, activeRect, Store.p, (part, pid) => {
     updatedPids.push(pid);
@@ -307,7 +307,7 @@ export function simple(liquid: CLiquid, dt: number): void {
 
 export function advanced(liquid: CLiquid, dt: number): void {
   const Store = liquid.store;
-  const activeRect = getRectWithPaddingsFromBounds(Store.r.bounds, Store.abp);
+  const activeRect = getRectFromBoundsWithPadding(Store.r.bounds, Store.abp);
   const updatedPids: number[] = [];
   const gravity = liquid.getGravity();
   const particlesPrevPositions: TSavedParticlesPositions = {};

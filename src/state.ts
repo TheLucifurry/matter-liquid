@@ -4,7 +4,6 @@ import {
 import SpatialHash from './spatialHash';
 import createEventsObject from './events';
 import * as Renderer from './render';
-import { calcPaddings } from './helpers/utils';
 
 function createLiquid(props: TLiquidPrototype, particleRadius: number): TLiquidPrototypeComputed {
   const color: string = props.color || PARTICLE_COLOR as string;
@@ -44,8 +43,8 @@ export default abstract class State {
       ip: false,
       g: GRAVITY_RATIO,
       sh: new SpatialHash(),
-      rbp: [0, 0, 0, 0],
-      abp: [0, 0, 0, 0],
+      rbp: 0,
+      abp: 0,
       p: [],
       s: {},
       fpids: [],
@@ -61,12 +60,12 @@ export default abstract class State {
     this.events.pauseChange(isPause);
   }
 
-  setRenderBoundsPadding(padding: number | TPadding): void {
-    this.store.rbp = calcPaddings(padding);
+  setRenderBoundsPadding(padding: number): void {
+    this.store.rbp = padding;
   }
 
-  setActiveBoundsPadding(padding: number | TPadding): void {
-    this.store.abp = calcPaddings(padding);
+  setActiveBoundsPadding(padding: number): void {
+    this.store.abp = padding;
   }
 
   setGravityRatio(ratio: number = this.store.g): void {

@@ -1,6 +1,6 @@
 import { L, P } from './constants';
 import { arrayEach } from './helpers/cycles';
-import { checkPointInRect, getParticlesInsideBodyIds, getRectWithPaddingsFromBounds } from './helpers/utils';
+import { checkPointInRect, getParticlesInsideBodyIds, getRectFromBoundsWithPadding } from './helpers/utils';
 
 function getCoordsFromCellid(cellid: TSHCellId, cellSize: number): TVector {
   const p: any[] = cellid.split('.');
@@ -42,7 +42,7 @@ export function generateParticleTexture(color: string, radius: number): Offscree
 
 function drawParticles(store: TStore) {
   const ctx = store.r.context;
-  const renderRect = getRectWithPaddingsFromBounds(store.r.bounds, store.rbp);
+  const renderRect = getRectFromBoundsWithPadding(store.r.bounds, store.rbp);
   arrayEach(store.p, (part, pid) => {
     if (part === null || !checkPointInRect(part[P.X], part[P.Y], ...renderRect)) return;
     const x = Math.floor(part[P.X]);
@@ -79,9 +79,9 @@ export function updateDebug(liquid: CLiquid): void {
   // @ts-ignore
   Matter.Render.startViewTransform(store.r);
 
-  const renderRect = getRectWithPaddingsFromBounds(store.r.bounds, store.rbp);
-  const worldRect = getRectWithPaddingsFromBounds(store.w.bounds, [0, 0, 0, 0]);
-  const activeRect = getRectWithPaddingsFromBounds(store.r.bounds, store.abp);
+  const renderRect = getRectFromBoundsWithPadding(store.r.bounds, store.rbp);
+  const worldRect = getRectFromBoundsWithPadding(store.w.bounds);
+  const activeRect = getRectFromBoundsWithPadding(store.r.bounds, store.abp);
 
   renderGrid(store);
 
