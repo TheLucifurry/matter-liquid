@@ -46,7 +46,7 @@ type TStore = {
 // Liquid & particle
 type TLiquidPrototype = {
   color?: string
-  texture?: OffscreenCanvas
+  texture?: TVirtualCanvas
   // plasticity?: number // a
   // stiffness?: number // k
 };
