@@ -29,7 +29,7 @@ export default abstract class State {
       isWrappedSides = typeof configWrapping === 'boolean' ? [configWrapping, configWrapping] : configWrapping;
     }
 
-    this.store = {
+    this.store = Object.seal({
       h: radius,
       iwx: isWrappedSides[0],
       iwy: isWrappedSides[1],
@@ -52,7 +52,7 @@ export default abstract class State {
       t: 0,
       ef: EVERY_FRAME,
       dt: TIME_SCALE,
-    };
+    });
   }
 
   setPause(isPause = true): void {
