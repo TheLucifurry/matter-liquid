@@ -28,10 +28,7 @@ export default function () {
 
   setDripper(render, liquid, mouseConstraint);
 
-  // For stats
-  window.ON_LIQUID_STARTED(liquid);
-
-  // context for MatterTools.Demo
+  window.DEMO_LOADED(liquid);
   return {
     engine,
     runner,

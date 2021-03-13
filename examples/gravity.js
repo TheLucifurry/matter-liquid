@@ -29,13 +29,7 @@ export default function () {
 
   setDripper(render, liquid, mouseConstraint);
 
-  const caption = 'Arrow keys - direction | Space - disable';
-  document.getElementById('info').textContent = caption;
-
-  // For stats
-  window.ON_LIQUID_STARTED(liquid);
-
-  // context for MatterTools.Demo
+  window.DEMO_LOADED(liquid, 'Arrow keys - direction | Space - disable')
   return {
     engine,
     runner,

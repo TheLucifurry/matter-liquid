@@ -66,8 +66,8 @@
     stats.showPanel(0);
     statsContainer.prepend(stats.dom, counter);
     counter.onclick = () => stats.dom.click();
-    window.ON_LIQUID_STARTED = (liquid) => {
-      document.getElementById('info').textContent = '';
+
+    window.DEMO_LOADED = (liquid, info = '') => {
       const engine = liquid.store.engine;
       Matter.Events.on(engine, 'beforeUpdate', stats.begin);
       Matter.Events.on(engine, 'afterUpdate', () => {
@@ -77,6 +77,7 @@
       window.onblur = () => liquid.setPause();
       window.onfocus = () => liquid.setPause(false);
       // liquid.setPause(!document.hasFocus())
+      document.getElementById('info').textContent = info;
     };
 
     function example(name, init){
