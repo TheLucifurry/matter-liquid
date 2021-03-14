@@ -1,4 +1,4 @@
-import * as Util from './lib/utils.js';
+import { setDripper, setGravityControl } from './lib/fragments.js';
 
 export default function () {
   const { Engine, Render, Runner, MouseConstraint, Mouse, World, Body, Bodies, Constraint, Vector, Liquid } = Matter;
@@ -124,7 +124,7 @@ export default function () {
   render.mouse = mouse;
 
   pluginUsingExample(liquid);
-  setGravityManipulator(engine);
+  setGravityControl(engine);
   setDripper(render, liquid, mouseConstraint);
 
   window.DEMO_LOADED(liquid);
@@ -144,43 +144,13 @@ function pluginUsingExample(liquid) {
   const dynamicid = 0;
   const orangeid = 1;
   const violedid = 2;
-  // liquid.fillZoneByLiquid(100, 50, 800, 500, dynamicid);
 
-  // liquid.fillZoneByLiquid(-100, -100, 200, 200, dynamicid);
-  // liquid.fillZoneByLiquid(150, 150, 100, 100, dynamicid);
-  liquid.fillZoneByLiquid(-500, 300, 1000, 300, dynamicid);
-  liquid.fillZoneByLiquid(-500, -500, 300, 500, orangeid);
-  liquid.fillZoneByLiquid(200, -500, 300, 500, violedid);
+  liquid.drip.rect(dynamicid, -500, 300, 1000, 300);
+  liquid.drip.rect(orangeid, -500, -500, 300, 500);
+  liquid.drip.rect(violedid, 200, -500, 300, 500);
 
   const space = 12;
 
-  // liquid.fillZoneByLiquid(100, 100, 1, 1, dynamicid)
 
   // Utils.onclick(window.MIRROR_CANVAS, function () {})
-}
-
-function setDripper(render, liquid, mouseConstraint) {
-  const dynamicid = 0;
-  const radius = 100;
-  Util.onpressedPointer(render.canvas, (event, isMainButton) => {
-    if (!event.shiftKey) return;
-    let point = mouseConstraint.mouse.position;
-    const x = point.x - radius, y = point.y - radius;
-    if (isMainButton) {
-      liquid.fillZoneByLiquid(x, y, radius * 2, radius * 2, dynamicid);
-    } else {
-      liquid.clearZoneByLiquid(x, y, radius * 2, radius * 2, dynamicid);
-    }
-  }, 50);
-}
-
-function setGravityManipulator(engine) {
-  const { gravity } = engine.world;
-  const defGravity = { x: 0, y: 0 };
-
-  Util.onkey(Util.KEY_CODES.UP, () => gravity.y = -1);
-  Util.onkey(Util.KEY_CODES.LEFT, () => gravity.x = -1);
-  Util.onkey(Util.KEY_CODES.DOWN, () => gravity.y = 1);
-  Util.onkey(Util.KEY_CODES.RIGHT, () => gravity.x = 1);
-  Util.onkey(Util.KEY_CODES.SPACE, () => Object.assign(gravity, defGravity));
 }

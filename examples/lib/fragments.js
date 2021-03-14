@@ -84,6 +84,17 @@ export function setDripper(render, liquid, mouseConstraint) {
   }, 50);
 }
 
+export function setGravityControl(engine) {
+  const { gravity } = engine.world;
+  const defGravity = { x: 0, y: 0 };
+
+  Util.onkey(Util.KEY_CODES.UP, () => gravity.y = -1);
+  Util.onkey(Util.KEY_CODES.LEFT, () => gravity.x = -1);
+  Util.onkey(Util.KEY_CODES.DOWN, () => gravity.y = 1);
+  Util.onkey(Util.KEY_CODES.RIGHT, () => gravity.x = 1);
+  Util.onkey(Util.KEY_CODES.SPACE, () => Object.assign(gravity, defGravity));
+}
+
 export function getWorldParams(world) {
   const worldBounds = world.bounds;
   const minX = worldBounds.min.x;

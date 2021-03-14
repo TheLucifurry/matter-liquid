@@ -27,7 +27,7 @@ export default function () {
   setDripper(render, liquid, mouseConstraint);
 
   // For stats
-  window.DEMO_LOADED(liquid);
+  window.DEMO_LOADED(liquid, 'Right mouse btn - drip | Left mouse btn - dry');
   // context for MatterTools.Demo
   return {
     engine,

@@ -19,12 +19,12 @@ export default function () {
     liquids: [{ color: color.particle }], // Define one liquid
     worldWrapping: true,
   });
-  const { minX, maxY } = getWorldParams(world);
+  const { maxX, maxY } = getWorldParams(world);
   const liquidId = 0;
-  liquid.drip.rect(liquidId, minX + 100, maxY + 100, 200, 200);
+  liquid.drip.rect(liquidId, maxX - 300, maxY - 300, 200, 200);
 
-  world.gravity.x = .1;
-  world.gravity.y = .1;
+  world.gravity.x = .2;
+  world.gravity.y = .2;
 
   setDripper(render, liquid, mouseConstraint);
 

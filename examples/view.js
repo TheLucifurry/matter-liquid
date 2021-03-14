@@ -27,7 +27,7 @@ export default function () {
 
   setDripper(render, liquid, mouseConstraint);
 
-  window.DEMO_LOADED(liquid);
+  window.DEMO_LOADED(liquid, 'Mouse move - camera pos. | Wheel - camera scale');
   return {
     engine,
     runner,

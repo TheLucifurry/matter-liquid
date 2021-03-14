@@ -1,5 +1,4 @@
-import { setWorldSize, setWorldBackground, init, cameraLookAt, initMouse, setDripper, getWorldParams } from './lib/fragments.js';
-import * as Util from './lib/utils.js';
+import { setWorldSize, setWorldBackground, init, cameraLookAt, initMouse, setDripper, getWorldParams, setGravityControl } from './lib/fragments.js';
 import Colors from './lib/colors.js';
 
 export default function () {
@@ -13,7 +12,7 @@ export default function () {
   setWorldBackground(world, color.background);
   cameraLookAt(render, world.bounds);
   const { mouseConstraint } = initMouse(render);
-  gravityControl(engine);
+  setGravityControl(engine);
 
   const liquid = Liquid.create({
     engine,
@@ -40,15 +39,3 @@ export default function () {
     },
   };
 };
-
-
-function gravityControl(engine) {
-  const { gravity } = engine.world;
-  const defGravity = { x: 0, y: 0 };
-
-  Util.onkey(Util.KEY_CODES.UP, () => gravity.y = -1);
-  Util.onkey(Util.KEY_CODES.LEFT, () => gravity.x = -1);
-  Util.onkey(Util.KEY_CODES.DOWN, () => gravity.y = 1);
-  Util.onkey(Util.KEY_CODES.RIGHT, () => gravity.x = 1);
-  Util.onkey(Util.KEY_CODES.SPACE, () => Object.assign(gravity, defGravity));
-}
