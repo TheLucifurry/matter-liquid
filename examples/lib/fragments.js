@@ -77,9 +77,9 @@ export function setDripper(render, liquid, mouseConstraint) {
     let point = mouseConstraint.mouse.position;
     const x = point.x - radius, y = point.y - radius;
     if (isMainButton) {
-      liquid.fillZoneByLiquid(x, y, radius * 2, radius * 2, liquidCyanId);
+      liquid.drip.rect(liquidCyanId, x, y, radius * 2, radius * 2);
     } else {
-      liquid.clearZoneByLiquid(x, y, radius * 2, radius * 2, liquidCyanId);
+      liquid.dry.rect(x, y, radius * 2, radius * 2);
     }
   }, 50);
 }

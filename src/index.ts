@@ -1,6 +1,6 @@
 import Package from '../package.json';
 import VirtualCanvas from './helpers/virtualCanvas';
-import Liquid from './liquid';
+import Liquid from './liquid/index';
 
 const MatterLiquid = {
   name: Package.name,

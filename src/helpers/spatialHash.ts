@@ -1,4 +1,4 @@
-import { P } from './constants';
+import { P } from '../constants';
 
 const t = Math.trunc;
 

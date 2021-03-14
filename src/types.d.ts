@@ -30,6 +30,7 @@ type TStore = {
   readonly sh: CSpatialHash // SpatialHash
   readonly p: TParticle[] // Particles
   readonly lpl: { [key: number]: TLiquidPrototypeComputed }, // LiquidPrototypeLink
+  readonly lnlid: { [key: string]: number }, // LiquidNamesToLid
   readonly fpids: number[] // FreeParticleIds
   readonly s: TSpringList // Springs
 
@@ -45,6 +46,7 @@ type TStore = {
 
 // Liquid & particle
 type TLiquidPrototype = {
+  name?: string
   color?: string
   texture?: TVirtualCanvas
   // plasticity?: number // a
@@ -54,6 +56,7 @@ type TLiquidPrototypeComputed = [
   string, // Color
   TVirtualCanvas, // Texture
 ];
+type TLiquidKey = string | number;
 type TParticle = Float32Array;
 
 // Spatial hash

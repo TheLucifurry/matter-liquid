@@ -21,7 +21,7 @@ export default function () {
   });
   const { minX, maxY } = getWorldParams(world);
   const liquidId = 0;
-  liquid.fillZoneByLiquid(minX + 100, maxY + 100, 200, 200, liquidId);
+  liquid.drip.rect(liquidId, minX + 100, maxY + 100, 200, 200);
 
   world.gravity.x = .1;
   world.gravity.y = .1;

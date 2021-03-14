@@ -22,7 +22,7 @@ export default function () {
   const { minX, maxX, minY, maxY, width } = getWorldParams(world);
   const liquidCyanId = 0;
   const seaHeight = 400;
-  liquid.fillZoneByLiquid(minX, maxY - seaHeight, width, seaHeight, liquidCyanId);
+  liquid.drip.rect(liquidCyanId, minX, maxY - seaHeight, width, seaHeight);
 
   setDripper(render, liquid, mouseConstraint);
 
