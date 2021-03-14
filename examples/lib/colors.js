@@ -1,4 +1,4 @@
-import { randomArrayItem } from './utils.js';
+import { randomInt } from './utils.js';
 
 function palette(particle, background) {
   return { particle, background };
@@ -10,10 +10,12 @@ const palettes = [
   palette('violet', '#150320'),
   palette('white', '#111'),
 ]
+let currentPaletteId = randomInt(0, palettes.length - 1);
 
 export default {
-  getRandomPalette() {
-    return randomArrayItem(palettes);
+  getPalette() {
+    currentPaletteId = currentPaletteId + 1 < palettes.length ? currentPaletteId + 1 : 0;
+    return palettes[currentPaletteId];
   },
   palettes,
 }

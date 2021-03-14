@@ -6,7 +6,7 @@ export default function () {
   const { Liquid } = Matter;
   const { engine, world, render, runner } = init();
 
-  const color = Colors.getRandomPalette();
+  const color = Colors.getPalette();
   const worldSize = 1024;
 
   setWorldSize(world, worldSize);
