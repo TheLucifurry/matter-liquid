@@ -1,4 +1,4 @@
-import { setWorldSize, setWorldBackground, init, cameraLookAt, initMouse, setDripper, getWorldParams } from './lib/fragments.js';
+import { setWorldSize, drawWorldBackground, drawWorldBorders, init, cameraLookAt, initMouse, setDripper, getWorldParams } from './lib/fragments.js';
 import Colors from './lib/colors.js';
 
 export default function () {
@@ -9,7 +9,8 @@ export default function () {
   const worldSize = 1024;
 
   setWorldSize(world, worldSize);
-  setWorldBackground(world, color.background);
+  drawWorldBackground(render, color.background);
+  drawWorldBorders(render, world, color.particle);
   cameraLookAt(render, world.bounds);
   const { mouseConstraint } = initMouse(render);
 

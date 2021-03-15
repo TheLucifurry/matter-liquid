@@ -36,15 +36,17 @@ export function setWorldSize(world, width, height = width) {
   world.bounds.max.y = height / 2;
 }
 
-export function setWorldBackground(world, color) {
-  const background = Matter.Bodies.rectangle(0, 0, world.bounds.max.x - world.bounds.min.x, world.bounds.max.y - world.bounds.min.y, {
-    isStatic: true,
-    render: {
-      fillStyle: color,
-    }
-  });
-  Matter.World.add(world, background);
+export function drawWorldBackground(render, color) {
+  render.options.background = color;
 }
+export function drawWorldBorders(render, world, color) {
+  Matter.Events.on(render, 'afterRender', () => {
+    Matter.Render.startViewTransform(render);
+    render.context.strokeStyle = color;
+    render.context.strokeRect(world.bounds.min.x, world.bounds.min.y, world.bounds.max.x - world.bounds.min.x, world.bounds.max.y - world.bounds.min.y);
+  });
+}
+
 
 export function cameraLookAt(render, bounds, padding = 50) {
   Matter.Render.lookAt(render, {
