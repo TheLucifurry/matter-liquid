@@ -1,9 +1,11 @@
 import { P } from './constants';
 import {
-  vectorClampMaxLength, vectorDiv, vectorFromTwo, vectorLength, vectorMul, vectorMulVector, vectorNormal, vectorSubVector,
+  getReflectVector,
+  vectorAddVector,
+  vectorClampMaxLength, vectorDiv, vectorEqualsVector, vectorFromTwo, vectorLength, vectorMul, vectorMulVector, vectorNormal, vectorSigns, vectorSubVector,
 } from './helpers/vector';
 import {
-  checkBodyContainsPoint, getBodiesInRect, getParticlesInsideBodyIds, getRectFromBoundsWithPadding, mathClamp, mathWrap,
+  checkBodyContainsPoint, getBodiesInRect, getBodySurfaceIntersectsWithRay, getBodySurfaceNormal, getLineIntersectionPoint, getParticlesInsideBodyIds, getRectFromBoundsWithPadding, mathClamp, mathWrap,
 } from './helpers/utils';
 import {
   eachNeighborsOf, foreachIds, eachSpring, getNeighbors, eachNeighbors, foreachActive,
@@ -14,7 +16,7 @@ const k = 0.004; // stiffness
 // const kNear = 10 // stiffness near (вроде, влияет на текучесть)
 const sigma = 0.1; //
 const beta = 0.1; // 0 - вязкая жидкость
-const mu = 0.5; // friction, 0 - скольжение, 1 - цепкость
+const mu = 1; // friction, 0 - скольжение, 1 - цепкость
 
 const L = 10; // длина упора пружины; (хорошо ведут себя значения в пределах 20-100)
 const kSpring = 0.001; // (в доке по дефолту 0.3)
@@ -26,8 +28,9 @@ function getR(a: TParticle, b: TParticle): TVector {
 function computeI(part: TParticle, body: Matter.Body): TVector {
   const bodyVelVector: TVector = [body.velocity.x, body.velocity.y];
   const v_ = vectorSubVector([part[P.VEL_X], part[P.VEL_Y]], bodyVelVector); // vi − vp
-  const n_ = vectorNormal(bodyVelVector);
-  const vNormal = vectorMulVector(vectorMulVector(v_, n_), n_); // = (v¯ * nˆ)nˆ
+  // const n_ = vectorNormal([body.position.x, body.position.y]);
+  // const vNormal = vectorMulVector(vectorMulVector(v_, n_), n_); // = (v¯ * nˆ)nˆ
+  const vNormal = vectorNormal(v_); // = (v¯ * nˆ)nˆ
   const vTangent = vectorSubVector(v_, vNormal); // v¯ − v¯normal
   return vectorSubVector(vNormal, vectorMul(vTangent, mu)); // v¯normal - µ * v¯tangent
 }
@@ -190,8 +193,36 @@ function doubleDensityRelaxation(store: TStore, i: TParticle, dt: number) {
   partPosAdd(i, dx);
 }
 function applyI(part: TParticle, I: TVector) {
-  part[P.X] -= I[0];
-  part[P.Y] -= I[1];
+  part[P.VEL_X] -= I[0];
+  part[P.VEL_Y] -= I[1];
+}
+function findOutsidePos(body: Matter.Body, vecDirection: TVector, from: TVector): TVector {
+  const xInc = 1 * vecDirection[0];
+  const yInc = 1 * vecDirection[1];
+  const pos: TVector = from;
+  do {
+    pos[0] += xInc;
+    pos[1] += yInc;
+    // console.log(`find step: [${pos.join(', ')}]`);
+  } while (checkBodyContainsPoint(body, pos[0], pos[1]));
+  return pos;
+}
+function findOutsidePos_BETA(body: Matter.Body, prevParticlePos: TVector, currentParticlePos: TVector): TVector {
+  // const bodyPos: TVector = [body.position.x, body.position.y];
+  // const endParticlePos: TVector = !vectorEqualsVector(prevParticlePos, currentParticlePos) ? currentParticlePos : bodyPos;
+  // const surface: [TVector, TVector] = getBodySurfaceIntersectsWithRay(body, endParticlePos, prevParticlePos);
+  // const newPosition = getLineIntersectionPoint(surface[0], surface[1], bodyPos, prevParticlePos);
+  // // const surfNorm = getBodySurfaceNormal(surface[0], surface[1]);
+  // // const refVec = getReflectVector(vectorFromTwo(prevParticlePos, endParticlePos), surfNorm);
+  // return newPosition;
+
+  const bodyPos: TVector = [body.position.x, body.position.y];
+  const endParticlePos: TVector = !vectorEqualsVector(prevParticlePos, currentParticlePos) ? currentParticlePos : bodyPos;
+  const surface: [TVector, TVector] = getBodySurfaceIntersectsWithRay(body, endParticlePos, prevParticlePos);
+  const surfNorm = getBodySurfaceNormal(surface[0], surface[1]);
+  const newPosition = getLineIntersectionPoint(surface[0], surface[1], prevParticlePos, vectorAddVector(prevParticlePos, surfNorm));
+  // const refVec = getReflectVector(vectorFromTwo(prevParticlePos, endParticlePos), surfNorm);
+  return newPosition;
 }
 
 function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: number[]) {
@@ -236,8 +267,20 @@ function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: numb
     const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, store.sh, updatablePids);
     foreachIds(particles, particlesInBodyIds, (part) => { // foreach particle inside the body
       const I = computeI(part, body); // compute collision impulse I
+      // console.log(`I: [${I.join(', ')}]`);
+      const prevPos: TVector = [part[P.X], part[P.Y]];
+      // const moveDirection = vectorSigns(I);
       applyI(part, I); // apply I to the particle
+      // Invert vector
+      // part[P.VEL_X] *= moveDirection[0];
+      // part[P.VEL_Y] *= -moveDirection[1];
       if (checkBodyContainsPoint(body, part[P.X], part[P.Y])) {
+        // const outsidePos: TVector = findOutsidePos(body, vectorSigns([moveDirection[0], moveDirection[1]]), [part[P.X], part[P.Y]]);
+        // const direction: TVector = vectorSigns([moveDirection[0], moveDirection[1]]);
+        const direction: TVector = vectorSigns(vectorFromTwo([body.position.x, body.position.y], [part[P.X], part[P.Y]]));
+        const outsidePos: TVector = findOutsidePos_BETA(body, prevPos, [part[P.X], part[P.Y]]);
+        part[P.X] = outsidePos[0];
+        part[P.Y] = outsidePos[1];
         // extract the particle if still inside the body
         // const bodyCenterPos: TVector = [body.position.x, body.position.y];
         // const partPrevPos: TVector = [part[PARTICLE_PROPS.PREV_X], part[PARTICLE_PROPS.PREV_Y]];
@@ -253,6 +296,7 @@ function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: numb
 }
 function endComputing(store: TStore, updatedPids: number[], dt: number, particlesPrevPositions: TSavedParticlesPositions) {
   foreachIds(store.p, updatedPids, (part, pid) => {
+    // console.log(`part[${part.join(', ')}]\n`);
     computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
 
     const bounce = store.bb;
@@ -301,7 +345,7 @@ export function simple(liquid: CLiquid, dt: number): void {
   foreachIds(Store.p, updatedPids, (part) => {
     doubleDensityRelaxation(Store, part, dt);
   });
-  // resolveCollisions(Store, activeRect, updatedPids);
+  resolveCollisions(Store, activeRect, updatedPids);
   endComputing(Store, updatedPids, dt, particlesPrevPositions);
 }
 
