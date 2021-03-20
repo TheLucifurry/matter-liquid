@@ -1,6 +1,13 @@
 import { L, P } from './constants';
 import { arrayEach } from './helpers/cycles';
-import { checkPointInRect, getParticlesInsideBodyIds, getRectFromBoundsWithPadding } from './helpers/utils';
+import {
+  checkPointInRect, getRectFromBoundsWithPadding, getLineIntersectionPoint,
+  getBodySurfaceIntersectsWithRay,
+  getBodySurfaceNormal,
+} from './helpers/utils';
+import {
+  getReflectVector, vectorAddVector, vectorEqualsVector, vectorFromTwo,
+} from './helpers/vector';
 import VirtualCanvas from './helpers/virtualCanvas';
 
 function getCoordsFromCellid(cellid: TSHCellId, cellSize: number): TVector {
@@ -55,16 +62,49 @@ function drawParticles(store: TStore) {
   });
 }
 
-let mouse: Matter.Mouse; let constraint: Matter.Constraint; let body: Matter.Body; let
-  point: Matter.Vector;
+let mouseController: Matter.MouseConstraint;
+let point1: Matter.Vector = { x: 0, y: 0 };
+let point2: Matter.Vector = { x: 50, y: 50 };
+const line1: TVector = [200, 0];
+const line2: TVector = [50, 200];
+let body: Matter.Body;
 
+function drawPoint(ctx: CanvasRenderingContext2D, position: Matter.Vector | TVector, color = '#fff', size = 10) {
+  const pos = Array.isArray(position) ? { x: position[0], y: position[1] } : position;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(pos.x, pos.y, size / 2, 0, 2 * Math.PI);
+  ctx.fill();
+}
+function drawLine(ctx: CanvasRenderingContext2D, from: Matter.Vector | TVector, to: Matter.Vector | TVector, color = '#fff', lineWidth = 2) {
+  const f = Array.isArray(from) ? { x: from[0], y: from[1] } : from;
+  const t = Array.isArray(to) ? { x: to[0], y: to[1] } : to;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth;
+  ctx.beginPath();
+  ctx.moveTo(f.x, f.y);
+  ctx.lineTo(t.x, t.y);
+  ctx.stroke();
+}
 if (DEV) {
   // @ts-ignore
-  window.TEST_MOUSE_MOVE = (mouseConstraint: Matter.MouseConstraint) => {
-    mouse = mouseConstraint.mouse;
-    constraint = mouseConstraint.constraint;
-    body = mouseConstraint.body;
-    point = mouse.position;
+  window.DEV_SET_MOUSE_CONTROLLER = (mouseConstraint: Matter.MouseConstraint, store: TStore) => {
+    const world = store.w;
+    const { mouse } = mouseConstraint;
+    mouseController = mouseConstraint;
+    // @ts-ignore
+    Matter.Events.on(mouseConstraint, 'mousedown', () => {
+      if (mouse.button === 2) {
+        point1 = mouse.mousedownPosition;
+      }
+    });
+    // @ts-ignore
+    Matter.Events.on(mouseConstraint, 'mousemove', () => {
+      point2 = mouse.position;
+      // @ts-ignore
+      const itersectsBodies = Matter.Query.point(world.bodies, mouse.position);
+      body = itersectsBodies.length !== 0 ? itersectsBodies[0] : null;
+    });
   };
 }
 
@@ -72,6 +112,41 @@ export function update(liquid: CLiquid): void {
   // @ts-ignore
   Matter.Render.startViewTransform(liquid.store.r);
   drawParticles(liquid.store);
+
+  if (DEV) {
+    const ctx = liquid.store.r.context;
+
+    // const inters = checkRayIntersectsLine(line1, line2, [point1.x, point1.y], [point2.x, point2.y]);
+    drawPoint(ctx, point1, 'green');
+    drawPoint(ctx, point2, 'lime');
+    drawLine(ctx, point1, point2, 'yellow');
+    // drawLine(ctx, line1, line2, inters ? 'white' : 'gray');
+
+    if (body) {
+      const bodyPos: TVector = [body.position.x, body.position.y];
+      const currentParticlePos: TVector = [point2.x, point2.y];
+      const prevParticlePos: TVector = [point2.x, point2.y];
+      const endParticlePos: TVector = !vectorEqualsVector(prevParticlePos, currentParticlePos) ? currentParticlePos : bodyPos;
+      const surface: [TVector, TVector] = getBodySurfaceIntersectsWithRay(body, endParticlePos, prevParticlePos);
+      const surfNorm = getBodySurfaceNormal(surface[0], surface[1]);
+      const newPosition = getLineIntersectionPoint(surface[0], surface[1], prevParticlePos, vectorAddVector(prevParticlePos, surfNorm));
+      const refVec = getReflectVector(vectorFromTwo(prevParticlePos, endParticlePos), surfNorm);
+
+      const surfLine = {
+        x: newPosition[0] + surfNorm[0] * 50,
+        y: newPosition[1] + surfNorm[1] * 50,
+      };
+      const refLine = {
+        x: newPosition[0] + refVec[0],
+        y: newPosition[1] + refVec[1],
+      };
+
+      drawLine(ctx, newPosition, refLine, 'lime');
+      drawLine(ctx, surface[0], surface[1], 'cyan');
+      drawLine(ctx, newPosition, surfLine, 'red');
+      drawPoint(ctx, newPosition, 'red');
+    }
+  }
 }
 
 export function updateDebug(liquid: CLiquid): void {
@@ -109,26 +184,4 @@ export function updateDebug(liquid: CLiquid): void {
   ctx.moveTo(0, -radius);
   ctx.lineTo(0, radius);
   ctx.stroke();
-
-  if (DEV) {
-    if (mouse && body) {
-      const insideBoundsPartids = getParticlesInsideBodyIds(liquid.store.p, body, liquid.store.sh);
-      const ctx = liquid.store.r.context;
-      ctx.strokeStyle = 'cyan';
-      ctx.strokeRect(body.bounds.min.x, body.bounds.min.y, body.bounds.max.x - body.bounds.min.x, body.bounds.max.y - body.bounds.min.y);
-      insideBoundsPartids.forEach((pid) => {
-        const part = liquid.store.p[pid];
-        const x = part[P.X];
-        const y = part[P.Y];
-        ctx.fillStyle = 'yellow';
-        ctx.fillRect(x - 2, y - 2, 4, 4);
-      });
-      // const ctx = liquid.store.render.context;
-      // const cX = 0, cY = 0, radius = 100;
-      // ctx.beginPath();
-      // ctx.fillStyle = pointInCircle(point.x, point.y, cX, cY, radius) ? 'green' : 'orange';
-      // ctx.arc(cX, cY, radius, 0, 2 * Math.PI);
-      // ctx.fill();
-    }
-  }
 }
