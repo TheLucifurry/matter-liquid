@@ -37,16 +37,23 @@
   </style>
 </head>
 <body>
+  <!-- For demos using SVG -->
+  <script src="https://cdn.jsdelivr.net/gh/progers/pathseg/pathseg.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/schteppe/poly-decomp.js/build/decomp.min.js"></script>
+
   <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/liabru/matter-js@0.16.1/build/matter.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/liabru/matter-js@0.16.1/build/matter.js"></script>
   <!-- <script src="https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.14.0/build/matter-tools.min.js"></script> -->
   <script src="https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.14.0/build/matter-tools.demo.min.js"></script>
+
+  <!-- Plugin loading -->
   <script src="./build/matter-liquid.js"></script>
   <script type="module">
     import examBasic from './examples/basic.js';
     import examView from './examples/view.js';
     import examGravity from './examples/gravity.js';
     import examWrap from './examples/wrap.js';
+    import examBodies from './examples/bodies.js';
     import examDev from './examples/dev.js';
 
     let pluginName = 'matter-liquid'; // PLUGIN_NAME
@@ -108,6 +115,7 @@
         example('View', examView),
         example('Gravity', examGravity),
         example('Wrap', examWrap),
+        example('Bodies', examBodies),
         {
           name: '(Dev)',
           id: 'dev',

@@ -1,4 +1,5 @@
 import * as Util from './utils.js';
+import loadSvg from './loaderSVG.js';
 
 export function init() {
   // create engine
@@ -103,12 +104,46 @@ export function getWorldParams(world) {
   const maxX = worldBounds.max.x;
   const minY = worldBounds.min.y;
   const maxY = worldBounds.max.y;
+  const width = maxX - minX;
+  const height = maxY - minY;
   return {
     minX,
     maxX,
     minY,
     maxY,
-    width: maxX - minX,
-    height: maxY - minY,
+    width,
+    height,
+    centerX: minX + width / 2,
+    centerY: minY + height / 2,
   };
+}
+
+export function loadBodies(paths, props) {
+  return new Promise(next => {
+    const res = [];
+    paths.forEach(function (path, i) {
+      function select(root, selector) {
+        return Array.prototype.slice.call(root.querySelectorAll(selector));
+      };
+      loadSvg(path)
+        .then(function (root) {
+          return select(root, 'path')
+            .map(function (path) { return Matter.Svg.pathToVertices(path, 30) })
+        })
+        .then(function (vertexSets) {
+          const body = Matter.Bodies.fromVertices(0, 0, vertexSets, {
+            render: {
+              fillStyle: 'gray',
+              strokeStyle: 'gray',
+            },
+            ...props,
+          }, true);
+          res.push(body);
+          if (i === paths.length - 1) {
+            next(res);
+          }
+        });
+    });
+
+  })
 }
