@@ -1,14 +1,14 @@
 import { randomInt } from './utils.js';
 
-function palette(particle, background) {
-  return { particle, background };
+function palette(particle, background, body) {
+  return { particle, background, body };
 }
 const palettes = [
-  palette('cyan', '#050820'),
-  palette('orange', '#140B02'),
-  palette('lime', '#051102'),
-  palette('violet', '#150320'),
-  palette('white', '#111'),
+  palette('cyan', '#050820', '#353860'),
+  palette('orange', '#140B02', '#342B22'),
+  palette('lime', '#051102', '#253122'),
+  palette('violet', '#150320', '#352340'),
+  palette('white', '#111', '#212121'),
 ]
 let currentPaletteId = randomInt(0, palettes.length - 1);
 
