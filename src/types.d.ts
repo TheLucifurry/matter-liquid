@@ -18,7 +18,7 @@ type TLiquidConfig = {
   isDebug?: boolean
   particleTextureScale?: number
 };
-type TStore = {
+type TLiquid = {
   readonly e: Matter.Engine // Engine
   readonly r: Matter.Render // Render
   readonly w: Matter.World // World
@@ -42,6 +42,18 @@ type TStore = {
   t: number // Tick
   ef: number // EveryFrame
   dt: number // Delta time
+
+  events: TEvents
+
+  setPause(isPause?: boolean): void
+  setRenderBoundsPadding(padding: number): void
+  setActiveBoundsPadding(padding: number): void
+  setGravityRatio(ratio?: number): void
+  setUpdateEveryFrame(value?: number): void
+  setTimeScale(value?: number): void
+  getGravity(): TVector
+  getParticlesCount(): number
+  getLiquidId(liquidKey: TLiquidKey): number
 };
 
 // Liquid & particle

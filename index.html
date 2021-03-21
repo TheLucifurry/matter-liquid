@@ -73,7 +73,7 @@
     counter.onclick = () => stats.dom.click();
 
     window.DEMO_LOADED = (liquid, info = '') => {
-      const engine = liquid.store.e;
+      const engine = liquid.e;
       Matter.Events.on(engine, 'beforeUpdate', stats.begin);
       Matter.Events.on(engine, 'afterUpdate', () => {
         stats.end();

@@ -74,15 +74,16 @@ export function initMouse(render) {
 }
 
 export function setDripper(render, liquid, mouseConstraint) {
+  const { Liquid } = Matter;
   const liquidCyanId = 0;
   const radius = 100;
   Util.onpressedPointer(render.canvas, (event, isMainButton) => {
     let point = mouseConstraint.mouse.position;
     const x = point.x - radius, y = point.y - radius;
     if (isMainButton) {
-      liquid.drip.rect(liquidCyanId, x, y, radius * 2, radius * 2);
+      Liquid.drip.rect(liquid, liquidCyanId, x, y, radius * 2, radius * 2);
     } else {
-      liquid.dry.rect(x, y, radius * 2, radius * 2);
+      Liquid.dry.rect(liquid, x, y, radius * 2, radius * 2);
     }
   }, 50);
 }

@@ -50,10 +50,10 @@ export default function () {
   const { centerX, centerY } = getWorldParams(world);
   const liquidCyanId = 0;
   const dripsize = 700;
-  liquid.drip.rect(liquidCyanId, centerX - dripsize / 2, centerY - dripsize / 2, dripsize, dripsize);
+  Liquid.drip.rect(liquid, liquidCyanId, centerX - dripsize / 2, centerY - dripsize / 2, dripsize, dripsize);
 
 
-  if (window.DEV_SET_MOUSE_CONTROLLER) window.DEV_SET_MOUSE_CONTROLLER(mouseConstraint, liquid.store)
+  if (window.DEV_SET_MOUSE_CONTROLLER) window.DEV_SET_MOUSE_CONTROLLER(mouseConstraint, liquid)
   // For stats
   window.DEMO_LOADED(liquid);
   // context for MatterTools.Demo

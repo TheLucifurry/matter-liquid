@@ -22,7 +22,7 @@ export default function () {
   });
   const { maxX, maxY } = getWorldParams(world);
   const liquidId = 0;
-  liquid.drip.rect(liquidId, maxX - 300, maxY - 300, 200, 200);
+  Liquid.drip.rect(liquid, liquidId, maxX - 300, maxY - 300, 200, 200);
 
   world.gravity.x = .2;
   world.gravity.y = .2;

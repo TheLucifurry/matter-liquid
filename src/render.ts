@@ -15,13 +15,13 @@ function getCoordsFromCellid(cellid: TSHCellId, cellSize: number): TVector {
   return [p[0] * cellSize, p[1] * cellSize];
 }
 
-function renderGrid(store: TStore) {
-  const ctx = store.r.context;
-  const { cellSize } = store.sh;
+function renderGrid(liquid: TLiquid) {
+  const ctx = liquid.r.context;
+  const { cellSize } = liquid.sh;
   const csh = cellSize / 2;
 
   // @ts-ignore
-  const hashCells: Array<[TSHCellId, TSHItem[]]> = Object.entries(store.sh.hash);
+  const hashCells: Array<[TSHCellId, TSHItem[]]> = Object.entries(liquid.sh.hash);
 
   ctx.textAlign = 'center';
   ctx.lineWidth = 1;
@@ -49,14 +49,14 @@ export function generateParticleTexture(color: string, radius: number): TVirtual
   return canvas;
 }
 
-function drawParticles(store: TStore) {
-  const ctx = store.r.context;
-  const renderRect = getRectFromBoundsWithPadding(store.r.bounds, store.rbp);
-  arrayEach(store.p, (part, pid) => {
+function drawParticles(liquid: TLiquid) {
+  const ctx = liquid.r.context;
+  const renderRect = getRectFromBoundsWithPadding(liquid.r.bounds, liquid.rbp);
+  arrayEach(liquid.p, (part, pid) => {
     if (part === null || !checkPointInRect(part[P.X], part[P.Y], ...renderRect)) return;
     const x = Math.floor(part[P.X]);
     const y = Math.floor(part[P.Y]);
-    const particleTexture = store.lpl[pid][L.TEXTURE] as OffscreenCanvas;
+    const particleTexture = liquid.lpl[pid][L.TEXTURE] as OffscreenCanvas;
     const texSizeHalf = particleTexture.height / 2;
     ctx.drawImage(particleTexture, x - texSizeHalf, y - texSizeHalf);
   });
@@ -108,13 +108,13 @@ if (DEV) {
   };
 }
 
-export function update(liquid: CLiquid): void {
+export function update(liquid: TLiquid): void {
   // @ts-ignore
-  Matter.Render.startViewTransform(liquid.store.r);
-  drawParticles(liquid.store);
+  Matter.Render.startViewTransform(liquid.r);
+  drawParticles(liquid);
 
   if (DEV) {
-    const ctx = liquid.store.r.context;
+    const ctx = liquid.r.context;
 
     // const inters = checkRayIntersectsLine(line1, line2, [point1.x, point1.y], [point2.x, point2.y]);
     drawPoint(ctx, point1, 'green');
@@ -161,20 +161,19 @@ export function update(liquid: CLiquid): void {
   }
 }
 
-export function updateDebug(liquid: CLiquid): void {
-  const { store } = liquid; const
-    ctx = store.r.context;
+export function updateDebug(liquid: TLiquid): void {
+  const ctx = liquid.r.context;
 
   // @ts-ignore
-  Matter.Render.startViewTransform(store.r);
+  Matter.Render.startViewTransform(liquid.r);
 
-  const renderRect = getRectFromBoundsWithPadding(store.r.bounds, store.rbp);
-  const worldRect = getRectFromBoundsWithPadding(store.w.bounds);
-  const activeRect = getRectFromBoundsWithPadding(store.r.bounds, store.abp);
+  const renderRect = getRectFromBoundsWithPadding(liquid.r.bounds, liquid.rbp);
+  const worldRect = getRectFromBoundsWithPadding(liquid.w.bounds);
+  const activeRect = getRectFromBoundsWithPadding(liquid.r.bounds, liquid.abp);
 
-  renderGrid(store);
+  renderGrid(liquid);
 
-  drawParticles(store);
+  drawParticles(liquid);
 
   //   Draw world zone
   ctx.strokeStyle = 'violet';
