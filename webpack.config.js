@@ -82,7 +82,7 @@ module.exports = {
     new webpack.DefinePlugin({
       DEV: `${isDevMode}`,
     }),
-    new webpack.BannerPlugin(banner),
+    // new webpack.BannerPlugin(banner),
     afterBuildTaskPlugin,
   ],
   devServer: {
