@@ -18,8 +18,7 @@ export default class Liquid extends State {
     super(config);
 
     // Set updaters
-    this.renderUpdater = config.isDebug ? Renderer.updateDebug : Renderer.update;
-    // this.renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
+    this.renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
     this.computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
     this.updateCompute = this.updateCompute.bind(this);
 
