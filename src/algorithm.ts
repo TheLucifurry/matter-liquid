@@ -2,7 +2,7 @@ import { P } from './constants';
 import {
   getReflectVector,
   vectorAddVector,
-  vectorClampMaxLength, vectorDiv, vectorEqualsVector, vectorFromTwo, vectorLength, vectorMul, vectorMulVector, vectorNormal, vectorSigns, vectorSubVector,
+  vectorClampMaxLength, vectorDiv, vectorEqualsVector, vectorFromTwo, vectorLength, vectorMul, vectorMulVector, vectorNormal, vectorSubVector,
 } from './helpers/vector';
 import {
   checkBodyContainsPoint, getBodiesInRect, getBodySurfaceIntersectsWithRay, getBodySurfaceNormal, getLineIntersectionPoint, getParticlesInsideBodyIds, getRectFromBoundsWithPadding, mathClamp, mathWrap,
@@ -196,33 +196,28 @@ function applyI(part: TParticle, I: TVector) {
   part[P.VEL_X] -= I[0];
   part[P.VEL_Y] -= I[1];
 }
-function findOutsidePos(body: Matter.Body, vecDirection: TVector, from: TVector): TVector {
-  const xInc = 1 * vecDirection[0];
-  const yInc = 1 * vecDirection[1];
-  const pos: TVector = from;
-  do {
-    pos[0] += xInc;
-    pos[1] += yInc;
-    // console.log(`find step: [${pos.join(', ')}]`);
-  } while (checkBodyContainsPoint(body, pos[0], pos[1]));
-  return pos;
-}
-function findOutsidePos_BETA(body: Matter.Body, prevParticlePos: TVector, currentParticlePos: TVector): TVector {
+function findOutsidePos(body: Matter.Body, prevParticlePos: TVector, currentParticlePos: TVector): TVector {
   // const bodyPos: TVector = [body.position.x, body.position.y];
-  // const endParticlePos: TVector = !vectorEqualsVector(prevParticlePos, currentParticlePos) ? currentParticlePos : bodyPos;
-  // const surface: [TVector, TVector] = getBodySurfaceIntersectsWithRay(body, endParticlePos, prevParticlePos);
-  // const newPosition = getLineIntersectionPoint(surface[0], surface[1], bodyPos, prevParticlePos);
-  // // const surfNorm = getBodySurfaceNormal(surface[0], surface[1]);
-  // // const refVec = getReflectVector(vectorFromTwo(prevParticlePos, endParticlePos), surfNorm);
-  // return newPosition;
-
+  // if (body.circleRadius) { // is body a circle
+  //   const endParticlePos: TVector = !vectorEqualsVector(bodyPos, currentParticlePos) ? currentParticlePos : bodyPos;
+  //   const surfNorm = vectorNormal(body.circleRadius);
+  // } else {
+  //   const endParticlePos: TVector = !vectorEqualsVector(prevParticlePos, currentParticlePos) ? currentParticlePos : bodyPos;
+  //   const surface: [TVector, TVector] = getBodySurfaceIntersectsWithRay(body, endParticlePos, prevParticlePos);
+  //   const surfNorm = getBodySurfaceNormal(surface[0], surface[1]);
+  //   const newPosition = getLineIntersectionPoint(surface[0], surface[1], prevParticlePos, vectorAddVector(prevParticlePos, surfNorm));
+  //   // const refVec = getReflectVector(vectorFromTwo(prevParticlePos, endParticlePos), surfNorm);
+  //   return newPosition;
+  // }
   const bodyPos: TVector = [body.position.x, body.position.y];
+  if (body.circleRadius) { // is body a circle
+    const surfNorm = vectorNormal(vectorFromTwo(bodyPos, currentParticlePos));
+    return vectorAddVector(bodyPos, vectorMul(surfNorm, body.circleRadius));
+  }
   const endParticlePos: TVector = !vectorEqualsVector(prevParticlePos, currentParticlePos) ? currentParticlePos : bodyPos;
   const surface: [TVector, TVector] = getBodySurfaceIntersectsWithRay(body, endParticlePos, prevParticlePos);
   const surfNorm = getBodySurfaceNormal(surface[0], surface[1]);
-  const newPosition = getLineIntersectionPoint(surface[0], surface[1], prevParticlePos, vectorAddVector(prevParticlePos, surfNorm));
-  // const refVec = getReflectVector(vectorFromTwo(prevParticlePos, endParticlePos), surfNorm);
-  return newPosition;
+  return getLineIntersectionPoint(surface[0], surface[1], prevParticlePos, vectorAddVector(prevParticlePos, surfNorm));
 }
 
 function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: number[]) {
@@ -269,27 +264,12 @@ function resolveCollisions(store: TStore, activeZone: TRect, updatablePids: numb
       const I = computeI(part, body); // compute collision impulse I
       // console.log(`I: [${I.join(', ')}]`);
       const prevPos: TVector = [part[P.X], part[P.Y]];
-      // const moveDirection = vectorSigns(I);
       applyI(part, I); // apply I to the particle
-      // Invert vector
-      // part[P.VEL_X] *= moveDirection[0];
-      // part[P.VEL_Y] *= -moveDirection[1];
       if (checkBodyContainsPoint(body, part[P.X], part[P.Y])) {
-        // const outsidePos: TVector = findOutsidePos(body, vectorSigns([moveDirection[0], moveDirection[1]]), [part[P.X], part[P.Y]]);
-        // const direction: TVector = vectorSigns([moveDirection[0], moveDirection[1]]);
-        const direction: TVector = vectorSigns(vectorFromTwo([body.position.x, body.position.y], [part[P.X], part[P.Y]]));
-        const outsidePos: TVector = findOutsidePos_BETA(body, prevPos, [part[P.X], part[P.Y]]);
+        // extract the particle if still inside the body
+        const outsidePos: TVector = findOutsidePos(body, prevPos, [part[P.X], part[P.Y]]);
         part[P.X] = outsidePos[0];
         part[P.Y] = outsidePos[1];
-        // extract the particle if still inside the body
-        // const bodyCenterPos: TVector = [body.position.x, body.position.y];
-        // const partPrevPos: TVector = [part[PARTICLE_PROPS.PREV_X], part[PARTICLE_PROPS.PREV_Y]];
-        // const partPos: TVector = [part[PARTICLE_PROPS.X], part[PARTICLE_PROPS.Y]];
-        // const cbTopLength = vectorLength(vectorFromTwo(bodyCenterPos, partPrevPos));
-        // const movePosit = vectorLengthSet(vectorFromTwo(bodyCenterPos, partPos), cbTopLength);
-
-        // part[PARTICLE_PROPS.X] += movePosit[0];
-        // part[PARTICLE_PROPS.Y] += movePosit[1];
       }
     });
   });
