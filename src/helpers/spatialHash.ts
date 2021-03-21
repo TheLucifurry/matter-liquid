@@ -103,7 +103,7 @@ export default function SpatialHash(cellSize: number): TSpatialHash {
       return res;
     },
   };
-  return sh;
+  return Object.seal(sh);
 }
 
 declare global {
