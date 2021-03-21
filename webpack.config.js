@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const replace = require('replace-in-file');
 const pkg = require('./package.json');
+const TerserPlugin = require('terser-webpack-plugin');
 
 const name = pkg.name;
 const date = new Date().toISOString().slice(0, 10);
@@ -70,15 +71,20 @@ module.exports = {
   },
   optimization: {
     usedExports: true,
+    minimize: !isDevMode,
+    minimizer: [
+      new TerserPlugin({
+        parallel: true,
+        terserOptions: {
+          ecma: 2020,
+        },
+      })
+    ],
   },
   resolve: {
     extensions: ['.ts', '.js'],
   },
   plugins: [
-    // new webpack.optimize.UglifyJsPlugin({
-    //   include: /\.min\.js$/,
-    //   minimize: true
-    // }),
     new webpack.DefinePlugin({
       DEV: `${isDevMode}`,
     }),
