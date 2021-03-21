@@ -15,15 +15,6 @@ export function mathWrap(value: number, min: number, max: number): number {
 export function mathClamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
-// export function mathWrapInverse(value: number, min: number, max: number): number{
-//   if (value >= min && value <= max) {
-//     return value;
-//   } else {
-//     const range = Math.abs(max - min);
-//     const step = mathWrap(value - min, 0, range);
-//     return value >= max ? range - step + min : max - step;
-//   }
-// }
 
 // Matter dependant
 export function getBodiesInRect(bodies: Matter.Body[], zone: TRect): Matter.Body[] {
@@ -36,6 +27,15 @@ export function getBodiesByPoint(bodies: Matter.Body[], x: number, y: number): M
   return Matter.Query.point(bodies, { x, y });
 }
 export function checkBodyContainsPoint(body: Matter.Body, x: number, y: number): boolean {
+  // const vertices = body.vertices;
+  // for (let i = 0; i < vertices.length; i++) {
+  //   const vertice = vertices[i];
+  //   const nextVertice = vertices[(i + 1) % vertices.length];
+  //   if ((x - vertice.x) * (nextVertice.y - vertice.y) + (y - vertice.y) * (vertice.x - nextVertice.x) > 0) {
+  //     return false;
+  //   }
+  // }
+  // return true;
   return Matter.Vertices.contains(body.vertices, { x, y });
 }
 export function getRectFromBoundsWithPadding(bounds: Matter.Bounds, padding = 0): TRect {
@@ -65,56 +65,6 @@ export function getWorldWidth(world: Matter.World, defaultValue: number): number
   const diff = world.bounds.max.x - world.bounds.min.x;
   return isFinite(diff) ? diff : defaultValue;
 }
-// export function checkLinesIntersects(line1start: Matter.Vector, line1end: Matter.Vector, line2start: Matter.Vector, line2end: Matter.Vector): boolean {
-//   const det = (line1end.x - line1start.x) * (line2end.y - line2start.y) - (line2end.x - line2start.x) * (line1end.y - line1start.y);
-//   if (det === 0) {
-//     return false;
-//   }
-//   const lambda = ((line2end.y - line2start.y) * (line2end.x - line1start.x) + (line2start.x - line2end.x) * (line2end.y - line1start.y)) / det;
-//   const gamma = ((line1start.y - line1end.y) * (line2end.x - line1start.x) + (line1end.x - line1start.x) * (line2end.y - line1start.y)) / det;
-//   return (lambda > 0 && lambda < 1) && (gamma > 0 && gamma < 1);
-// }
-// export function getBodySurfaceNormal(lineStart: Matter.Vector, lineEnd: Matter.Vector): TVector {
-//   const v = vectorNormal(vectorFromTwo([lineStart.x, lineStart.y], [lineEnd.x, lineEnd.y]));
-//   return [v[1], -v[0]];
-// }
-// export function getBodySurfaceByVectorFromCenter(body: Matter.Body, vector: TVector, multiplier = 5): [Matter.Vector, Matter.Vector] {
-//   const lineStart = body.position;
-//   const lineEnd = vectorMul(vector, multiplier);
-//   return [lineStart, lineEnd];
-// }
-// export function getBodySurfaceIntersectsWithLine(body: Matter.Body, lineStart: TVector, lineEnd: TVector): [TVector, TVector] {
-//   const verts: Matter.Vector[] = body.vertices;
-//   for (let i = 0; i < verts.length; i++) {
-//     const startVert: Matter.Vector = verts[i];
-//     const endVert: Matter.Vector = verts[i !== verts.length - 1 ? i + 1 : 0];
-//     const startSide: TVector = [startVert.x, startVert.y];
-//     const endSide: TVector = [endVert.x, endVert.y];
-//     if (checkLinesIntersects(startSide, endSide, lineStart, lineEnd)) {
-//       return [startSide, endSide];
-//     }
-//   }
-//   return null;
-// }
-
-// export function getLineIntersectionPoint(line1start: Matter.Vector, line1end: Matter.Vector, line2start: Matter.Vector, line2end: Matter.Vector): TVector {
-//   const d1 = (line1start.x - line1end.x) * (line2start.y - line2end.y); // (x1 - x2) * (y3 - y4)
-//   const d2 = (line1start.y - line1end.y) * (line2start.x - line2end.x); // (y1 - y2) * (x3 - x4)
-//   const d = d1 - d2;
-//   if (d === 0) {
-//     return null;
-//   }
-//   const u1 = line1start.x * line1end.y - line1start.y * line1end.x; // (x1 * y2 - y1 * x2)
-//   const u4 = line2start.x * line2end.y - line2start.y * line2end.x; // (x3 * y4 - y3 * x4)
-//   const u2x = line2start.x - line2end.x; // (x3 - x4)
-//   const u3x = line1start.x - line1end.x; // (x1 - x2)
-//   const u2y = line2start.y - line2end.y; // (y3 - y4)
-//   const u3y = line1start.y - line1end.y; // (y1 - y2)
-//   // intersection point formula
-//   const px = (u1 * u2x - u3x * u4) / d;
-//   const py = (u1 * u2y - u3y * u4) / d;
-//   return [px, py];
-// }
 
 export function getLineIntersectionPoint(line1start: TVector, line1end: TVector, line2start: TVector, line2end: TVector): TVector {
   const d1 = (line1start[0] - line1end[0]) * (line2start[1] - line2end[1]); // (x1 - x2) * (y3 - y4)
@@ -151,7 +101,6 @@ export function getBodySurfaceIntersectsWithRay(body: Matter.Body, rayStart: TVe
     const startSide: TVector = [startVert.x, startVert.y];
     const endSide: TVector = [endVert.x, endVert.y];
     if (checkRayIntersectsLine(startSide, endSide, rayStart, rayEnd)) {
-      // console.log(`Surface: [${startSide}, ${endSide}]`);
       return [startSide, endSide];
     }
   }
