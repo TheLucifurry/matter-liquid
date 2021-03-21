@@ -31,7 +31,6 @@ export default function () {
     Bodies.rectangle(world.bounds.min.x - wallWidth / 2, 0, wallWidth, worldSize, { isStatic: true, render: bodyWallStyle }),
     Bodies.circle(0, 300, 70, { render: bodyWallStyle }),
     Bodies.rectangle(150, 300, 150, 150, { render: bodyWallStyle }),
-    Bodies.trapezoid(300, 300, 200, 200, { render: bodyWallStyle }),
   ]);
   loadBodies(svgBodiesPaths, { render: bodyWallStyle }).then(bodies => {
     bodies.forEach((body, ix) => {
