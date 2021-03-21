@@ -1,144 +1,122 @@
-import { P } from '../constants';
+export default function SpatialHash(cellSize: number): TSpatialHash {
+  const t = Math.trunc;
 
-const t = Math.trunc;
-
-function getIndex(x: number, y: number /* , columnCount: number */): TSHCellId {
-  return `${x}.${y}`;
-  // return y * columnCount + x;
-}
-function arrayDeleteItem(arr: any[], item: any) {
-  const ix = arr.indexOf(item);
-  if (ix !== -1) { arr.splice(ix, 1); }
-  return arr;
-}
-
-export default class SpatialHash {
-  hash: { [key: string]: TSHItem[] } = {};
-
-  private prevItemCell: { [key: number]: TSHCellId }= {};
-
-  cellSize: number;
-
-  init(cellSize: number): void {
-    this.cellSize = cellSize;
+  function getIndex(x: number, y: number /* , columnCount: number */): TSHCellId {
+    return `${x}.${y}`;
+    // return y * columnCount + x;
   }
-
-  private find(cellid: TSHCellId, item: TSHItem): number {
-    return (this.hash[cellid] || []).indexOf(item);
+  function arrayDeleteItem(arr: any[], item: any) {
+    const ix = arr.indexOf(item);
+    if (ix !== -1) { arr.splice(ix, 1); }
+    return arr;
   }
-
-  private save(item: TSHItem, cellid: TSHCellId) {
-    const cell = this.hash[cellid];
+  function save(sh: TSpatialHash, item: TSHItem, cellid: TSHCellId) {
+    const cell = sh.h[cellid];
     if (typeof cell === 'undefined') {
-      this.hash[cellid] = [item];
-      this.prevItemCell[item] = cellid;
+      sh.h[cellid] = [item];
+      sh.p[item] = cellid;
     } else if (!cell.includes(item)) {
       cell.push(item);
-      this.prevItemCell[item] = cellid;
+      sh.p[item] = cellid;
     }
   }
-
-  private getCell(x: number, y: number): TSHItem[] {
-    return this.hash[getIndex(x, y)] || [];
+  function getCell(sh: TSpatialHash, x: number, y: number): TSHItem[] {
+    return sh.h[getIndex(x, y)] || [];
   }
-
-  _delete(item: TSHItem, cellid: TSHCellId): void {
-    const cell = this.hash[cellid];
+  function deleteIn(sh: TSpatialHash, item: TSHItem, cellid: TSHCellId): void {
+    const cell = sh.h[cellid];
     arrayDeleteItem(cell, item);
-    // const itemIndex = this.find(cellid, item);
-    // this.hash[cellid].splice(itemIndex, 1);
-    delete this.prevItemCell[item];
+    delete sh.p[item];
     if (cell.length === 0) {
-      delete this.hash[cellid];
+      delete sh.h[cellid];
     }
   }
 
-  update(item: TSHItem, x: number, y: number): void {
-    const cellX = t(x / this.cellSize);
-    const cellY = t(y / this.cellSize);
-    const prevCellid = this.prevItemCell[item];
-    const nextCellid = getIndex(cellX, cellY);
-    if (prevCellid !== nextCellid) {
-      if (typeof prevCellid !== 'undefined') {
-        this._delete(item, prevCellid);
+  const sh: TSpatialHash = {
+    h: {},
+    p: {},
+    cs: cellSize,
+    // clear: (): void => {
+    //   sh.h = {};
+    //   sh.p = {};
+    // },
+    update: (item: TSHItem, x: number, y: number): void => {
+      const cellX = t(x / sh.cs);
+      const cellY = t(y / sh.cs);
+      const prevCellid = sh.p[item];
+      const nextCellid = getIndex(cellX, cellY);
+      if (prevCellid !== nextCellid) {
+        if (typeof prevCellid !== 'undefined') {
+          deleteIn(sh, item, prevCellid);
+        }
+        save(sh, item, nextCellid);
       }
-      this.save(item, nextCellid);
-    }
-  }
+    },
+    insert: (item: TSHItem, x: number, y: number): void => {
+      const cellX = t(x / sh.cs);
+      const cellY = t(y / sh.cs);
+      const сellid = getIndex(cellX, cellY);
+      save(sh, item, сellid);
+    },
+    remove: (item: TSHItem): void => {
+      const cellid = sh.p[item];
+      deleteIn(sh, item, cellid);
+    },
 
-  clear(): void {
-    this.hash = {};
-    this.prevItemCell = {};
-  }
-
-  insert(item: TSHItem, x: number, y: number): void {
-    const cellX = t(x / this.cellSize);
-    const cellY = t(y / this.cellSize);
-    const сellid = getIndex(cellX, cellY);
-    this.save(item, сellid);
-  }
-
-  remove(item: TSHItem): void {
-    const cellid = this.prevItemCell[item];
-    this._delete(item, cellid);
-  }
-
-  // Special
-  getAroundCellsItems(x: number, y: number, particles: TParticle[]): number[] {
-    const ccx = t(x / this.cellSize);
-    const ccy = t(y / this.cellSize);
-    const selfItemId = getIndex(ccx, ccy);
-    const res: TSHItem[] = [
-      ...this.getCell(ccx - 1, ccy - 1),
-      ...this.getCell(ccx, ccy - 1),
-      ...this.getCell(ccx + 1, ccy - 1),
-      ...this.getCell(ccx - 1, ccy),
-      ...arrayDeleteItem(this.hash[selfItemId] || [], selfItemId),
-      ...this.getCell(ccx + 1, ccy),
-      ...this.getCell(ccx - 1, ccy + 1),
-      ...this.getCell(ccx, ccy + 1),
-      ...this.getCell(ccx + 1, ccy + 1),
-    ];
-
-    // Filter only parts in radius
-    // const filteredRes: TSHItem[] = [];
-    // for (let i = 0; i < res.length; i++) {
-    //   const pid = res[i];
-    //   const part = particles[pid];
-    //   const partX: number = t(part[PARTICLE_PROPS.X], this.cellSize); const
-    //     partY: number = t(part[PARTICLE_PROPS.Y], this.cellSize);
-    //   if ((partX - centerCellX) ** 2 + (partY - centerCellY) ** 2 <= 1) {
-    //     filteredRes.push(pid);
-    //   }
-    // }
-    // return filteredRes;
-    return res;
-  }
-
-  fill(particles: TParticle[]): void {
-    particles.forEach((part, pid) => {
-      const x = part[P.X];
-      const y = part[P.Y];
-      this.insert(pid, x, y);
-    });
-  }
-
-  getItemsOfCellsInBounds(bounds: Matter.Bounds): TSHItem[] {
-    const x1 = t(bounds.min.x / this.cellSize);
-    const y1 = t(bounds.min.y / this.cellSize);
-    const x2 = t(bounds.max.x / this.cellSize);
-    const y2 = t(bounds.max.y / this.cellSize);
-    const res = [];
-    for (let y = y1; y <= y2; y++) {
-      for (let x = x1; x <= x2; x++) {
-        const cellid = getIndex(x, y);
-        res.push(...(this.hash[cellid] || []));
+    // Special
+    // fill: (particles: TParticle[]): void => {
+    //   particles.forEach((part, pid) => {
+    //     const x = part[P.X];
+    //     const y = part[P.Y];
+    //     sh.insert(pid, x, y);
+    //   });
+    // },
+    getNearItems: (x: number, y: number, particles: TParticle[]): number[] => {
+      const ccx = t(x / sh.cs);
+      const ccy = t(y / sh.cs);
+      const selfItemId = getIndex(ccx, ccy);
+      const res: TSHItem[] = [
+        ...getCell(sh, ccx - 1, ccy - 1),
+        ...getCell(sh, ccx, ccy - 1),
+        ...getCell(sh, ccx + 1, ccy - 1),
+        ...getCell(sh, ccx - 1, ccy),
+        ...arrayDeleteItem(sh.h[selfItemId] || [], selfItemId),
+        ...getCell(sh, ccx + 1, ccy),
+        ...getCell(sh, ccx - 1, ccy + 1),
+        ...getCell(sh, ccx, ccy + 1),
+        ...getCell(sh, ccx + 1, ccy + 1),
+      ];
+      return res;
+    },
+    getItemsByBounds: (bounds: Matter.Bounds): TSHItem[] => {
+      const x1 = t(bounds.min.x / sh.cs);
+      const y1 = t(bounds.min.y / sh.cs);
+      const x2 = t(bounds.max.x / sh.cs);
+      const y2 = t(bounds.max.y / sh.cs);
+      const res = [];
+      for (let y = y1; y <= y2; y++) {
+        for (let x = x1; x <= x2; x++) {
+          const cellid = getIndex(x, y);
+          res.push(...(sh.h[cellid] || []));
+        }
       }
-    }
-    return res;
-  }
+      return res;
+    },
+  };
+  return sh;
 }
 
 declare global {
-  class CSpatialHash extends SpatialHash {}
+  interface TSpatialHash {
+    h: { [key: string]: TSHItem[] }
+    p: { [key: number]: TSHCellId } // prevItemCell
+    cs: number // Cell size (interaction radius)
+    // clear: () => void
+    // fill: (particles: TParticle[]) => void
+    update: (item: TSHItem, x: number, y: number) => void
+    insert: (it: TSHItem, x: number, y: number) => void
+    remove: (item: TSHItem) => void
+    getNearItems: (x: number, y: number, particles: TParticle[]) => number[]
+    getItemsByBounds: (bounds: Matter.Bounds) => TSHItem[]
+  }
 }

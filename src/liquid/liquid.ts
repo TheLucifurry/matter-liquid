@@ -59,7 +59,7 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     bb: config.bordersBounce || BORDERS_BOUNCE_VALUE,
     ip: false,
     g: config.gravityRatio || GRAVITY_RATIO,
-    sh: new SpatialHash(),
+    sh: SpatialHash(radius),
     rbp: 0,
     abp: 0,
     p: [],
@@ -73,7 +73,6 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     ev: createEventsObject(),
     u: computeUpdaterWrapped,
   };
-  liquid.sh.init(liquid.h);
 
   // Init updaters
   Matter.Events.on(config.render, 'afterRender', () => renderUpdater(liquid));

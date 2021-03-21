@@ -46,9 +46,9 @@ export function getRectFromBoundsWithPadding(bounds: Matter.Bounds, padding = 0)
     bounds.max.y + padding,
   ];
 }
-export function getParticlesInsideBodyIds(particles: TParticle[], body: Matter.Body, spatialHash: CSpatialHash, _test_particleIds?: number[]): number[] {
+export function getParticlesInsideBodyIds(particles: TParticle[], body: Matter.Body, spatialHash: TSpatialHash, _test_particleIds?: number[]): number[] {
   const res: number[] = [];
-  const nearParticlesIds: number[] = spatialHash.getItemsOfCellsInBounds(body.bounds);
+  const nearParticlesIds: number[] = spatialHash.getItemsByBounds(body.bounds);
   for (let i = 0; i < nearParticlesIds.length; i++) {
     const pid = nearParticlesIds[i];
     const part = particles[pid];

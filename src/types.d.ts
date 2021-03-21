@@ -29,7 +29,7 @@ type TLiquid = {
   readonly iwx: boolean // isWrappedX
   readonly iwy: boolean // isWrappedX
   readonly l: TLiquidPrototypeComputed[] // Liquids prototypes
-  readonly sh: CSpatialHash // SpatialHash
+  readonly sh: TSpatialHash // SpatialHash
   readonly p: TParticle[] // Particles
   readonly lpl: { [key: number]: TLiquidPrototypeComputed }, // LiquidPrototypeLink
   readonly lnlid: { [key: string]: number }, // LiquidNamesToLid

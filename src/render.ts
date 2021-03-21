@@ -17,21 +17,21 @@ function getCoordsFromCellid(cellid: TSHCellId, cellSize: number): TVector {
 
 function renderGrid(liquid: TLiquid) {
   const ctx = liquid.r.context;
-  const { cellSize } = liquid.sh;
-  const csh = cellSize / 2;
+  const cs = liquid.sh.cs;
+  const csh = cs / 2;
 
   // @ts-ignore
-  const hashCells: Array<[TSHCellId, TSHItem[]]> = Object.entries(liquid.sh.hash);
+  const hashCells: Array<[TSHCellId, TSHItem[]]> = Object.entries(liquid.sh.h);
 
   ctx.textAlign = 'center';
   ctx.lineWidth = 1;
   ctx.fillStyle = 'white';
   ctx.strokeStyle = 'green';
   for (const [cellid, cell] of hashCells) {
-    const [fX, fY] = getCoordsFromCellid(cellid, cellSize);
+    const [fX, fY] = getCoordsFromCellid(cellid, cs);
     // @ts-ignore
     ctx.fillText(cell.length, fX, fY);
-    ctx.strokeRect(fX - csh, fY - csh, cellSize, cellSize);
+    ctx.strokeRect(fX - csh, fY - csh, cs, cs);
   }
 }
 
