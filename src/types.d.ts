@@ -6,19 +6,21 @@ type TLiquidConfig = {
   render: Matter.Render
   liquids: TLiquidPrototype[]
 
+  isPaused?: boolean
   isAdvancedAlgorithm?: boolean
   isRegionalComputing?: boolean
-  gravityRatio?: number
-  radius?: number
-  isPaused?: boolean
-  updateEveryFrame?: number
-  timeScale?: number
   worldWrapping: boolean | [boolean, boolean]
-  bordersBounce : number
-  isDebug?: boolean
+  radius?: number
+  timeScale?: number
+  gravityRatio?: number
+  bordersBounce?: number
+  updateEveryFrame?: number
   particleTextureScale?: number
+
+  // Dev-only
+  isDebug?: boolean
 };
-type TStore = {
+type TLiquid = {
   readonly e: Matter.Engine // Engine
   readonly r: Matter.Render // Render
   readonly w: Matter.World // World
@@ -27,12 +29,14 @@ type TStore = {
   readonly iwx: boolean // isWrappedX
   readonly iwy: boolean // isWrappedX
   readonly l: TLiquidPrototypeComputed[] // Liquids prototypes
-  readonly sh: CSpatialHash // SpatialHash
+  readonly sh: TSpatialHash // SpatialHash
   readonly p: TParticle[] // Particles
   readonly lpl: { [key: number]: TLiquidPrototypeComputed }, // LiquidPrototypeLink
   readonly lnlid: { [key: string]: number }, // LiquidNamesToLid
   readonly fpids: number[] // FreeParticleIds
   readonly s: TSpringList // Springs
+  readonly ev: TEvents // Events store
+  readonly u: any // Compute update callback
 
   bb: number // BordersBounce
   ip: boolean // IsPaused

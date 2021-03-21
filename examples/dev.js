@@ -141,13 +141,14 @@ export default function () {
 };
 
 function pluginUsingExample(liquid) {
+  const { Liquid } = Matter;
   const dynamicid = 0;
   const orangeid = 1;
   const violedid = 2;
 
-  liquid.drip.rect(dynamicid, -500, 300, 1000, 300);
-  liquid.drip.rect(orangeid, -500, -500, 300, 500);
-  liquid.drip.rect(violedid, 200, -500, 300, 500);
+  Liquid.drip.rect(liquid, dynamicid, -500, 300, 1000, 300);
+  Liquid.drip.rect(liquid, orangeid, -500, -500, 300, 500);
+  Liquid.drip.rect(liquid, violedid, 200, -500, 300, 500);
 
   const space = 12;
 

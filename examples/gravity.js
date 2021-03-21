@@ -24,7 +24,7 @@ export default function () {
   const { minX, maxX, minY, maxY, width } = getWorldParams(world);
   const liquidCyanId = 0;
   const seaHeight = 400;
-  liquid.drip.rect(liquidCyanId, minX, maxY - seaHeight, width, seaHeight);
+  Liquid.drip.rect(liquid, liquidCyanId, minX, maxY - seaHeight, width, seaHeight);
 
   setDripper(render, liquid, mouseConstraint);
 

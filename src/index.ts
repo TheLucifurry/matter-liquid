@@ -1,6 +1,5 @@
 import Package from '../package.json';
-import VirtualCanvas from './helpers/virtualCanvas';
-import Liquid from './liquid/index';
+import GlobalLiquid from './global/global';
 
 const MatterLiquid = {
   name: Package.name,
@@ -11,12 +10,7 @@ const MatterLiquid = {
   //   something: true,
   // },
   install(matter: any) {
-    matter.Liquid = {
-      create(config: TLiquidConfig) {
-        return new Liquid(config);
-      },
-      VirtualCanvas,
-    };
+    matter.Liquid = GlobalLiquid;
   },
 };
 
