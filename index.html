@@ -61,6 +61,7 @@
 
     // install plugin
     Matter.use(pluginName);
+    const { Liquid } = Matter;
 
     // Stats
     const statsContainer = document.createElement('div');
@@ -77,10 +78,10 @@
       Matter.Events.on(engine, 'beforeUpdate', stats.begin);
       Matter.Events.on(engine, 'afterUpdate', () => {
         stats.end();
-        counter.textContent = liquid.getParticlesCount();
+        counter.textContent = Liquid.getParticlesCount(liquid);
       });
-      window.onblur = () => liquid.setPause();
-      window.onfocus = () => liquid.setPause(false);
+      window.onblur = () => Liquid.setPause(liquid);
+      window.onfocus = () => Liquid.setPause(liquid, false);
       // liquid.setPause(!document.hasFocus())
       document.getElementById('info').textContent = info;
     };
