@@ -6,7 +6,7 @@ const Dryer = {
     const particle = liquid.p[particleId];
     liquid.p[particleId] = null;
     liquid.sh.remove(particleId);
-    liquid.events.particleRemove(particle, particleId, liquid.lpl[particleId]);
+    liquid.ev.particleRemove(particle, particleId, liquid.lpl[particleId]);
     liquid.fpids.push(particleId);
     // TODO: remove associated springs
   },

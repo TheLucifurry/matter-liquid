@@ -7,7 +7,8 @@ const Dripper = {
     liquid.sh.insert(pid, x, y);
   },
   rect(liquid: TLiquid, liquidKey: TLiquidKey, zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, interval: number = liquid.h): void {
-    const lid = liquid.getLiquidId(liquidKey);
+    // @ts-ignore
+    const lid = Matter.Liquid.getLiquidId(liquid, liquidKey);
     const halfInterval = interval / 2;
     const columns = Math.max(1, Math.trunc(zoneWidth / interval));
     const rows = Math.max(1, Math.trunc(zoneHeight / interval));

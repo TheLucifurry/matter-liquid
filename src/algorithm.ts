@@ -308,7 +308,8 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
 
 export function simple(liquid: TLiquid, dt: number): void {
   const updatedPids: number[] = [];
-  const gravity = liquid.getGravity();
+  // @ts-ignore
+  const gravity = Matter.Liquid.getGravity(liquid);
   const particlesPrevPositions: TSavedParticlesPositions = {};
   const activeRect: TRect = liquid.irc ? getRectFromBoundsWithPadding(liquid.r.bounds, liquid.abp) : null;
 
@@ -331,7 +332,8 @@ export function simple(liquid: TLiquid, dt: number): void {
 export function advanced(liquid: TLiquid, dt: number): void {
   const activeRect = getRectFromBoundsWithPadding(liquid.r.bounds, liquid.abp);
   const updatedPids: number[] = [];
-  const gravity = liquid.getGravity();
+  // @ts-ignore
+  const gravity = Matter.Liquid.getGravity(liquid);
   const particlesPrevPositions: TSavedParticlesPositions = {};
 
   foreachActive(liquid, activeRect, liquid.p, (part, pid) => {

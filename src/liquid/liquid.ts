@@ -7,7 +7,7 @@ import {
 import SpatialHash from '../helpers/spatialHash';
 import createEventsObject from './events';
 
-function createLiquid(props: TLiquidPrototype, particleRadius: number): TLiquidPrototypeComputed {
+function createLiquidPrototype(props: TLiquidPrototype, particleRadius: number): TLiquidPrototypeComputed {
   const color: string = props.color || PARTICLE_COLOR as string;
   return [
     color,
@@ -15,7 +15,9 @@ function createLiquid(props: TLiquidPrototype, particleRadius: number): TLiquidP
   ];
 }
 
-export default function Liquid(config: TLiquidConfig): TLiquid {
+export default function createLiquid(config: TLiquidConfig): TLiquid {
+  // @ts-ignore
+  const Liquid: TGlobalLiquid = Matter.Liquid;
   const radius = config.radius || INTERACTION_RADIUS;
 
   const particleTextureSize = radius * (config.particleTextureScale || PARTICLE_TEX_RADIUS_SCALE);
@@ -31,8 +33,17 @@ export default function Liquid(config: TLiquidConfig): TLiquid {
     if (prototypeParams.name) {
       lnlid[prototypeParams.name] = lid;
     }
-    return createLiquid(prototypeParams, particleTextureSize);
+    return createLiquidPrototype(prototypeParams, particleTextureSize);
   });
+
+  // Create updaters
+  const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
+  const computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
+  const computeUpdaterWrapped = (liquid: TLiquid) => {
+    if (liquid.t++ % liquid.ef === 0) {
+      computeUpdater(liquid, liquid.e.timing.timeScale * liquid.dt);
+    }
+  };
 
   const liquid: TLiquid = {
     h: radius,
@@ -51,69 +62,22 @@ export default function Liquid(config: TLiquidConfig): TLiquid {
     sh: new SpatialHash(),
     rbp: 0,
     abp: 0,
-    p: [] as TParticle[],
+    p: [],
     s: {},
-    fpids: [] as number[],
+    fpids: [],
     lpl: {},
     t: 0,
     ef: config.updateEveryFrame || EVERY_FRAME,
     dt: config.timeScale || TIME_SCALE,
 
-    events: createEventsObject(),
-    setRenderBoundsPadding(padding: number): void {
-      liquid.rbp = padding;
-    },
-    setActiveBoundsPadding(padding: number): void {
-      liquid.abp = padding;
-    },
-    setGravityRatio(ratio: number = liquid.g): void {
-      liquid.g = ratio;
-    },
-    setUpdateEveryFrame(value: number = liquid.ef): void {
-      liquid.ef = value;
-    },
-    setTimeScale(value: number = liquid.dt): void {
-      liquid.dt = value;
-    },
-    getGravity(): TVector {
-      return [liquid.w.gravity.x * liquid.g, liquid.w.gravity.y * liquid.g];
-    },
-    getParticlesCount(): number {
-      return liquid.p.length - liquid.fpids.length;
-    },
-    getLiquidId(liquidKey: TLiquidKey): number {
-      if (DEV) {
-        if (typeof liquidKey === 'string' && liquid.lnlid[liquidKey] == null) {
-          throw new Error(`MatterLiquid: liquid prototype named "${liquidKey}" does not exist`);
-        }
-      }
-      return typeof liquidKey === 'number' ? liquidKey : liquid.lnlid[liquidKey];
-    },
-    setPause: null,
+    ev: createEventsObject(),
+    u: computeUpdaterWrapped,
   };
   liquid.sh.init(liquid.h);
 
-  // Create updaters
-  const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
-  const computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
-  const updateCompute = () => {
-    if (liquid.t++ % liquid.ef === 0) {
-      computeUpdater(liquid, liquid.e.timing.timeScale * liquid.dt);
-    }
-  };
-  liquid.setPause = (isPause = true): void => {
-    if (isPause) {
-      Matter.Events.off(liquid.e, 'afterUpdate', updateCompute);
-    } else {
-      Matter.Events.on(liquid.e, 'afterUpdate', updateCompute);
-    }
-    liquid.ip = isPause;
-    liquid.events.pauseChange(isPause);
-  };
-
   // Init updaters
   Matter.Events.on(config.render, 'afterRender', () => renderUpdater(liquid));
-  liquid.setPause(!!config.isPaused); // Enable compute updater
+  Liquid.setPause(liquid, !!config.isPaused); // Enable compute updater
 
   if (DEV) {
     console.log('liquid:'); console.dir(liquid);

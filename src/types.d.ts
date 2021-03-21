@@ -6,17 +6,19 @@ type TLiquidConfig = {
   render: Matter.Render
   liquids: TLiquidPrototype[]
 
+  isPaused?: boolean
   isAdvancedAlgorithm?: boolean
   isRegionalComputing?: boolean
-  gravityRatio?: number
-  radius?: number
-  isPaused?: boolean
-  updateEveryFrame?: number
-  timeScale?: number
   worldWrapping: boolean | [boolean, boolean]
-  bordersBounce : number
-  isDebug?: boolean
+  radius?: number
+  timeScale?: number
+  gravityRatio?: number
+  bordersBounce?: number
+  updateEveryFrame?: number
   particleTextureScale?: number
+
+  // Dev-only
+  isDebug?: boolean
 };
 type TLiquid = {
   readonly e: Matter.Engine // Engine
@@ -33,6 +35,8 @@ type TLiquid = {
   readonly lnlid: { [key: string]: number }, // LiquidNamesToLid
   readonly fpids: number[] // FreeParticleIds
   readonly s: TSpringList // Springs
+  readonly ev: TEvents // Events store
+  readonly u: any // Compute update callback
 
   bb: number // BordersBounce
   ip: boolean // IsPaused
@@ -42,18 +46,6 @@ type TLiquid = {
   t: number // Tick
   ef: number // EveryFrame
   dt: number // Delta time
-
-  events: TEvents
-
-  setPause(isPause?: boolean): void
-  setRenderBoundsPadding(padding: number): void
-  setActiveBoundsPadding(padding: number): void
-  setGravityRatio(ratio?: number): void
-  setUpdateEveryFrame(value?: number): void
-  setTimeScale(value?: number): void
-  getGravity(): TVector
-  getParticlesCount(): number
-  getLiquidId(liquidKey: TLiquidKey): number
 };
 
 // Liquid & particle
