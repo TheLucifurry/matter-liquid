@@ -6,7 +6,7 @@ import {
   getBodySurfaceNormal,
 } from './helpers/utils';
 import {
-  getReflectVector, vectorAddVector, vectorEqualsVector, vectorFromTwo,
+  getReflectVector, vectorAddVector, vectorEqualsVector, vectorFromTwo, vectorMul, vectorNormal,
 } from './helpers/vector';
 import VirtualCanvas from './helpers/virtualCanvas';
 
@@ -127,9 +127,22 @@ export function update(liquid: CLiquid): void {
       const currentParticlePos: TVector = [point2.x, point2.y];
       const prevParticlePos: TVector = [point2.x, point2.y];
       const endParticlePos: TVector = !vectorEqualsVector(prevParticlePos, currentParticlePos) ? currentParticlePos : bodyPos;
-      const surface: [TVector, TVector] = getBodySurfaceIntersectsWithRay(body, endParticlePos, prevParticlePos);
-      const surfNorm = getBodySurfaceNormal(surface[0], surface[1]);
-      const newPosition = getLineIntersectionPoint(surface[0], surface[1], prevParticlePos, vectorAddVector(prevParticlePos, surfNorm));
+      let newPosition: TVector;
+      let surfNorm: TVector;
+
+      if (body.circleRadius) { // is body a circle
+        const radiusVector = vectorFromTwo(bodyPos, currentParticlePos);
+        surfNorm = vectorNormal(radiusVector);
+        newPosition = vectorAddVector(bodyPos, vectorMul(surfNorm, body.circleRadius));
+        drawLine(ctx, bodyPos, newPosition, 'violet');
+      } else {
+        const endParticlePos: TVector = !vectorEqualsVector(prevParticlePos, currentParticlePos) ? currentParticlePos : bodyPos;
+        const surface: [TVector, TVector] = getBodySurfaceIntersectsWithRay(body, endParticlePos, prevParticlePos);
+        surfNorm = getBodySurfaceNormal(surface[0], surface[1]);
+        newPosition = getLineIntersectionPoint(surface[0], surface[1], prevParticlePos, vectorAddVector(prevParticlePos, surfNorm));
+
+        drawLine(ctx, surface[0], surface[1], 'cyan');
+      }
       const refVec = getReflectVector(vectorFromTwo(prevParticlePos, endParticlePos), surfNorm);
 
       const surfLine = {
@@ -142,7 +155,6 @@ export function update(liquid: CLiquid): void {
       };
 
       drawLine(ctx, newPosition, refLine, 'lime');
-      drawLine(ctx, surface[0], surface[1], 'cyan');
       drawLine(ctx, newPosition, surfLine, 'red');
       drawPoint(ctx, newPosition, 'red');
     }
