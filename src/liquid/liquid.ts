@@ -36,15 +36,6 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     return createLiquidPrototype(prototypeParams, particleTextureSize);
   });
 
-  // Create updaters
-  const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
-  const computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
-  const computeUpdaterWrapped = (liquid: TLiquid) => {
-    if (liquid.t++ % liquid.ef === 0) {
-      computeUpdater(liquid, liquid.e.timing.timeScale * liquid.dt);
-    }
-  };
-
   const liquid: TLiquid = {
     h: radius,
     iwx: isWrappedSides[0],
@@ -71,7 +62,16 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     dt: config.timeScale || TIME_SCALE,
 
     ev: createEventsObject(),
-    u: computeUpdaterWrapped,
+    u: null,
+  };
+
+  // Create updaters
+  const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
+  const computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
+  liquid.u = () => {
+    if (liquid.t++ % liquid.ef === 0) {
+      computeUpdater(liquid, liquid.e.timing.timeScale * liquid.dt);
+    }
   };
 
   // Init updaters

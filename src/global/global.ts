@@ -20,9 +20,9 @@ const GlobalLiquid = {
 
   setPause(liquid: TLiquid, isPause = true): void {
     if (isPause) {
-      Matter.Events.off(liquid.e, 'afterUpdate', () => liquid.u(liquid));
+      Matter.Events.off(liquid.e, 'afterUpdate', liquid.u);
     } else {
-      Matter.Events.on(liquid.e, 'afterUpdate', () => liquid.u(liquid));
+      Matter.Events.on(liquid.e, 'afterUpdate', liquid.u);
     }
     liquid.ip = isPause;
     liquid.ev.pauseChange(isPause);

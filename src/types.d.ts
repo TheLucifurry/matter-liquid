@@ -36,7 +36,7 @@ type TLiquid = {
   readonly fpids: number[] // FreeParticleIds
   readonly s: TSpringList // Springs
   readonly ev: TEvents // Events store
-  readonly u: any // Compute update callback
+  u: any // Compute update callback
 
   bb: number // BordersBounce
   ip: boolean // IsPaused
