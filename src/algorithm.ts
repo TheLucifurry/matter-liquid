@@ -172,7 +172,8 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, dt: number) {
     const r = getR(i, j);
     const q = vectorLength(vectorDiv(r, liquid.h)); // q ← rij/h
     if (q < 1) {
-      const oneMinQ = 1 - q;
+      // const oneMinQ = 1 - q;
+      const oneMinQ = Math.max(1 - q, 0.5); // Экспериментальный способ по стабилизации высокоплотных скоплений частиц
       p += oneMinQ ** 2;
       pNear += oneMinQ ** 3;
       pairsDataList.push([oneMinQ, r, j]);
