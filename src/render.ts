@@ -1,10 +1,9 @@
 import { L, P } from './constants';
 import { arrayEach } from './helpers/cycles';
 import {
-  checkPointInRect, getRectFromBoundsWithPadding, getLineIntersectionPoint,
-  getBodySurfaceIntersectsWithRay,
-  getBodySurfaceNormal,
-} from './helpers/utils';
+  getRectFromBoundsWithPadding, getBodySurfaceIntersectsWithRay, getBodySurfaceNormal, getLineIntersectionPoint,
+} from './helpers/tools';
+import { checkPointInRect } from './helpers/utils';
 import {
   getReflectVector, vectorAddVector, vectorEqualsVector, vectorFromTwo, vectorMul, vectorNormal,
 } from './helpers/vector';

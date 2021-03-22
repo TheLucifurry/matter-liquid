@@ -5,11 +5,12 @@ import {
   vectorClampMaxLength, vectorDiv, vectorEqualsVector, vectorFromTwo, vectorLength, vectorMul, vectorMulVector, vectorNormal, vectorSubVector,
 } from './helpers/vector';
 import {
-  checkBodyContainsPoint, getBodiesInRect, getBodySurfaceIntersectsWithRay, getBodySurfaceNormal, getLineIntersectionPoint, getParticlesInsideBodyIds, getRectFromBoundsWithPadding, mathClamp, mathWrap,
-} from './helpers/utils';
-import {
   eachNeighborsOf, foreachIds, eachSpring, getNeighbors, eachNeighbors, foreachActive,
 } from './helpers/cycles';
+import {
+  getBodySurfaceIntersectsWithRay, getBodySurfaceNormal, getLineIntersectionPoint, getBodiesInRect, getParticlesInsideBodyIds, checkBodyContainsPoint, getRectFromBoundsWithPadding,
+} from './helpers/tools';
+import { mathMax, mathClamp, mathWrap } from './helpers/utils';
 
 const p0 = 10; // rest density
 const k = 0.004; // stiffness
@@ -173,7 +174,7 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, dt: number) {
     const q = vectorLength(vectorDiv(r, liquid.h)); // q ← rij/h
     if (q < 1) {
       // const oneMinQ = 1 - q;
-      const oneMinQ = Math.max(1 - q, 0.5); // Экспериментальный способ по стабилизации высокоплотных скоплений частиц
+      const oneMinQ = mathMax(1 - q, 0.5); // Экспериментальный способ по стабилизации высокоплотных скоплений частиц
       p += oneMinQ ** 2;
       pNear += oneMinQ ** 3;
       pairsDataList.push([oneMinQ, r, j]);

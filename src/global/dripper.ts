@@ -1,3 +1,5 @@
+import { mathMax } from '../helpers/utils';
+
 const Dripper = {
   drip(liquid: TLiquid, liquidid: number, x: number, y: number): void {
     const pid = liquid.fpids.length === 0 ? liquid.p.length : liquid.fpids.pop();
@@ -10,8 +12,8 @@ const Dripper = {
     // @ts-ignore
     const lid = Matter.Liquid.getLiquidId(liquid, liquidKey);
     const halfInterval = interval / 2;
-    const columns = Math.max(1, Math.trunc(zoneWidth / interval));
-    const rows = Math.max(1, Math.trunc(zoneHeight / interval));
+    const columns = mathMax(Math.trunc(zoneWidth / interval), 1);
+    const rows = mathMax(Math.trunc(zoneHeight / interval), 1);
     for (let c = 0; c < columns; c++) {
       for (let r = 0; r < rows; r++) {
         const x = zoneX + halfInterval + c * interval;

@@ -1,3 +1,5 @@
+import { mathClamp } from './utils';
+
 export function vectorLength(vec: TVector): number {
   return Math.hypot(vec[0], vec[1]);
 }
@@ -29,7 +31,7 @@ export function vectorAddLength(vec1: TVector, length: number): TVector {
 export function vectorClampMaxLength(vec: TVector, max: number): TVector {
   const length = Math.hypot(vec[0], vec[1]);
   const div = vectorDiv(vec, length || 1);
-  return vectorMul(div, Math.max(0, Math.min(max, length)));
+  return vectorMul(div, mathClamp(length, -max, max));
 }
 
 export function vectorAddVector(vec1: TVector, vec2: TVector): TVector {
