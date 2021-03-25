@@ -53,12 +53,14 @@ type TLiquidPrototype = {
   name?: string
   color?: string
   texture?: TVirtualCanvas
+  mass?: number,
   // plasticity?: number // a
   // stiffness?: number // k
 };
 type TLiquidPrototypeComputed = [
   string, // Color
   TVirtualCanvas, // Texture
+  number, // Mass
 ];
 type TLiquidKey = string | number;
 type TParticle = Float32Array;

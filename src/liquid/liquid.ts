@@ -12,6 +12,7 @@ function createLiquidPrototype(props: TLiquidPrototype, particleRadius: number):
   return [
     color,
     props.texture || Renderer.generateParticleTexture(color, particleRadius),
+    props.mass || 1,
   ];
 }
 

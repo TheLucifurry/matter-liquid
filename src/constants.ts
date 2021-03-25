@@ -20,4 +20,5 @@ export const P = {
 export const L = {
   COLOR: 0,
   TEXTURE: 1,
+  MASS: 2,
 };

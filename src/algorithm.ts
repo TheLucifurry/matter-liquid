@@ -1,4 +1,4 @@
-import { P } from './constants';
+import { L, P } from './constants';
 import {
   getReflectVector,
   vectorAddVector,
@@ -19,7 +19,7 @@ const sigma = 0.1; //
 const beta = 0.1; // 0 - вязкая жидкость
 const mu = 1; // friction, 0 - скольжение, 1 - цепкость
 
-const L = 10; // длина упора пружины; (хорошо ведут себя значения в пределах 20-100)
+const Len = 10; // длина упора пружины; (хорошо ведут себя значения в пределах 20-100)
 const kSpring = 0.001; // (в доке по дефолту 0.3)
 const alpha = 0.03; // α - константа пластичности
 
@@ -64,9 +64,9 @@ function getPidsFromSpringKey(springKey: string): TVector {
   const [currentPid, neighborPid] = springKey.split('.');
   return [+currentPid, +neighborPid];
 }
-function applyGravity(part: TParticle, dt: number, gravity: TVector) {
-  part[P.VEL_X] += dt * gravity[0];
-  part[P.VEL_Y] += dt * gravity[1];
+function applyGravity(part: TParticle, dt: number, gravity: TVector, mass: number) {
+  part[P.VEL_X] += dt * mass * gravity[0];
+  part[P.VEL_Y] += dt * mass * gravity[1];
 }
 function addParticlePositionByVelocity(part: TParticle, dt: number) {
   part[P.X] += dt * part[P.VEL_X];
@@ -111,7 +111,7 @@ function adjustSprings(liquid: TLiquid, updatedPids: number[], dt: number) {
       if (q < 1) {
         const r = getR(i, j);
         const rLength = vectorLength(r);
-        let Lij = L - rLength;
+        let Lij = Len - rLength;
         // let Lij = store.radius;
 
         const springKey = getSpringKey(currentPid, neighborPid);
@@ -119,10 +119,10 @@ function adjustSprings(liquid: TLiquid, updatedPids: number[], dt: number) {
         //   springs[springKey] = Lij;
         // }
         const d = y * Lij;
-        if (rLength > L + d) { // stretch
-          Lij += dt * alpha * (rLength - L - d);
-        } else if (rLength < L - d) { // compress
-          Lij -= dt * alpha * (L - d - rLength);
+        if (rLength > Len + d) { // stretch
+          Lij += dt * alpha * (rLength - Len - d);
+        } else if (rLength < Len - d) { // compress
+          Lij -= dt * alpha * (Len - d - rLength);
         }
 
         if (liquid.s[springKey] === undefined) {
@@ -148,7 +148,7 @@ function adjustSprings(liquid: TLiquid, updatedPids: number[], dt: number) {
     const r = getR(i, j);
     const rNormal = vectorNormal(r);
     const rLength = vectorLength(r);
-    //     const Lij = L - rLength;
+    //     const Lij = Len - rLength;
     const Lij = spring;
 
     // dt**2 * kSpring * (1 − Lij / h) * (Lij − Rij) * R^ij
@@ -317,7 +317,7 @@ export function simple(liquid: TLiquid, dt: number): void {
 
   foreachActive(liquid, activeRect, liquid.p, (part, pid) => {
     updatedPids.push(pid);
-    applyGravity(part, dt, gravity); // vi ← vi + ∆tg
+    applyGravity(part, dt, gravity, liquid.lpl[pid][L.MASS] as number); // vi ← vi + ∆tg
     particlesPrevPositions[pid] = [part[P.X], part[P.Y]]; // Save previous position: xi^prev ← xi
 
     limitVelocity(part, liquid.h * 0.6);
@@ -340,7 +340,7 @@ export function advanced(liquid: TLiquid, dt: number): void {
 
   foreachActive(liquid, activeRect, liquid.p, (part, pid) => {
     updatedPids.push(pid);
-    applyGravity(part, dt, gravity); // vi ← vi + ∆tg
+    // applyGravity(part, dt, gravity); // vi ← vi + ∆tg
   });
   foreachIds(liquid.p, updatedPids, (part) => {
     applyViscosity(liquid, part, dt);
