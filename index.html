@@ -54,6 +54,7 @@
     import examGravity from './examples/gravity.js';
     import examWrap from './examples/wrap.js';
     import examBodies from './examples/bodies.js';
+    import examMultiLiquid from './examples/multi_liquid.js';
     import examDev from './examples/dev.js';
 
     let pluginName = 'matter-liquid'; // PLUGIN_NAME
@@ -87,7 +88,7 @@
     };
 
     function example(name, init){
-      const id = name.toLowerCase();
+      const id = name.toLowerCase().replace(/ /g, '_');
       return { name, id, init, sourceLink: `${repoUrl}/blob/master/examples/${id}.js` };
     }
 
@@ -117,6 +118,7 @@
         example('Gravity', examGravity),
         example('Wrap', examWrap),
         example('Bodies', examBodies),
+        example('Multi Liquid', examMultiLiquid),
         {
           name: '(Dev)',
           id: 'dev',
