@@ -1,6 +1,4 @@
 export default function SpatialHash(cellSize: number): TSpatialHash {
-  const t = Math.trunc;
-
   function getIndex(x: number, y: number /* , columnCount: number */): TSHCellId {
     return `${x}.${y}`;
     // return y * columnCount + x;
@@ -41,8 +39,8 @@ export default function SpatialHash(cellSize: number): TSpatialHash {
     //   sh.p = {};
     // },
     update: (item: TSHItem, x: number, y: number): void => {
-      const cellX = t(x / sh.cs);
-      const cellY = t(y / sh.cs);
+      const cellX = Math.trunc(x / sh.cs);
+      const cellY = Math.trunc(y / sh.cs);
       const prevCellid = sh.p[item];
       const nextCellid = getIndex(cellX, cellY);
       if (prevCellid !== nextCellid) {
@@ -53,8 +51,8 @@ export default function SpatialHash(cellSize: number): TSpatialHash {
       }
     },
     insert: (item: TSHItem, x: number, y: number): void => {
-      const cellX = t(x / sh.cs);
-      const cellY = t(y / sh.cs);
+      const cellX = Math.trunc(x / sh.cs);
+      const cellY = Math.trunc(y / sh.cs);
       const сellid = getIndex(cellX, cellY);
       save(sh, item, сellid);
     },
@@ -72,8 +70,8 @@ export default function SpatialHash(cellSize: number): TSpatialHash {
     //   });
     // },
     getNearItems: (x: number, y: number, particles: TParticle[]): number[] => {
-      const ccx = t(x / sh.cs);
-      const ccy = t(y / sh.cs);
+      const ccx = Math.trunc(x / sh.cs);
+      const ccy = Math.trunc(y / sh.cs);
       const selfItemId = getIndex(ccx, ccy);
       const res: TSHItem[] = [
         ...getCell(sh, ccx - 1, ccy - 1),
@@ -89,10 +87,10 @@ export default function SpatialHash(cellSize: number): TSpatialHash {
       return res;
     },
     getItemsByBounds: (bounds: Matter.Bounds): TSHItem[] => {
-      const x1 = t(bounds.min.x / sh.cs);
-      const y1 = t(bounds.min.y / sh.cs);
-      const x2 = t(bounds.max.x / sh.cs);
-      const y2 = t(bounds.max.y / sh.cs);
+      const x1 = Math.trunc(bounds.min.x / sh.cs);
+      const y1 = Math.trunc(bounds.min.y / sh.cs);
+      const x2 = Math.trunc(bounds.max.x / sh.cs);
+      const y2 = Math.trunc(bounds.max.y / sh.cs);
       const res = [];
       for (let y = y1; y <= y2; y++) {
         for (let x = x1; x <= x2; x++) {
