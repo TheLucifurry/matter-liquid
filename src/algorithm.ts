@@ -161,7 +161,8 @@ function adjustSprings(liquid: TLiquid, updatedPids: number[], dt: number) {
     partPosAdd(j, DHalf); // xj += D/2;
   });
 }
-function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, dt: number) {
+function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, pid: number, dt: number) {
+  const mass = liquid.lpl[pid][L.MASS] as number;
   const p0 = liquid.h * 0.2; // rest density
   const k = 0.3; // stiffness range[0..1]
   const kNear = liquid.h * 0.3; // stiffness near (вроде, влияет на текучесть)
@@ -176,13 +177,13 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, dt: number) {
     const q = vectorLength(vectorDiv(r, liquid.h)); // q ← rij/h
     if (q < 1) {
       // const oneMinQ = 1 - q;
-      const oneMinQ = mathMax(1 - q, 0.5); // Экспериментальный способ по стабилизации высокоплотных скоплений частиц
+      const oneMinQ = mathMax(1 - q, 0.5); // { mathMax(..., 0.5) } Экспериментальный способ по стабилизации высокоплотных скоплений частиц
       p += oneMinQ ** 2;
       pNear += oneMinQ ** 3;
       pairsDataList.push([oneMinQ, r, j]);
     }
   }
-  const P = k * (p - p0);
+  const P = k * (p - p0) * mass; // { * mass } Экспериментальный способ учета массы при взаимодействии
   const PNear = kNear * pNear;
   const dx: TVector = [0, 0];
   for (let n = 0; n < pairsDataList.length; n++) {
@@ -328,8 +329,8 @@ export function simple(liquid: TLiquid, dt: number): void {
 
     addParticlePositionByVelocity(part, dt); // Add Particle Position By Velocity: xi ← xi + ∆tvi
   });
-  foreachIds(liquid.p, updatedPids, (part) => {
-    doubleDensityRelaxation(liquid, part, dt);
+  foreachIds(liquid.p, updatedPids, (part, pid) => {
+    doubleDensityRelaxation(liquid, part, pid, dt);
   });
   resolveCollisions(liquid, activeRect, worldRect, updatedPids);
   endComputing(liquid, updatedPids, dt, particlesPrevPositions);
@@ -357,7 +358,7 @@ export function advanced(liquid: TLiquid, dt: number): void {
   adjustSprings(liquid, updatedPids, dt);
   // applySpringDisplacements
   foreachIds(liquid.p, updatedPids, (part) => {
-    doubleDensityRelaxation(liquid, part, dt);
+    // doubleDensityRelaxation(liquid, part, dt);
   });
   // resolveCollisions(Store, Store.particles, activeRect, updatedPids);
   endComputing(liquid, updatedPids, dt, particlesPrevPositions);

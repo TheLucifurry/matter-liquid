@@ -26,7 +26,7 @@ export default function () {
     }, {
       // Hard liquid
       color: color2.particle,
-      mass: 5,
+      mass: 3,
     }, {
       // Steam liquid
       color: color3.particle,
