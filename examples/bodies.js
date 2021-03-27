@@ -5,7 +5,6 @@ export default function () {
   const svgBodiesPaths = [
     'iconmonstr-paperclip-2-icon.svg',
     'iconmonstr-puzzle-icon.svg',
-    'iconmonstr-direction-4-icon.svg',
   ].map(p => `./examples/svg/${p}`);
 
   const { World, Bodies, Liquid } = Matter;
@@ -29,14 +28,19 @@ export default function () {
     Bodies.rectangle(world.bounds.max.x + wallWidth / 2, 0, wallWidth, worldSize, { isStatic: true, render: bodyWallStyle }),
     Bodies.rectangle(0, world.bounds.max.y + wallWidth / 2, worldSize, wallWidth, { isStatic: true, render: bodyWallStyle }),
     Bodies.rectangle(world.bounds.min.x - wallWidth / 2, 0, wallWidth, worldSize, { isStatic: true, render: bodyWallStyle }),
-    Bodies.circle(0, 300, 70, { render: bodyWallStyle }),
-    Bodies.rectangle(150, 300, 150, 150, { render: bodyWallStyle }),
   ]);
-  loadBodies(svgBodiesPaths, { render: bodyWallStyle }).then(bodies => {
+  loadBodies(svgBodiesPaths, { render: bodyWallStyle }).then(loadedBodies => {
+    const bodies = [
+      Bodies.circle(0, 0, 70, { render: bodyWallStyle }),
+      Bodies.rectangle(0, 0, 150, 150, { render: bodyWallStyle }),
+      ...loadedBodies.map((body) => {
+        Matter.Body.scale(body, loadedBodiesScale, loadedBodiesScale);
+        return body;
+      })
+    ];
     bodies.forEach((body, ix) => {
-      const pos = { x: world.bounds.min.x + 200 + 200 * ix, y: world.bounds.min.y + 150 };
+      const pos = { x: world.bounds.min.x + 100 + 200 * ix, y: world.bounds.min.y + 100 };
       Matter.Body.setPosition(body, pos);
-      Matter.Body.scale(body, loadedBodiesScale, loadedBodiesScale);
     });
     World.add(world, bodies);
   });
