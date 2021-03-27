@@ -10,7 +10,9 @@ import {
 import {
   getBodySurfaceIntersectsWithRay, getBodySurfaceNormal, getLineIntersectionPoint, getBodiesInRect, getParticlesInsideBodyIds, checkBodyContainsPoint, getRectFromBoundsWithPadding,
 } from './helpers/tools';
-import { mathMax, mathClamp, mathWrap } from './helpers/utils';
+import {
+  mathMax, mathClamp, mathWrap, checkPointInRect,
+} from './helpers/utils';
 
 const p0 = 10; // rest density
 const k = 0.004; // stiffness
@@ -222,7 +224,7 @@ function findOutsidePos(body: Matter.Body, prevParticlePos: TVector, currentPart
   return getLineIntersectionPoint(surface[0], surface[1], prevParticlePos, vectorAddVector(prevParticlePos, surfNorm));
 }
 
-function resolveCollisions(liquid: TLiquid, activeZone: TRect, updatablePids: number[]) {
+function resolveCollisions(liquid: TLiquid, activeZone: TRect, worldRect: TRect, updatablePids: number[]) {
   const { p: particles } = liquid;
   const bodies = activeZone ? getBodiesInRect(liquid.w.bodies, activeZone) : liquid.w.bodies;
   const originalBodiesData: TOriginalBodyData[] = [];
@@ -263,6 +265,7 @@ function resolveCollisions(liquid: TLiquid, activeZone: TRect, updatablePids: nu
   bodies.forEach((body) => {
     const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, liquid.sh, updatablePids);
     foreachIds(particles, particlesInBodyIds, (part) => { // foreach particle inside the body
+      if (!checkPointInRect(part[P.X], part[P.Y], worldRect)) return;
       const I = computeI(part, body); // compute collision impulse I
       // console.log(`I: [${I.join(', ')}]`);
       const prevPos: TVector = [part[P.X], part[P.Y]];
@@ -314,6 +317,7 @@ export function simple(liquid: TLiquid, dt: number): void {
   const gravity = Matter.Liquid.getGravity(liquid);
   const particlesPrevPositions: TSavedParticlesPositions = {};
   const activeRect: TRect = liquid.irc ? getRectFromBoundsWithPadding(liquid.r.bounds, liquid.abp) : null;
+  const worldRect: TRect = getRectFromBoundsWithPadding(liquid.w.bounds);
 
   foreachActive(liquid, activeRect, liquid.p, (part, pid) => {
     updatedPids.push(pid);
@@ -327,7 +331,7 @@ export function simple(liquid: TLiquid, dt: number): void {
   foreachIds(liquid.p, updatedPids, (part) => {
     doubleDensityRelaxation(liquid, part, dt);
   });
-  resolveCollisions(liquid, activeRect, updatedPids);
+  resolveCollisions(liquid, activeRect, worldRect, updatedPids);
   endComputing(liquid, updatedPids, dt, particlesPrevPositions);
 }
 

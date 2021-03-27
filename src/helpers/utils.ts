@@ -1,4 +1,4 @@
-export function checkPointInRect(pointX: number, pointY: number, rectX1: number, rectY1: number, rectX2: number, rectY2: number): boolean {
+export function checkPointInRect(pointX: number, pointY: number, [rectX1, rectY1, rectX2, rectY2]: TRect): boolean {
   return (pointX > rectX1 && pointX < rectX2) && (pointY > rectY1 && pointY < rectY2);
 }
 export function mathWrap(value: number, min: number, max: number): number {

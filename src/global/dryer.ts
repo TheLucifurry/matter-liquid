@@ -15,7 +15,7 @@ const Dryer = {
   rect(liquid: TLiquid, zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number): void {
     // TODO: Optimize particle finding by using SpatialHash
     liquid.p.forEach((part, pid) => {
-      if (part !== null && checkPointInRect(part[P.X], part[P.Y], zoneX, zoneY, zoneX + zoneWidth, zoneY + zoneHeight)) {
+      if (part !== null && checkPointInRect(part[P.X], part[P.Y], [zoneX, zoneY, zoneX + zoneWidth, zoneY + zoneHeight])) {
         Dryer.dry(liquid, pid);
       }
     });

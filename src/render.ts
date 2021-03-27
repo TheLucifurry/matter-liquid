@@ -52,7 +52,7 @@ function drawParticles(liquid: TLiquid) {
   const ctx = liquid.r.context;
   const renderRect = getRectFromBoundsWithPadding(liquid.r.bounds, liquid.rbp);
   arrayEach(liquid.p, (part, pid) => {
-    if (part === null || !checkPointInRect(part[P.X], part[P.Y], ...renderRect)) return;
+    if (part === null || !checkPointInRect(part[P.X], part[P.Y], renderRect)) return;
     const x = Math.floor(part[P.X]);
     const y = Math.floor(part[P.Y]);
     const particleTexture = liquid.lpl[pid][L.TEXTURE] as OffscreenCanvas;

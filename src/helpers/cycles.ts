@@ -8,7 +8,7 @@ export function arrayEach(array: any[], iteratee: (element: any, index: number)=
 }
 export function foreachActive(liquid: TLiquid, activeRect: TRect, arr: TParticle[], callback: (particle: TParticle, particleid: number)=>void): void {
   arrayEach(arr, (part, id) => {
-    if (part === null || (activeRect && !checkPointInRect(part[P.X], part[P.Y], ...activeRect))) return; // Ignore static or inactive particles
+    if (part === null || (activeRect && !checkPointInRect(part[P.X], part[P.Y], activeRect))) return; // Ignore static or inactive particles
     callback(part, id);
   });
 }
