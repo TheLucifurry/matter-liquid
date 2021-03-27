@@ -13,15 +13,6 @@ export function getBodiesByPoint(bodies: Matter.Body[], x: number, y: number): M
   return Matter.Query.point(bodies, { x, y });
 }
 export function checkBodyContainsPoint(body: Matter.Body, x: number, y: number): boolean {
-  // const vertices = body.vertices;
-  // for (let i = 0; i < vertices.length; i++) {
-  //   const vertice = vertices[i];
-  //   const nextVertice = vertices[(i + 1) % vertices.length];
-  //   if ((x - vertice.x) * (nextVertice.y - vertice.y) + (y - vertice.y) * (vertice.x - nextVertice.x) > 0) {
-  //     return false;
-  //   }
-  // }
-  // return true;
   return Matter.Vertices.contains(body.vertices, { x, y });
 }
 export function getRectFromBoundsWithPadding(bounds: Matter.Bounds, padding = 0): TRect {
