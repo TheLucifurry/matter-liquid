@@ -51,9 +51,11 @@ function subVel(part: TParticle, vec: TVector) {
   part[P.VEL_X] -= vec[0];
   part[P.VEL_Y] -= vec[1];
 }
-function partPosAdd(part: TParticle, vec: TVector) {
-  part[P.X] += vec[0];
-  part[P.Y] += vec[1];
+function partPosAdd(part: TParticle, vec: TVector, maxLength: number) {
+  // const limited: TVector = vectorClampMaxLength(vec, maxLength);
+  const limited: TVector = vec;
+  part[P.X] += limited[0];
+  part[P.Y] += limited[1];
 }
 function partPosSub(part: TParticle, vec: TVector) {
   part[P.X] -= vec[0];
@@ -158,7 +160,7 @@ function adjustSprings(liquid: TLiquid, updatedPids: number[], dt: number) {
     const D = vectorMul(rNormal, dt ** 2 * kSpring * (1 - Lij / liquid.h) * (Lij - rLength));
     const DHalf = vectorDiv(D, 2);
     partPosSub(i, DHalf); // xi -= D/2;
-    partPosAdd(j, DHalf); // xj += D/2;
+    // partPosAdd(j, DHalf); // xj += D/2;
   });
 }
 function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, pid: number, dt: number) {
@@ -166,6 +168,7 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, pid: number, dt:
   const p0 = liquid.h * 0.2; // rest density
   const k = 0.3; // stiffness range[0..1]
   const kNear = liquid.h * 0.3; // stiffness near (вроде, влияет на текучесть)
+  const maxStep = liquid.h/2;
 
   let p = 0;
   let pNear = 0;
@@ -193,9 +196,9 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, pid: number, dt:
     const halfD = vectorDiv(D, 2);
     dx[0] -= halfD[0];
     dx[1] -= halfD[1];
-    partPosAdd(j, halfD);
+    partPosAdd(j, halfD, maxStep);
   }
-  partPosAdd(i, dx);
+  partPosAdd(i, dx, maxStep);
 }
 function applyI(part: TParticle, I: TVector) {
   part[P.VEL_X] -= I[0];
