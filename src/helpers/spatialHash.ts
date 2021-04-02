@@ -1,7 +1,10 @@
-export default function SpatialHash(cellSize: number): TSpatialHash {
-  function getIndex(x: number, y: number /* , columnCount: number */): TSHCellId {
-    return `${x}.${y}`;
-    // return y * columnCount + x;
+export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TSpatialHash {
+  const leftPadding = bounds.min.x;
+  const topPadding = bounds.min.y;
+  const rowLength = Math.round((bounds.max.x - bounds.min.x) / cellSize);
+
+  function getIndex(x: number, y: number): TSHCellId {
+    return y * rowLength + x;
   }
   function arrayDeleteItem(arr: any[], item: any) {
     const ix = arr.indexOf(item);
@@ -25,13 +28,10 @@ export default function SpatialHash(cellSize: number): TSpatialHash {
     const cell = sh.h[cellid];
     arrayDeleteItem(cell, item);
     delete sh.p[item];
-    if (cell.length === 0) {
-      delete sh.h[cellid];
-    }
   }
 
   const sh: TSpatialHash = {
-    h: {},
+    h: [],
     p: {},
     cs: cellSize,
     // clear: (): void => {
@@ -39,8 +39,8 @@ export default function SpatialHash(cellSize: number): TSpatialHash {
     //   sh.p = {};
     // },
     update: (item: TSHItem, x: number, y: number): void => {
-      const cellX = Math.trunc(x / sh.cs);
-      const cellY = Math.trunc(y / sh.cs);
+      const cellX = Math.trunc((x - leftPadding) / sh.cs);
+      const cellY = Math.trunc((y - topPadding) / sh.cs);
       const prevCellid = sh.p[item];
       const nextCellid = getIndex(cellX, cellY);
       if (prevCellid !== nextCellid) {
@@ -51,8 +51,8 @@ export default function SpatialHash(cellSize: number): TSpatialHash {
       }
     },
     insert: (item: TSHItem, x: number, y: number): void => {
-      const cellX = Math.trunc(x / sh.cs);
-      const cellY = Math.trunc(y / sh.cs);
+      const cellX = Math.trunc((x - leftPadding) / sh.cs);
+      const cellY = Math.trunc((y - topPadding) / sh.cs);
       const сellid = getIndex(cellX, cellY);
       save(sh, item, сellid);
     },
@@ -70,8 +70,8 @@ export default function SpatialHash(cellSize: number): TSpatialHash {
     //   });
     // },
     getNearItems: (x: number, y: number, particles: TParticle[]): number[] => {
-      const ccx = Math.trunc(x / sh.cs);
-      const ccy = Math.trunc(y / sh.cs);
+      const ccx = Math.trunc((x - leftPadding) / sh.cs);
+      const ccy = Math.trunc((y - topPadding) / sh.cs);
       const selfItemId = getIndex(ccx, ccy);
       const res: TSHItem[] = [
         ...getCell(sh, ccx - 1, ccy - 1),
@@ -100,13 +100,17 @@ export default function SpatialHash(cellSize: number): TSpatialHash {
       }
       return res;
     },
+
+    ...(!DEV ? {} : { // DEV only methods
+      getCoordsFromCellid: (cellid: TSHCellId): TVector => [(cellid % rowLength) * cellSize, Math.trunc(cellid / rowLength) * cellSize],
+    }),
   };
   return Object.seal(sh);
 }
 
 declare global {
   interface TSpatialHash {
-    h: { [key: string]: TSHItem[] }
+    h: number[][]
     p: { [key: number]: TSHCellId } // prevItemCell
     cs: number // Cell size (interaction radius)
     // clear: () => void
