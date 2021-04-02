@@ -9,11 +9,6 @@ import {
 } from './helpers/vector';
 import VirtualCanvas from './helpers/virtualCanvas';
 
-function getCoordsFromCellid(cellid: TSHCellId, cellSize: number): TVector {
-  const p: any[] = cellid.split('.');
-  return [p[0] * cellSize, p[1] * cellSize];
-}
-
 function renderGrid(liquid: TLiquid) {
   const ctx = liquid.r.context;
   const cs = liquid.sh.cs;
@@ -27,10 +22,11 @@ function renderGrid(liquid: TLiquid) {
   ctx.fillStyle = 'white';
   ctx.strokeStyle = 'green';
   for (const [cellid, cell] of hashCells) {
-    const [fX, fY] = getCoordsFromCellid(cellid, cs);
     // @ts-ignore
-    ctx.fillText(cell.length, fX, fY);
-    ctx.strokeRect(fX - csh, fY - csh, cs, cs);
+    const [fX, fY] = liquid.sh.getCoordsFromCellid(cellid);
+    // @ts-ignore
+    ctx.fillText(cell.length, fX + csh, fY + csh);
+    ctx.strokeRect(fX, fY, cs, cs);
   }
 }
 

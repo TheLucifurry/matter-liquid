@@ -21,14 +21,15 @@ export function foreachDynamic(liquid: TLiquid, arr: TParticle[], callback: (par
 export function foreachIds(particles: TParticle[], pids: number[], callback: (particle: TParticle, particleid: number)=>void): void {
   arrayEach(pids, (pid) => callback(particles[pid], pid));
 }
-export function getNeighbors(liquid: TLiquid, part: TParticle): number[] {
-  return liquid.sh.getNearItems(part[P.X], part[P.Y], liquid.p);
+export function getNeighbors(liquid: TLiquid, pid: number): number[] {
+  const part = liquid.p[pid];
+  return liquid.sh.getNearby(part[P.X], part[P.Y], liquid.p);
 }
 export function eachNeighbors(particles: TParticle[], neighbors: number[], cb: (neighborParticle: TParticle, neighborPid: number)=>void): void {
   arrayEach(neighbors, (pid) => cb(particles[pid], pid));
 }
-export function eachNeighborsOf(liquid: TLiquid, part: TParticle, cb: (neighborParticle: TParticle, neighborPid: number)=>void): void {
-  eachNeighbors(liquid.p, getNeighbors(liquid, part), cb);
+export function eachNeighborsOf(liquid: TLiquid, pid: number, cb: (neighborParticle: TParticle, neighborPid: number)=>void): void {
+  eachNeighbors(liquid.p, getNeighbors(liquid, pid), cb);
 }
 export function eachSpring(springs: TSpringList, cb: (springKey: string, spring: TSpring)=>void): void {
   for (const [key, spring] of Object.entries(springs)) {

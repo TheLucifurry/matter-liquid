@@ -69,21 +69,29 @@ export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TS
     //     sh.insert(pid, x, y);
     //   });
     // },
-    getNearItems: (x: number, y: number, particles: TParticle[]): number[] => {
+    getNearby: (x: number, y: number, particles: TParticle[]): number[] => {
       const ccx = Math.trunc((x - leftPadding) / sh.cs);
       const ccy = Math.trunc((y - topPadding) / sh.cs);
-      const selfItemId = getIndex(ccx, ccy);
-      const res: TSHItem[] = [
+      const near: TSHItem[] = [
         ...getCell(sh, ccx - 1, ccy - 1),
         ...getCell(sh, ccx, ccy - 1),
         ...getCell(sh, ccx + 1, ccy - 1),
         ...getCell(sh, ccx - 1, ccy),
-        ...arrayDeleteItem(sh.h[selfItemId] || [], selfItemId),
         ...getCell(sh, ccx + 1, ccy),
         ...getCell(sh, ccx - 1, ccy + 1),
         ...getCell(sh, ccx, ccy + 1),
         ...getCell(sh, ccx + 1, ccy + 1),
       ];
+      const res: TSHItem[] = [
+        ...getCell(sh, ccx, ccy),
+      ];
+      for (let i = 0; i < near.length; i++) { // Filter only parts in radius
+        const pid = near[i];
+        const part = particles[pid];
+        if ((part[0] - x) ** 2 + (part[1] - y) ** 2 <= sh.cs ** 2) {
+          res.push(pid);
+        }
+      }
       return res;
     },
     getItemsByBounds: (bounds: Matter.Bounds): TSHItem[] => {
@@ -102,7 +110,7 @@ export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TS
     },
 
     ...(!DEV ? {} : { // DEV only methods
-      getCoordsFromCellid: (cellid: TSHCellId): TVector => [(cellid % rowLength) * cellSize, Math.trunc(cellid / rowLength) * cellSize],
+      getCoordsFromCellid: (cellid: TSHCellId): TVector => [(cellid % rowLength) * cellSize + leftPadding, Math.trunc(cellid / rowLength) * cellSize + topPadding],
     }),
   };
   return Object.seal(sh);
@@ -118,7 +126,7 @@ declare global {
     update: (item: TSHItem, x: number, y: number) => void
     insert: (it: TSHItem, x: number, y: number) => void
     remove: (item: TSHItem) => void
-    getNearItems: (x: number, y: number, particles: TParticle[]) => number[]
+    getNearby: (x: number, y: number, particles: TParticle[]) => number[]
     getItemsByBounds: (bounds: Matter.Bounds) => TSHItem[]
   }
 }

@@ -66,7 +66,7 @@ type TLiquidKey = string | number;
 type TParticle = Float32Array;
 
 // Spatial hash
-type TSHCellId = string;
+type TSHCellId = number;
 type TSHItem = number;
 
 // Compute cache

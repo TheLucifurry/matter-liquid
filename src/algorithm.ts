@@ -62,7 +62,8 @@ function partPosSub(part: TParticle, vec: TVector) {
   part[P.Y] -= vec[1];
 }
 function getSpringKey(currentParticleid: number, neighborPid: number): TSHCellId {
-  return `${currentParticleid}.${neighborPid}`;
+  return 0;
+  // return `${currentParticleid}.${neighborPid}`;
 }
 function getPidsFromSpringKey(springKey: string): TVector {
   const [currentPid, neighborPid] = springKey.split('.');
@@ -86,8 +87,9 @@ function limitVelocity(part: TParticle, maxValue: number) {
   part[P.VEL_Y] = limY;
 }
 
-function applyViscosity(liquid: TLiquid, i: TParticle, dt: number) {
-  eachNeighborsOf(liquid, i, (j) => {
+function applyViscosity(liquid: TLiquid, pid: number, dt: number) {
+  const i: TParticle = liquid.p[pid];
+  eachNeighborsOf(liquid, pid, (j) => {
     const r = getR(i, j);
     const rNormal = vectorNormal(r);
     const q = vectorLength(vectorDiv(r, liquid.h));
@@ -109,7 +111,7 @@ function adjustSprings(liquid: TLiquid, updatedPids: number[], dt: number) {
   // const alpha = 0.01; // 0 до 0,2
   const y = 0.1; // 0 до 0,2
   foreachIds(liquid.p, updatedPids, (i, currentPid) => {
-    eachNeighborsOf(liquid, i, (j, neighborPid) => {
+    eachNeighborsOf(liquid, currentPid, (j, neighborPid) => {
       const r = getR(i, j);
       const q = vectorLength(vectorDiv(r, liquid.h));
       if (q < 1) {
@@ -168,11 +170,11 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, pid: number, dt:
   const p0 = liquid.h * 0.2; // rest density
   const k = 0.3; // stiffness range[0..1]
   const kNear = liquid.h * 0.3; // stiffness near (вроде, влияет на текучесть)
-  const maxStep = liquid.h/2;
+  const maxStep = liquid.h / 2;
 
   let p = 0;
   let pNear = 0;
-  const neighbors = getNeighbors(liquid, i);
+  const neighbors = getNeighbors(liquid, pid);
   const pairsDataList: [number, TVector, TParticle][] = [];
   for (let n = 0; n < neighbors.length; n++) {
     const j = liquid.p[neighbors[n]];
@@ -350,8 +352,8 @@ export function advanced(liquid: TLiquid, dt: number): void {
     updatedPids.push(pid);
     // applyGravity(part, dt, gravity); // vi ← vi + ∆tg
   });
-  foreachIds(liquid.p, updatedPids, (part) => {
-    applyViscosity(liquid, part, dt);
+  foreachIds(liquid.p, updatedPids, (part, pid) => {
+    applyViscosity(liquid, pid, dt);
   });
   foreachIds(liquid.p, updatedPids, (part, pid) => {
     // _limitMoving(part); // Custom

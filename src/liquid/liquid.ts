@@ -51,7 +51,7 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     bb: config.bordersBounce || BORDERS_BOUNCE_VALUE,
     ip: false,
     g: config.gravityRatio || GRAVITY_RATIO,
-    sh: SpatialHash(radius),
+    sh: SpatialHash(radius, config.engine.world.bounds),
     rbp: 0,
     abp: 0,
     p: [],

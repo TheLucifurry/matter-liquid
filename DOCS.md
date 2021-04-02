@@ -23,6 +23,8 @@ const config = { // field: type = default
   timeScale: number = 1                 // It multiplies to engine.timing.timeScale
 }
 ```
+## Requirements
+Не менять параметры `world.bounds` после инициализации связанного экземпляра `Liquid`
 ## Events
 
 ```javascript
