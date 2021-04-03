@@ -91,16 +91,15 @@ export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TS
       }
       return res;
     },
-    getItemsByBounds: (bounds: Matter.Bounds): TSHItem[] => {
-      const x1 = Math.trunc(bounds.min.x / cellSize);
-      const y1 = Math.trunc(bounds.min.y / cellSize);
-      const x2 = Math.trunc(bounds.max.x / cellSize);
-      const y2 = Math.trunc(bounds.max.y / cellSize);
+    getFromBounds: (bounds: Matter.Bounds): TSHItem[] => {
+      const x1 = Math.trunc((bounds.min.x - leftPadding) / cellSize);
+      const y1 = Math.trunc((bounds.min.y - topPadding) / cellSize);
+      const x2 = Math.trunc((bounds.max.x - leftPadding) / cellSize);
+      const y2 = Math.trunc((bounds.max.y - topPadding) / cellSize);
       const res = [];
       for (let y = y1; y <= y2; y++) {
         for (let x = x1; x <= x2; x++) {
-          const cellid = getIndex(x, y);
-          res.push(...(sh.h[cellid] || []));
+          res.push(...getCell(sh, x, y));
         }
       }
       return res;
@@ -124,7 +123,7 @@ declare global {
     insert: (it: TSHItem, x: number, y: number) => void
     remove: (item: TSHItem) => void
     getNearby: (x: number, y: number, particles: TParticle[]) => number[]
-    getItemsByBounds: (bounds: Matter.Bounds) => TSHItem[]
+    getFromBounds: (bounds: Matter.Bounds) => TSHItem[]
 
     // DEV only methods
     getCoordsFromCellid?: (cellid: TSHCellId) => TVector
