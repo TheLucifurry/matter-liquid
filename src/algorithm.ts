@@ -175,20 +175,20 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, pid: number, dt:
   let p = 0;
   let pNear = 0;
   const neighbors = getNeighbors(liquid, pid);
-  const pairsDataList: [number, TVector, TParticle][] = [];
+  const pairsDataList: [number, TVector, TParticle][] = Array(neighbors.length);
   for (let n = 0; n < neighbors.length; n++) {
     const j = liquid.p[neighbors[n]];
     const r = getR(i, j);
     const q = vectorLength(vectorDiv(r, liquid.h)); // q ← rij/h
-    if (q < 1) {
-      // const oneMinQ = 1 - q;
-      const oneMinQ = mathMax(1 - q, 0.5); // { mathMax(..., 0.5) } Экспериментальный способ по стабилизации высокоплотных скоплений частиц
-      p += oneMinQ ** 2;
-      pNear += oneMinQ ** 3;
-      pairsDataList.push([oneMinQ, r, j]);
-    }
+    // if (q < 1) {...} - не нужен, т.к. в SH гарантирует этому условию true
+    // const oneMinQ = 1 - q;
+    const oneMinQ = mathMax(1 - q, 0.5); // { mathMax(..., 0.5) } Экспериментальный способ по стабилизации высокоплотных скоплений частиц
+    p += oneMinQ ** 2;
+    pNear += oneMinQ ** 3;
+    pairsDataList[n] = [oneMinQ, r, j];
   }
-  const P = k * (p - p0) * mass; // { * mass } Экспериментальный способ учета массы при взаимодействии
+  const P = k * (p - p0);
+  // const P = k * (p - p0) * mass; // { * mass } Экспериментальный способ учета массы при взаимодействии
   const PNear = kNear * pNear;
   const dx: TVector = [0, 0];
   for (let n = 0; n < pairsDataList.length; n++) {
@@ -333,6 +333,7 @@ export function simple(liquid: TLiquid, dt: number): void {
     limitVelocity(part, liquid.h * 0.6);
 
     addParticlePositionByVelocity(part, dt); // Add Particle Position By Velocity: xi ← xi + ∆tvi
+    liquid.sh.update(pid, part[P.X], part[P.Y]); // №2 Эксп. способ стабилизации
   });
   foreachIds(liquid.p, updatedPids, (part, pid) => {
     doubleDensityRelaxation(liquid, part, pid, dt);
