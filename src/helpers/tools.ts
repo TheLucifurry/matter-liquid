@@ -25,7 +25,7 @@ export function getRectFromBoundsWithPadding(bounds: Matter.Bounds, padding = 0)
 }
 export function getParticlesInsideBodyIds(particles: TParticle[], body: Matter.Body, spatialHash: TSpatialHash, _test_particleIds?: number[]): number[] {
   const res: number[] = [];
-  const nearParticlesIds: number[] = spatialHash.getItemsByBounds(body.bounds);
+  const nearParticlesIds: number[] = spatialHash.getFromBounds(body.bounds);
   for (let i = 0; i < nearParticlesIds.length; i++) {
     const pid = nearParticlesIds[i];
     const part = particles[pid];
