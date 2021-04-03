@@ -1,15 +1,13 @@
+import { arrayDeleteItem } from './utils';
+
 export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TSpatialHash {
   const leftPadding = bounds.min.x;
   const topPadding = bounds.min.y;
   const rowLength = Math.round((bounds.max.x - bounds.min.x) / cellSize);
+  // const rowCount = Math.round((bounds.max.y - bounds.min.y) / cellSize);
 
   function getIndex(x: number, y: number): TSHCellId {
     return y * rowLength + x;
-  }
-  function arrayDeleteItem(arr: any[], item: any) {
-    const ix = arr.indexOf(item);
-    if (ix !== -1) { arr.splice(ix, 1); }
-    return arr;
   }
   function save(sh: TSpatialHash, item: TSHItem, cellid: TSHCellId) {
     const cell = sh.h[cellid];
@@ -22,6 +20,8 @@ export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TS
     }
   }
   function getCell(sh: TSpatialHash, x: number, y: number): TSHItem[] {
+    // const x2 = mathClamp(x, 0, rowLength);
+    // const y2 = mathClamp(y, 0, rowCount);
     return sh.h[getIndex(x, y)] || [];
   }
   function deleteIn(sh: TSpatialHash, item: TSHItem, cellid: TSHCellId): void {
@@ -82,9 +82,7 @@ export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TS
         ...getCell(sh, ccx, ccy + 1),
         ...getCell(sh, ccx + 1, ccy + 1),
       ];
-      const res: TSHItem[] = [
-        ...getCell(sh, ccx, ccy),
-      ];
+      const res: TSHItem[] = getCell(sh, ccx, ccy).slice();
       for (let i = 0; i < near.length; i++) { // Filter only parts in radius
         const pid = near[i];
         const part = particles[pid];
@@ -128,5 +126,8 @@ declare global {
     remove: (item: TSHItem) => void
     getNearby: (x: number, y: number, particles: TParticle[]) => number[]
     getItemsByBounds: (bounds: Matter.Bounds) => TSHItem[]
+
+    // DEV only methods
+    getCoordsFromCellid?: (cellid: TSHCellId) => TVector
   }
 }
