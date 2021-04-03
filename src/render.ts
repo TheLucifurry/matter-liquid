@@ -11,7 +11,7 @@ import VirtualCanvas from './helpers/virtualCanvas';
 
 function renderGrid(liquid: TLiquid) {
   const ctx = liquid.r.context;
-  const cs = liquid.sh.cs;
+  const cs = liquid.h;
   const csh = cs / 2;
 
   // @ts-ignore
