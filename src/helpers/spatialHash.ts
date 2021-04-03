@@ -33,14 +33,13 @@ export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TS
   const sh: TSpatialHash = {
     h: [],
     p: {},
-    cs: cellSize,
     // clear: (): void => {
     //   sh.h = {};
     //   sh.p = {};
     // },
     update: (item: TSHItem, x: number, y: number): void => {
-      const cellX = Math.trunc((x - leftPadding) / sh.cs);
-      const cellY = Math.trunc((y - topPadding) / sh.cs);
+      const cellX = Math.trunc((x - leftPadding) / cellSize);
+      const cellY = Math.trunc((y - topPadding) / cellSize);
       const prevCellid = sh.p[item];
       const nextCellid = getIndex(cellX, cellY);
       if (prevCellid !== nextCellid) {
@@ -51,8 +50,8 @@ export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TS
       }
     },
     insert: (item: TSHItem, x: number, y: number): void => {
-      const cellX = Math.trunc((x - leftPadding) / sh.cs);
-      const cellY = Math.trunc((y - topPadding) / sh.cs);
+      const cellX = Math.trunc((x - leftPadding) / cellSize);
+      const cellY = Math.trunc((y - topPadding) / cellSize);
       const сellid = getIndex(cellX, cellY);
       save(sh, item, сellid);
     },
@@ -70,8 +69,8 @@ export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TS
     //   });
     // },
     getNearby: (x: number, y: number, particles: TParticle[]): number[] => {
-      const ccx = Math.trunc((x - leftPadding) / sh.cs);
-      const ccy = Math.trunc((y - topPadding) / sh.cs);
+      const ccx = Math.trunc((x - leftPadding) / cellSize);
+      const ccy = Math.trunc((y - topPadding) / cellSize);
       const near: TSHItem[] = [
         ...getCell(sh, ccx - 1, ccy - 1),
         ...getCell(sh, ccx, ccy - 1),
@@ -86,17 +85,17 @@ export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TS
       for (let i = 0; i < near.length; i++) { // Filter only parts in radius
         const pid = near[i];
         const part = particles[pid];
-        if ((part[0] - x) ** 2 + (part[1] - y) ** 2 <= sh.cs ** 2) {
+        if ((part[0] - x) ** 2 + (part[1] - y) ** 2 <= cellSize ** 2) {
           res.push(pid);
         }
       }
       return res;
     },
     getItemsByBounds: (bounds: Matter.Bounds): TSHItem[] => {
-      const x1 = Math.trunc(bounds.min.x / sh.cs);
-      const y1 = Math.trunc(bounds.min.y / sh.cs);
-      const x2 = Math.trunc(bounds.max.x / sh.cs);
-      const y2 = Math.trunc(bounds.max.y / sh.cs);
+      const x1 = Math.trunc(bounds.min.x / cellSize);
+      const y1 = Math.trunc(bounds.min.y / cellSize);
+      const x2 = Math.trunc(bounds.max.x / cellSize);
+      const y2 = Math.trunc(bounds.max.y / cellSize);
       const res = [];
       for (let y = y1; y <= y2; y++) {
         for (let x = x1; x <= x2; x++) {
@@ -118,7 +117,7 @@ declare global {
   interface TSpatialHash {
     h: number[][]
     p: { [key: number]: TSHCellId } // prevItemCell
-    cs: number // Cell size (interaction radius)
+    // cs: number // Cell size (interaction radius)
     // clear: () => void
     // fill: (particles: TParticle[]) => void
     update: (item: TSHItem, x: number, y: number) => void
