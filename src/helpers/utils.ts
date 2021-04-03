@@ -11,3 +11,8 @@ export function mathMax(value: number, max: number): number {
 export function mathClamp(value: number, min: number, max: number): number {
   return value < min ? min : (value > max ? max : value);
 }
+export function arrayDeleteItem(arr: any[], item: any) {
+  const ix = arr.indexOf(item);
+  if (ix !== -1) { arr.splice(ix, 1); }
+  return arr;
+}
