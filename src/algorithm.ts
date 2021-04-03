@@ -187,8 +187,8 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, pid: number, dt:
     pNear += oneMinQ ** 3;
     pairsDataList[n] = [oneMinQ, r, j];
   }
-  const P = k * (p - p0);
-  // const P = k * (p - p0) * mass; // { * mass } Экспериментальный способ учета массы при взаимодействии
+  // const P = k * (p - p0);
+  const P = k * (p - p0) * mass; // { * mass } Экспериментальный способ учета массы при взаимодействии
   const PNear = kNear * pNear;
   const dx: TVector = [0, 0];
   for (let n = 0; n < pairsDataList.length; n++) {
