@@ -112,10 +112,16 @@ export function update(liquid: TLiquid): void {
     const ctx = liquid.r.context;
 
     // const inters = checkRayIntersectsLine(line1, line2, [point1.x, point1.y], [point2.x, point2.y]);
-    drawPoint(ctx, point1, 'green');
-    drawPoint(ctx, point2, 'lime');
-    drawLine(ctx, point1, point2, 'yellow');
+    // drawPoint(ctx, point1, 'green');
+    // drawPoint(ctx, point2, 'lime');
+    // drawLine(ctx, point1, point2, 'yellow');
     // drawLine(ctx, line1, line2, inters ? 'white' : 'gray');
+
+    // const nearbyParts = liquid.sh.getNearby(point2.x, point2.y, liquid.p);
+    // nearbyParts.forEach((pid) => {
+    //   const part = liquid.p[pid];
+    //   drawPoint(ctx, [part[P.X], part[P.Y]], 'red', 18);
+    // });
 
     if (body) {
       const bodyPos: TVector = [body.position.x, body.position.y];
