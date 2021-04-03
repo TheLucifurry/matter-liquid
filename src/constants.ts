@@ -10,13 +10,14 @@ export const PARTICLE_TEX_RADIUS_SCALE = 0.3;
 export const BORDERS_BOUNCE_VALUE = 0.5;
 export const PARTICLE_COLOR = '#fff';
 
+// Constants
+export const VELOCITY_LIMIT_FACTOR = 0.75;
 export const P = {
   X: 0,
   Y: 1,
   VEL_X: 2,
   VEL_Y: 3,
 };
-
 export const L = {
   COLOR: 0,
   TEXTURE: 1,

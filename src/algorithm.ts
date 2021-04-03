@@ -1,4 +1,4 @@
-import { L, P } from './constants';
+import { L, P, VELOCITY_LIMIT_FACTOR } from './constants';
 import {
   getReflectVector,
   vectorAddVector,
@@ -324,13 +324,14 @@ export function simple(liquid: TLiquid, dt: number): void {
   const particlesPrevPositions: TSavedParticlesPositions = {};
   const activeRect: TRect = liquid.irc ? getRectFromBoundsWithPadding(liquid.r.bounds, liquid.abp) : null;
   const worldRect: TRect = getRectFromBoundsWithPadding(liquid.w.bounds);
+  const limit = liquid.h * VELOCITY_LIMIT_FACTOR;
 
   foreachActive(liquid, activeRect, liquid.p, (part, pid) => {
     updatedPids.push(pid);
     applyGravity(part, dt, gravity, liquid.lpl[pid][L.MASS] as number); // vi ← vi + ∆tg
     particlesPrevPositions[pid] = [part[P.X], part[P.Y]]; // Save previous position: xi^prev ← xi
 
-    limitVelocity(part, liquid.h * 0.6);
+    limitVelocity(part, limit);
 
     addParticlePositionByVelocity(part, dt); // Add Particle Position By Velocity: xi ← xi + ∆tvi
     liquid.sh.update(pid, part[P.X], part[P.Y]); // №2 Эксп. способ стабилизации
