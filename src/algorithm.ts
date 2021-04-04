@@ -165,19 +165,20 @@ function adjustSprings(liquid: TLiquid, updatedPids: number[], dt: number) {
     // partPosAdd(j, DHalf); // xj += D/2;
   });
 }
-function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, pid: number, dt: number) {
-  const mass = liquid.lpl[pid][L.MASS] as number;
+function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt: number) {
+  const mass = liquid.lpl[iPid][L.MASS] as number;
   const p0 = liquid.h * 0.2; // rest density
   const k = 0.3; // stiffness range[0..1]
   const kNear = liquid.h * 0.3; // stiffness near (вроде, влияет на текучесть)
-  const maxStep = liquid.h / 2;
+  const maxStep = liquid.h * 0.8;
 
   let p = 0;
   let pNear = 0;
-  const neighbors = getNeighbors(liquid, pid);
-  const pairsDataList: [number, TVector, TParticle][] = Array(neighbors.length);
+  const neighbors = getNeighbors(liquid, iPid);
+  const pairsDataList: [oneMinQ: number, jPid: number, r: TVector][] = Array(neighbors.length);
   for (let n = 0; n < neighbors.length; n++) {
-    const j = liquid.p[neighbors[n]];
+    const jPid = neighbors[n];
+    const j = liquid.p[jPid];
     const r = getR(i, j);
     const q = vectorLength(vectorDiv(r, liquid.h)); // q ← rij/h
     // if (q < 1) {...} - не нужен, т.к. в SH гарантирует этому условию true
@@ -185,40 +186,31 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, pid: number, dt:
     const oneMinQ = mathMax(1 - q, 0.5); // { mathMax(..., 0.5) } Экспериментальный способ по стабилизации высокоплотных скоплений частиц
     p += oneMinQ ** 2;
     pNear += oneMinQ ** 3;
-    pairsDataList[n] = [oneMinQ, r, j];
+    pairsDataList[n] = [oneMinQ, jPid, r];
   }
   // const P = k * (p - p0);
-  const P = k * (p - p0) * mass; // { * mass } Экспериментальный способ учета массы при взаимодействии
+  const pBig = k * (p - p0) * mass; // { * mass } Экспериментальный способ учета массы при взаимодействии
   const PNear = kNear * pNear;
   const dx: TVector = [0, 0];
   for (let n = 0; n < pairsDataList.length; n++) {
-    const [oneMinQ, r, j] = pairsDataList[n];
+    const [oneMinQ, jPid, r] = pairsDataList[n];
+    const j = liquid.p[jPid];
     const rNormal = vectorNormal(r);
-    const D = vectorMul(rNormal, dt ** 2 * (P * oneMinQ + PNear * oneMinQ ** 2));
+    const D = vectorMul(rNormal, dt ** 2 * (pBig * oneMinQ + PNear * oneMinQ ** 2));
     const halfD = vectorDiv(D, 2);
     dx[0] -= halfD[0];
     dx[1] -= halfD[1];
     partPosAdd(j, halfD, maxStep);
+    liquid.sh.update(jPid, j[0], j[1]);
   }
   partPosAdd(i, dx, maxStep);
+  liquid.sh.update(iPid, i[0], i[1]);
 }
 function applyI(part: TParticle, I: TVector) {
   part[P.VEL_X] -= I[0];
   part[P.VEL_Y] -= I[1];
 }
 function findOutsidePos(body: Matter.Body, prevParticlePos: TVector, currentParticlePos: TVector): TVector {
-  // const bodyPos: TVector = [body.position.x, body.position.y];
-  // if (body.circleRadius) { // is body a circle
-  //   const endParticlePos: TVector = !vectorEqualsVector(bodyPos, currentParticlePos) ? currentParticlePos : bodyPos;
-  //   const surfNorm = vectorNormal(body.circleRadius);
-  // } else {
-  //   const endParticlePos: TVector = !vectorEqualsVector(prevParticlePos, currentParticlePos) ? currentParticlePos : bodyPos;
-  //   const surface: [TVector, TVector] = getBodySurfaceIntersectsWithRay(body, endParticlePos, prevParticlePos);
-  //   const surfNorm = getBodySurfaceNormal(surface[0], surface[1]);
-  //   const newPosition = getLineIntersectionPoint(surface[0], surface[1], prevParticlePos, vectorAddVector(prevParticlePos, surfNorm));
-  //   // const refVec = getReflectVector(vectorFromTwo(prevParticlePos, endParticlePos), surfNorm);
-  //   return newPosition;
-  // }
   const bodyPos: TVector = [body.position.x, body.position.y];
   if (body.circleRadius) { // is body a circle
     const surfNorm = vectorNormal(vectorFromTwo(bodyPos, currentParticlePos));
