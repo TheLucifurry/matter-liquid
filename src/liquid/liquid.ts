@@ -6,6 +6,8 @@ import {
 } from '../constants';
 import SpatialHash from '../helpers/spatialHash';
 import createEventsObject from './events';
+import VirtualCanvas from '../helpers/virtualCanvas';
+import * as WebGL from '../webgl';
 
 function createLiquidPrototype(props: TLiquidPrototype, particleRadius: number): TLiquidPrototypeComputed {
   const color: string = props.color || PARTICLE_COLOR as string;
@@ -37,6 +39,10 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     return createLiquidPrototype(prototypeParams, particleTextureSize);
   });
 
+  const virtualCanvas = VirtualCanvas(config.render.canvas.width, config.render.canvas.height);
+  const renderingContext = virtualCanvas.getContext('webgl2');
+  WebGL.init(renderingContext);
+
   const liquid: TLiquid = {
     h: radius,
     iwx: isWrappedSides[0],
@@ -44,6 +50,7 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     e: config.engine,
     r: config.render,
     w: config.engine.world,
+    c: renderingContext,
     irc: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
     l: liquidPrototypes,
     lnlid,

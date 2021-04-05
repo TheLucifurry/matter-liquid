@@ -24,6 +24,7 @@ type TLiquid = {
   readonly e: Matter.Engine // Engine
   readonly r: Matter.Render // Render
   readonly w: Matter.World // World
+  readonly c: WebGL2RenderingContext // Render context
   readonly h: number // Interaction radius
   readonly irc: boolean // isRegionalComputing
   readonly iwx: boolean // isWrappedX
