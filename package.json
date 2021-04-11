@@ -39,6 +39,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.23.2",
+    "glsl-shader-loader": "^0.1.6",
     "replace-in-file": "^6.2.0",
     "terser-webpack-plugin": "^5.1.1",
     "ts-loader": "^8.1.0",
