@@ -63,6 +63,10 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.(frag|vert)$/,
+        use: 'glsl-shader-loader'
+      },
+      {
         test: /\.ts$/,
         use: 'ts-loader',
         exclude: /node_modules/,
