@@ -8,7 +8,7 @@ import {
   getReflectVector, vectorAddVector, vectorEqualsVector, vectorFromTwo, vectorMul, vectorNormal,
 } from './helpers/vector';
 import VirtualCanvas from './helpers/virtualCanvas';
-import * as WebGL from './webgl';
+import * as WebGL from './gpu/webgl';
 
 function renderGrid(liquid: TLiquid) {
   const ctx = liquid.r.context;
@@ -105,23 +105,10 @@ if (DEV) {
 }
 export function update(liquid: TLiquid): void {
   const mainCtx = liquid.r.context;
-  const boundsMin = liquid.r.bounds.min;
-  const canvas: TVirtualCanvas = liquid.c.canvas;
-  const context: WebGL2RenderingContext = liquid.c;
-  // context
   // @ts-ignore
   // Matter.Render.startViewTransform({ ...liquid.r, context });
-  // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
-  const positions = new Float32Array(liquid.p * 2);
-  liquid.p.forEach((part) => {
-    if (part !== null) {
-      positions[0] = part[0];
-      positions[1] = part[1];
-    }
-  });
-  WebGL.update(context, liquid.r, positions);
-  drawParticles(liquid);
+  // drawParticles(liquid);
+  WebGL.update(liquid);
 
   if (DEV) {
     const ctx = mainCtx;

@@ -68,6 +68,7 @@ type TLiquidPrototype = {
 };
 type TLiquidPrototypeComputed = [
   string, // Color
+  TFourNumbers, // Vec4 color
   TVirtualCanvas, // Texture
   number, // Mass
 ];

@@ -7,12 +7,14 @@ import {
 import SpatialHash from '../helpers/spatialHash';
 import createEventsObject from './events';
 import VirtualCanvas from '../helpers/virtualCanvas';
-import * as WebGL from '../webgl';
+import * as WebGL from '../gpu/webgl';
+import { colorHexToVec4 } from '../helpers/utils';
 
 function createLiquidPrototype(props: TLiquidPrototype, particleRadius: number): TLiquidPrototypeComputed {
   const color: string = props.color || PARTICLE_COLOR as string;
   return [
     color,
+    colorHexToVec4(color),
     props.texture || Renderer.generateParticleTexture(color, particleRadius),
     props.mass || 1,
   ];
@@ -39,9 +41,9 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     return createLiquidPrototype(prototypeParams, particleTextureSize);
   });
 
-  const virtualCanvas = VirtualCanvas(config.render.canvas.width, config.render.canvas.height);
+  const mainCanvas = config.render.canvas;
+  const virtualCanvas = VirtualCanvas(mainCanvas.clientWidth, mainCanvas.clientHeight);
   const renderingContext = virtualCanvas.getContext('webgl2');
-  WebGL.init(renderingContext);
 
   const liquid: TLiquid = {
     h: radius,
@@ -81,6 +83,8 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
       computeUpdater(liquid, liquid.e.timing.timeScale * liquid.dt);
     }
   };
+
+  WebGL.init(renderingContext, liquid);
 
   // Init updaters
   Matter.Events.on(config.render, 'afterRender', () => renderUpdater(liquid));
