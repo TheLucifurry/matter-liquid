@@ -16,3 +16,17 @@ export function arrayDeleteItem(arr: any[], item: any) {
   if (ix !== -1) { arr.splice(ix, 1); }
   return arr;
 }
+export function colorHexToVec4(color: string): TFourNumbers {
+  const s = color.length;
+  const [_, c1, c2, c3, c4, c5, c6, c7, c8] = color;
+  // rgb(a)
+  if (s < 6) {
+    return [ // @ts-ignore
+      `0x${c1}` / 15, `0x${c2}` / 15, `0x${c3}` / 15, (s === 5 ? `0x${c4}` / 15 : 1),
+    ];
+  }
+  // rrggbb(aa)
+  return [ // @ts-ignore
+    `0x${c1}${c2}` / 255, `0x${c3}${c4}` / 255, `0x${c5}${c6}` / 255, (s === 9 ? `0x${c7}${c8}` / 255 : 1),
+  ];
+}
