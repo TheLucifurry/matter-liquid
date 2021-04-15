@@ -23,36 +23,8 @@ export function init(gl: WebGL2RenderingContext, liquid: TLiquid) {
   positionBuffer = gl.createBuffer();
 }
 
-export function update(liquid: TLiquid) {
-  const gl: WebGL2RenderingContext = liquid.c;
-  const render = liquid.r;
-  const liquidColor = liquid.l[0][L.COLOR_VEC4] as TFourNumbers;
-  const mainContext: CanvasRenderingContext2D = render.context;
-  const renderBounds = render.bounds;
-  const renderBoundsMin = render.bounds.min;
-  const boundsWidth = render.bounds.max.x - renderBoundsMin.x;
-  const boundsHeight = render.bounds.max.y - renderBoundsMin.y;
-
-  // Build buffer
-  const positions = new Float32Array((liquid.p.length - liquid.fpids.length) * 2);
-  let ix = 0;
-  liquid.p.forEach((part) => {
-    if (part !== null) {
-      positions[ix] = part[0];
-      positions[ix + 1] = part[1];
-      ix += 2;
-    }
-  });
-
-  // Установка размеров канваса
-  // gl.viewport(0, 0, boundsWidth, boundsHeight);
-  // gl.viewport(render.bounds.min.x, render.bounds.min.y, boundsWidth, boundsHeight);
-  gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-
-  // очищаем canvas
-  gl.clearColor(0, 0, 0, 0);
-  gl.clear(gl.COLOR_BUFFER_BIT);
-
+function renderLiquid(gl: WebGL2RenderingContext, buffer: Float32Array, liquidProto: TLiquidPrototypeComputed) {
+  const color = liquidProto[L.COLOR_VEC4] as TFourNumbers;
   // говорим использовать нашу программу (пару шейдеров)
   gl.useProgram(program);
 
@@ -60,7 +32,7 @@ export function update(liquid: TLiquid) {
 
   // Привязываем буфер положений
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, buffer, gl.STATIC_DRAW);
 
   // Указываем атрибуту, как получать данные от positionBuffer (ARRAY_BUFFER)
   const size = 2; // 2 компоненты на итерацию
@@ -72,14 +44,42 @@ export function update(liquid: TLiquid) {
     a_position, size, type, normalize, stride, offset,
   );
 
-  gl.uniform4f(u_renderBounds, renderBounds.min.x, renderBounds.min.y, renderBounds.max.x, renderBounds.max.y);
-  gl.uniform4f(u_color, ...liquidColor);
+  gl.uniform4f(u_color, ...color);
 
   const primitiveType = gl.POINTS;
   const offset2 = 0;
-  const count = positions.length / 2;
+  const count = buffer.length / 2;
   gl.drawArrays(primitiveType, offset2, count);
+}
 
-  // mainContext.drawImage(gl.canvas, render.bounds.min.x, render.bounds.min.y);
-  mainContext.drawImage(gl.canvas, renderBoundsMin.x, renderBoundsMin.y, boundsWidth, boundsHeight);
+export function update(liquid: TLiquid) {
+  const gl: WebGL2RenderingContext = liquid.c;
+  const render = liquid.r;
+  const mainContext: CanvasRenderingContext2D = render.context;
+  const bounds = render.bounds;
+  const boundsWidth = bounds.max.x - bounds.min.x;
+  const boundsHeight = bounds.max.y - bounds.min.y;
+
+  // Prepare data
+  const bufferList: Float32Array[] = liquid.st.cl.map((partCount) => new Float32Array(partCount * 2));
+  const ixs: number[] = Array(bufferList.length).fill(0);
+  for (let pid = 0; pid < liquid.p.length; pid++) {
+    const part = liquid.p[pid];
+    if (part === null) continue;
+    const lid = liquid.lpl[pid][L.ID] as number;
+    const buffer = bufferList[lid];
+    buffer[ixs[lid]] = part[0];
+    buffer[ixs[lid] + 1] = part[1];
+    ixs[lid] += 2;
+  }
+
+  // Render
+  gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+  gl.clearColor(0, 0, 0, 0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  gl.uniform4f(u_renderBounds, bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y);
+  bufferList.forEach((buffer, ix) => renderLiquid(gl, buffer, liquid.l[ix]));
+
+  mainContext.drawImage(gl.canvas, bounds.min.x, bounds.min.y, boundsWidth, boundsHeight);
 }
