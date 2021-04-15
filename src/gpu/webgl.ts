@@ -21,35 +21,16 @@ export function init(gl: WebGL2RenderingContext, liquid: TLiquid) {
 
   // Buffer
   positionBuffer = gl.createBuffer();
+  gl.enableVertexAttribArray(a_position);
 }
 
-function renderLiquid(gl: WebGL2RenderingContext, buffer: Float32Array, liquidProto: TLiquidPrototypeComputed) {
+function renderLiquid(gl: WebGL2RenderingContext, points: Float32Array, liquidProto: TLiquidPrototypeComputed) {
   const color = liquidProto[L.COLOR_VEC4] as TFourNumbers;
-  // говорим использовать нашу программу (пару шейдеров)
-  gl.useProgram(program);
-
-  gl.enableVertexAttribArray(a_position);
-
-  // Привязываем буфер положений
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, buffer, gl.STATIC_DRAW);
-
-  // Указываем атрибуту, как получать данные от positionBuffer (ARRAY_BUFFER)
-  const size = 2; // 2 компоненты на итерацию
-  const type = gl.FLOAT; // наши данные - 32-битные числа с плавающей точкой
-  const normalize = false; // не нормализовать данные
-  const stride = 0; // 0 = перемещаться на size * sizeof(type) каждую итерацию для получения следующего положения
-  const offset = 0; // начинать с начала буфера
-  gl.vertexAttribPointer(
-    a_position, size, type, normalize, stride, offset,
-  );
-
+  gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
+  gl.vertexAttribPointer(a_position, 2, gl.FLOAT, false, 0, 0);
   gl.uniform4f(u_color, ...color);
-
-  const primitiveType = gl.POINTS;
-  const offset2 = 0;
-  const count = buffer.length / 2;
-  gl.drawArrays(primitiveType, offset2, count);
+  gl.drawArrays(gl.POINTS, 0, points.length / 2);
 }
 
 export function update(liquid: TLiquid) {
@@ -77,7 +58,7 @@ export function update(liquid: TLiquid) {
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT);
-
+  gl.useProgram(program);
   gl.uniform4f(u_renderBounds, bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y);
   bufferList.forEach((buffer, ix) => renderLiquid(gl, buffer, liquid.l[ix]));
 
