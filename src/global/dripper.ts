@@ -7,6 +7,7 @@ const Dripper = {
     liquid.lpl[pid] = liquid.l[liquidid];
     liquid.p[pid] = particle;
     liquid.sh.insert(pid, x, y);
+    liquid.st.cl[liquidid]++;
   },
   rect(liquid: TLiquid, liquidKey: TLiquidKey, zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, interval: number = liquid.h): void {
     // @ts-ignore

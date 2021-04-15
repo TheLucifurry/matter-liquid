@@ -32,6 +32,7 @@ type TLiquid = {
   readonly e: Matter.Engine // Engine
   readonly r: Matter.Render // Render
   readonly w: Matter.World // World
+  readonly st: TStats // Statistics
   readonly c: WebGL2RenderingContext // Render context
   readonly h: number // Interaction radius
   readonly irc: boolean // isRegionalComputing
@@ -57,6 +58,11 @@ type TLiquid = {
   dt: number // Delta time
 };
 
+type TStats = {
+  // c: number // Particles count
+  cl: number[] // Particles count by liquid prototypes
+};
+
 // Liquid & particle
 type TLiquidPrototype = {
   name?: string
@@ -67,6 +73,7 @@ type TLiquidPrototype = {
   // stiffness?: number // k
 };
 type TLiquidPrototypeComputed = [
+  number, // Liquid id
   string, // Color
   TFourNumbers, // Vec4 color
   TVirtualCanvas, // Texture

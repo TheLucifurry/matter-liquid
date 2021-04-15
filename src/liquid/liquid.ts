@@ -10,9 +10,10 @@ import VirtualCanvas from '../helpers/virtualCanvas';
 import * as WebGL from '../gpu/webgl';
 import { colorHexToVec4 } from '../helpers/utils';
 
-function createLiquidPrototype(props: TLiquidPrototype, particleRadius: number): TLiquidPrototypeComputed {
+function createLiquidPrototype(liquidid: number, props: TLiquidPrototype, particleRadius: number): TLiquidPrototypeComputed {
   const color: string = props.color || PARTICLE_COLOR as string;
   return [
+    liquidid,
     color,
     colorHexToVec4(color),
     props.texture || Renderer.generateParticleTexture(color, particleRadius),
@@ -38,7 +39,7 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     if (prototypeParams.name) {
       lnlid[prototypeParams.name] = lid;
     }
-    return createLiquidPrototype(prototypeParams, particleTextureSize);
+    return createLiquidPrototype(lid, prototypeParams, particleTextureSize);
   });
 
   const mainCanvas = config.render.canvas;
@@ -73,6 +74,9 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
 
     ev: createEventsObject(),
     u: null,
+    st: {
+      cl: liquidPrototypes.map(() => 0),
+    },
   };
 
   // Create updaters
