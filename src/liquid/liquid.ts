@@ -46,6 +46,12 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
   const virtualCanvas = VirtualCanvas(mainCanvas.clientWidth, mainCanvas.clientHeight);
   const renderingContext = virtualCanvas.getContext('webgl2');
 
+  // Create updaters
+  const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
+  const computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
+  const updateEveryFrame = config.updateEveryFrame || EVERY_FRAME;
+  let tick = 0;
+
   const liquid: TLiquid = {
     h: radius,
     iwx: isWrappedSides[0],
@@ -68,25 +74,27 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     s: {},
     fpids: [],
     lpl: {},
-    t: 0,
-    ef: config.updateEveryFrame || EVERY_FRAME,
     dt: config.timeScale || TIME_SCALE,
 
     ev: createEventsObject(),
-    u: null,
     st: {
       cl: liquidPrototypes.map(() => 0),
+    },
+    u: () => {
+      if (tick++ % updateEveryFrame === 0) {
+        computeUpdater(liquid, liquid.e.timing.timeScale * liquid.dt);
+      }
     },
   };
 
   // Create updaters
-  const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
-  const computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
-  liquid.u = () => {
-    if (liquid.t++ % liquid.ef === 0) {
-      computeUpdater(liquid, liquid.e.timing.timeScale * liquid.dt);
-    }
-  };
+  // const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
+  // const computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
+  // liquid.u = () => {
+  //   if (liquid.t++ % liquid.ef === 0) {
+  //     computeUpdater(liquid, liquid.e.timing.timeScale * liquid.dt);
+  //   }
+  // };
 
   WebGL.init(renderingContext, liquid);
 

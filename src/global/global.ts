@@ -36,9 +36,6 @@ const GlobalLiquid = {
   setGravityRatio(liquid: TLiquid, ratio: number = liquid.g): void {
     liquid.g = ratio;
   },
-  setUpdateEveryFrame(liquid: TLiquid, value: number = liquid.ef): void {
-    liquid.ef = value;
-  },
   setTimeScale(liquid: TLiquid, value: number = liquid.dt): void {
     liquid.dt = value;
   },
