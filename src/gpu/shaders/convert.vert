@@ -15,5 +15,5 @@ void main() {
   vec2 clipFlipSpace = (position * 2.0 - 1.0) * vec2(1, -1);
 
   gl_Position = vec4(clipFlipSpace, 0, 1);
-  gl_PointSize = 24.0;
+  gl_PointSize = 20.0;
 }
