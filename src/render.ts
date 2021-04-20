@@ -106,8 +106,10 @@ if (DEV) {
 export function update(liquid: TLiquid): void {
   const mainCtx = liquid.r.context;
   // @ts-ignore
-  // Matter.Render.startViewTransform({ ...liquid.r, context });
+  Matter.Render.startViewTransform(liquid.r);
   drawParticles(liquid);
+  // @ts-ignore
+  // Matter.Render.startViewTransform({ ...liquid.r, context });
   // WebGL.update(liquid);
 
   if (DEV) {
