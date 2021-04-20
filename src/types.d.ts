@@ -1,3 +1,11 @@
+declare module '*.vert' {
+  const value: string;
+  export default value;
+}
+declare module '*.frag' {
+  const value: string;
+  export default value;
+}
 declare const DEV: boolean;
 
 // Core
@@ -24,6 +32,8 @@ type TLiquid = {
   readonly e: Matter.Engine // Engine
   readonly r: Matter.Render // Render
   readonly w: Matter.World // World
+  readonly st: TStats // Statistics
+  readonly c: WebGL2RenderingContext // Render context
   readonly h: number // Interaction radius
   readonly irc: boolean // isRegionalComputing
   readonly iwx: boolean // isWrappedX
@@ -43,9 +53,12 @@ type TLiquid = {
   g: number // GravityRatio
   rbp: number // RenderBoundsPadding
   abp: number // ActiveBoundsPadding
-  t: number // Tick
-  ef: number // EveryFrame
   dt: number // Delta time
+};
+
+type TStats = {
+  // c: number // Particles count
+  cl: number[] // Particles count by liquid prototypes
 };
 
 // Liquid & particle
@@ -58,7 +71,9 @@ type TLiquidPrototype = {
   // stiffness?: number // k
 };
 type TLiquidPrototypeComputed = [
+  number, // Liquid id
   string, // Color
+  TFourNumbers, // Vec4 color
   TVirtualCanvas, // Texture
   number, // Mass
 ];

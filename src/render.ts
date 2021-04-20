@@ -8,6 +8,7 @@ import {
   getReflectVector, vectorAddVector, vectorEqualsVector, vectorFromTwo, vectorMul, vectorNormal,
 } from './helpers/vector';
 import VirtualCanvas from './helpers/virtualCanvas';
+import * as WebGL from './gpu/webgl';
 
 function renderGrid(liquid: TLiquid) {
   const ctx = liquid.r.context;
@@ -102,15 +103,17 @@ if (DEV) {
     });
   };
 }
-
 export function update(liquid: TLiquid): void {
+  const mainCtx = liquid.r.context;
   // @ts-ignore
   Matter.Render.startViewTransform(liquid.r);
   drawParticles(liquid);
+  // @ts-ignore
+  // Matter.Render.startViewTransform({ ...liquid.r, context });
+  // WebGL.update(liquid);
 
   if (DEV) {
-    const ctx = liquid.r.context;
-
+    const ctx = mainCtx;
     // const inters = checkRayIntersectsLine(line1, line2, [point1.x, point1.y], [point2.x, point2.y]);
     // drawPoint(ctx, point1, 'green');
     // drawPoint(ctx, point2, 'lime');

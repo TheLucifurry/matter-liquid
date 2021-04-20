@@ -1,15 +1,17 @@
-import { P } from '../constants';
+import { L, P } from '../constants';
 import { checkPointInRect } from '../helpers/utils';
 
 const Dryer = {
   dry(liquid: TLiquid, particleId: number): void {
+    const prototype = liquid.lpl[particleId];
     const particle = liquid.p[particleId];
     liquid.p[particleId] = null;
     liquid.sh.remove(particleId);
-    liquid.ev.particleRemove(particle, particleId, liquid.lpl[particleId]);
+    liquid.ev.particleRemove(particle, particleId, prototype);
     if (liquid.fpids.indexOf(particleId) === -1) {
       liquid.fpids.unshift(particleId);
     }
+    liquid.st.cl[prototype[L.ID] as number]--;
     // TODO: remove associated springs
   },
   rect(liquid: TLiquid, zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number): void {

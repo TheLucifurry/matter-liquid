@@ -6,11 +6,16 @@ import {
 } from '../constants';
 import SpatialHash from '../helpers/spatialHash';
 import createEventsObject from './events';
+import VirtualCanvas from '../helpers/virtualCanvas';
+import * as WebGL from '../gpu/webgl';
+import { colorHexToVec4 } from '../helpers/utils';
 
-function createLiquidPrototype(props: TLiquidPrototype, particleRadius: number): TLiquidPrototypeComputed {
+function createLiquidPrototype(liquidid: number, props: TLiquidPrototype, particleRadius: number): TLiquidPrototypeComputed {
   const color: string = props.color || PARTICLE_COLOR as string;
   return [
+    liquidid,
     color,
+    colorHexToVec4(color),
     props.texture || Renderer.generateParticleTexture(color, particleRadius),
     props.mass || 1,
   ];
@@ -34,8 +39,18 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     if (prototypeParams.name) {
       lnlid[prototypeParams.name] = lid;
     }
-    return createLiquidPrototype(prototypeParams, particleTextureSize);
+    return createLiquidPrototype(lid, prototypeParams, particleTextureSize);
   });
+
+  const mainCanvas = config.render.canvas;
+  const virtualCanvas = VirtualCanvas(mainCanvas.clientWidth, mainCanvas.clientHeight);
+  const renderingContext = virtualCanvas.getContext('webgl2');
+
+  // Create updaters
+  const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
+  const computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
+  const updateEveryFrame = config.updateEveryFrame || EVERY_FRAME;
+  let tick = 0;
 
   const liquid: TLiquid = {
     h: radius,
@@ -44,6 +59,7 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     e: config.engine,
     r: config.render,
     w: config.engine.world,
+    c: renderingContext,
     irc: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
     l: liquidPrototypes,
     lnlid,
@@ -58,22 +74,29 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     s: {},
     fpids: [],
     lpl: {},
-    t: 0,
-    ef: config.updateEveryFrame || EVERY_FRAME,
     dt: config.timeScale || TIME_SCALE,
 
     ev: createEventsObject(),
-    u: null,
+    st: {
+      cl: liquidPrototypes.map(() => 0),
+    },
+    u: () => {
+      if (tick++ % updateEveryFrame === 0) {
+        computeUpdater(liquid, liquid.e.timing.timeScale * liquid.dt);
+      }
+    },
   };
 
   // Create updaters
-  const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
-  const computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
-  liquid.u = () => {
-    if (liquid.t++ % liquid.ef === 0) {
-      computeUpdater(liquid, liquid.e.timing.timeScale * liquid.dt);
-    }
-  };
+  // const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
+  // const computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
+  // liquid.u = () => {
+  //   if (liquid.t++ % liquid.ef === 0) {
+  //     computeUpdater(liquid, liquid.e.timing.timeScale * liquid.dt);
+  //   }
+  // };
+
+  // WebGL.init(renderingContext, liquid);
 
   // Init updaters
   Matter.Events.on(config.render, 'afterRender', () => renderUpdater(liquid));

@@ -19,7 +19,9 @@ export const P = {
   VEL_Y: 3,
 };
 export const L = {
-  COLOR: 0,
-  TEXTURE: 1,
-  MASS: 2,
+  ID: 0,
+  COLOR: 1,
+  COLOR_VEC4: 2,
+  TEXTURE: 3,
+  MASS: 4,
 };

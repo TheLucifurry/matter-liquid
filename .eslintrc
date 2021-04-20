@@ -18,6 +18,7 @@
     "max-len": 0,
     "no-console": 0,
     "no-plusplus": 0,
+    "no-continue": 0,
     "no-param-reassign": 0,
     "no-nested-ternary": 0,
     "no-mixed-operators": 0,
