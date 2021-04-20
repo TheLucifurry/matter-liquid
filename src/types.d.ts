@@ -53,8 +53,6 @@ type TLiquid = {
   g: number // GravityRatio
   rbp: number // RenderBoundsPadding
   abp: number // ActiveBoundsPadding
-  t: number // Tick
-  ef: number // EveryFrame
   dt: number // Delta time
 };
 
