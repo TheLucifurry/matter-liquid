@@ -96,7 +96,7 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
   //   }
   // };
 
-  WebGL.init(renderingContext, liquid);
+  // WebGL.init(renderingContext, liquid);
 
   // Init updaters
   Matter.Events.on(config.render, 'afterRender', () => renderUpdater(liquid));
