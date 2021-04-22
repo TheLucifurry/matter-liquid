@@ -19,14 +19,16 @@ export default function () {
     render,
     liquids: [{ color: color.particle }], // Define one liquid
     updateEveryFrame: 1,  // Set max 60 FPS
+    // isPaused: true,
   });
-  const { minX, maxX, minY, maxY, width } = getWorldParams(world);
+  const { minX, maxX, minY, maxY, width, height } = getWorldParams(world);
   const liquidCyanId = 0;
-  const seaHeight = 400;
+  const seaHeight = height / 3;
   Liquid.drip.rect(liquid, liquidCyanId, minX, maxY - seaHeight, width, seaHeight);
 
   setDripper(render, liquid, mouseConstraint);
 
+  if (window.DEV_SET_MOUSE_CONTROLLER) window.DEV_SET_MOUSE_CONTROLLER(mouseConstraint, liquid)
   // For stats
   window.DEMO_LOADED(liquid, 'Right mouse btn - drip | Left mouse btn - dry');
   // context for MatterTools.Demo
