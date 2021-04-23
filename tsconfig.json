@@ -9,5 +9,5 @@
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
   },
-  "exclude": ["assembly_script/**/*.ts", "build", "node_modules", "src/worker"]
+  "exclude": ["assembly/**/*", "build", "node_modules"]
 }

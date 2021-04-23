@@ -8,7 +8,7 @@
     "airbnb-typescript",
     "plugin:compat/recommended"
   ],
-  "ignorePatterns": ["_*", "webpack.config.js", "examples/", "assembly_script", "node_modules", "build"],
+  "ignorePatterns": ["_*", "webpack.config.js", "examples/", "assembly/", "node_modules", "build"],
   "parserOptions": {
     "ecmaVersion": 9,
     "sourceType": "module",
