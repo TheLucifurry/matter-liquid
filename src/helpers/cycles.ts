@@ -23,7 +23,23 @@ export function foreachIds(particles: TParticle[], pids: number[], callback: (pa
 }
 export function getNeighbors(liquid: TLiquid, pid: number): number[] {
   const part = liquid.p[pid];
-  return liquid.sh.getNearby(part[P.X], part[P.Y], liquid.p);
+  const near = [...liquid.asm.__getArray(liquid.sh.getNearby(part[P.X], part[P.Y]))];
+  // return near;
+
+  // TODO: Костыльный фильтр по радиусу, изучить возможность передачи liquid.p в ассембли, что бы портировать фильтр в ассембли-код
+  const res: TSHItem[] = [];
+  const cellSize = liquid.h;
+  const csSqrt = cellSize ** 2;
+  for (let i = 0; i < near.length; i++) { // Filter only parts in radius
+    const pid = near[i];
+    const nPart = liquid.p[pid];
+    if ((nPart[0] - part[0]) ** 2 + (nPart[1] - part[1]) ** 2 <= csSqrt) {
+      res.push(pid);
+    }
+  }
+  return res;
+
+  // return liquid.sh.getNearby(part[P.X], part[P.Y], liquid.p);
 }
 export function eachNeighbors(particles: TParticle[], neighbors: number[], cb: (neighborParticle: TParticle, neighborPid: number)=>void): void {
   arrayEach(neighbors, (pid) => cb(particles[pid], pid));

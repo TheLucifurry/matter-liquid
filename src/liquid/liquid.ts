@@ -21,7 +21,7 @@ function createLiquidPrototype(liquidid: number, props: TLiquidPrototype, partic
   ];
 }
 
-export default function createLiquid(config: TLiquidConfig): TLiquid {
+export default function createLiquid(config: TLiquidConfig, globalLiquid: TGlobalLiquid): TLiquid {
   // @ts-ignore
   const Liquid: TGlobalLiquid = Matter.Liquid;
   const radius = config.radius || INTERACTION_RADIUS;
@@ -52,7 +52,14 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
   const updateEveryFrame = config.updateEveryFrame || EVERY_FRAME;
   let tick = 0;
 
+  // @ts-ignore
+  const asm: TAssemblyModule = globalLiquid._.asm as TAssemblyModule;
+
+  const bounds = config.engine.world.bounds;
+
   const liquid: TLiquid = {
+    // @ts-ignore
+    asm,
     h: radius,
     iwx: isWrappedSides[0],
     iwy: isWrappedSides[1],
@@ -67,13 +74,16 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     bb: config.bordersBounce || BORDERS_BOUNCE_VALUE,
     ip: false,
     g: config.gravityRatio || GRAVITY_RATIO,
-    sh: SpatialHash(radius, config.engine.world.bounds),
+    // sh: SpatialHash(radius, config.engine.world.bounds),
+    // @ts-ignore
+    sh: new asm.SpatialHash(radius, bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y),
     rbp: 0,
     abp: 0,
     p: [],
     s: {},
     fpids: [],
     lpl: {},
+    dpl: [],
     dt: config.timeScale || TIME_SCALE,
 
     ev: createEventsObject(),

@@ -23,9 +23,11 @@ export function getRectFromBoundsWithPadding(bounds: Matter.Bounds, padding = 0)
     bounds.max.y + padding,
   ];
 }
-export function getParticlesInsideBodyIds(particles: TParticle[], body: Matter.Body, spatialHash: TSpatialHash, _test_particleIds?: number[]): number[] {
+export function getParticlesInsideBodyIds(particles: TParticle[], body: Matter.Body, liquid: TLiquid, _test_particleIds?: number[]): number[] {
+  const { bounds } = body;
   const res: number[] = [];
-  const nearParticlesIds: number[] = spatialHash.getFromBounds(body.bounds);
+  const nearParticlesIds: number[] = liquid.asm.__getArray(liquid.sh.getFromBounds(bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y));
+  // const nearParticlesIds: number[] = liquid.sh.getFromBounds(bounds);
   for (let i = 0; i < nearParticlesIds.length; i++) {
     const pid = nearParticlesIds[i];
     const part = particles[pid];
@@ -47,9 +49,9 @@ export function getLineIntersectionPoint(line1start: TVector, line1end: TVector,
   const d1 = (line1start[0] - line1end[0]) * (line2start[1] - line2end[1]); // (x1 - x2) * (y3 - y4)
   const d2 = (line1start[1] - line1end[1]) * (line2start[0] - line2end[0]); // (y1 - y2) * (x3 - x4)
   const d = d1 - d2;
-  if (d === 0) {
-    return null;
-  }
+  // if (d === 0) {
+  //   return null;
+  // }
   const u1 = line1start[0] * line1end[1] - line1start[1] * line1end[0]; // (x1 * y2 - y1 * x2)
   const u4 = line2start[0] * line2end[1] - line2start[1] * line2end[0]; // (x3 * y4 - y3 * x4)
   const u2x = line2start[0] - line2end[0]; // (x3 - x4)

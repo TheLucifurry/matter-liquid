@@ -3,16 +3,7 @@ import { checkPointInRect } from '../helpers/utils';
 
 const Dryer = {
   dry(liquid: TLiquid, particleId: number): void {
-    const prototype = liquid.lpl[particleId];
-    const particle = liquid.p[particleId];
-    liquid.p[particleId] = null;
-    liquid.sh.remove(particleId);
-    liquid.ev.particleRemove(particle, particleId, prototype);
-    if (liquid.fpids.indexOf(particleId) === -1) {
-      liquid.fpids.unshift(particleId);
-    }
-    liquid.st.cl[prototype[L.ID] as number]--;
-    // TODO: remove associated springs
+    liquid.dpl.push(particleId);
   },
   rect(liquid: TLiquid, zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number): void {
     // TODO: Optimize particle finding by using SpatialHash

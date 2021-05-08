@@ -8,13 +8,14 @@ import * as Cycles from '../helpers/cycles';
 import * as Vector from '../helpers/vector';
 
 const GlobalLiquid = {
+  _: {},
   utils: {
     VirtualCanvas,
     // ...Utils,
     // ...Cycles,
     // ...Vector,
   },
-  create: Liquid,
+  create: (config: TLiquidConfig) => Liquid(config, GlobalLiquid),
   drip: Dripper,
   dry: Dryer,
 
@@ -57,7 +58,3 @@ const GlobalLiquid = {
 };
 
 export default GlobalLiquid;
-
-declare global {
-  type TGlobalLiquid = typeof GlobalLiquid;
-}

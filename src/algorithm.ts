@@ -175,6 +175,9 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt
   let p = 0;
   let pNear = 0;
   const neighbors = getNeighbors(liquid, iPid);
+  // if (iPid === 0) {
+  //   console.log(`neighbors: [${neighbors.join(', ')}]`);
+  // }
   const pairsDataList: [oneMinQ: number, jPid: number, r: TVector][] = Array(neighbors.length);
   for (let n = 0; n < neighbors.length; n++) {
     const jPid = neighbors[n];
@@ -261,7 +264,7 @@ function resolveCollisions(liquid: TLiquid, activeZone: TRect, worldRect: TRect,
   // resolve collisions and contacts between bodies
   // processedBodies.forEach(body=>{
   bodies.forEach((body) => {
-    const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, liquid.sh, updatablePids);
+    const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, liquid, updatablePids);
     foreachIds(particles, particlesInBodyIds, (part) => { // foreach particle inside the body
       if (!checkPointInRect(part[P.X], part[P.Y], worldRect)) return;
       const I = computeI(part, body); // compute collision impulse I
@@ -276,6 +279,23 @@ function resolveCollisions(liquid: TLiquid, activeZone: TRect, worldRect: TRect,
       }
     });
   });
+}
+function deleteParticles(liquid: TLiquid) {
+  const pids = liquid.dpl;
+  for (let i = 0; i < pids.length; i++) {
+    const pid = pids[i];
+    const prototype = liquid.lpl[pid];
+    const particle = liquid.p[pid];
+    liquid.p[pid] = null;
+    liquid.sh.remove(pid);
+    liquid.ev.particleRemove(particle, pid, prototype);
+    if (liquid.fpids.indexOf(pid) === -1) {
+      liquid.fpids.unshift(pid);
+    }
+    liquid.st.cl[prototype[L.ID] as number]--;
+    // TODO: remove associated springs
+  }
+  liquid.dpl = [];
 }
 function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, particlesPrevPositions: TSavedParticlesPositions) {
   foreachIds(liquid.p, updatedPids, (part, pid) => {
@@ -307,6 +327,7 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
 
     liquid.sh.update(pid, part[P.X], part[P.Y]);
   });
+  deleteParticles(liquid);
 }
 
 export function simple(liquid: TLiquid, dt: number): void {
