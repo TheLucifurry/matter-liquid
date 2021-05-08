@@ -27,8 +27,8 @@
     "dev": "webpack serve --mode=development",
     "build": "webpack",
     "lint": "eslint . --ext .ts",
-    "asbuild_dev": "asc assembly/index.ts --target debug",
-    "asbuild_build": "asc assembly/index.ts --target release",
+    "asbuild_dev": "asc assembly/index.ts --target dev --debug --sourceMap",
+    "asbuild_build": "asc assembly/index.ts --target build",
     "asbuild": "npm run asbuild_dev && npm run asbuild_build"
   },
   "devDependencies": {
@@ -36,7 +36,7 @@
     "@typescript-eslint/eslint-plugin": "^4.21.0",
     "@typescript-eslint/parser": "^4.21.0",
     "@webpack-cli/serve": "^1.3.1",
-    "assemblyscript": "^0.18.27",
+    "assemblyscript": "^0.18.31",
     "eslint": "^7.24.0",
     "eslint-config-airbnb-typescript": "^12.3.1",
     "eslint-plugin-compat": "^3.9.0",
@@ -53,6 +53,6 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
-    "@assemblyscript/loader": "^0.18.27"
+    "@assemblyscript/loader": "^0.18.31"
   }
 }
