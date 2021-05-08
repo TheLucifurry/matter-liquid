@@ -1,5 +1,11 @@
-// The entry file of your WebAssembly module.
+import { SpatialHash } from './spatialHash';
 
-export function add(a: i32, b: i32): i32 {
-  return a + b;
-}
+const arr: i32[] = [];
+// function test(a: i32){
+//   // return set;
+// }
+
+export {
+  SpatialHash,
+  // test
+};

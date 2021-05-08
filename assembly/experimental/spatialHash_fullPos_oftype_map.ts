@@ -3,6 +3,7 @@ type TCellid = u32;
 type TCell = TItem[];
 type THash = TCell[];
 type TPrevItemCell = Map<TItem, TCellid>;
+type TFullPositions = Map<TItem, Int32Array>;
 
 const nearSteps: i8[] = [
   - 1, - 1,
@@ -29,6 +30,7 @@ function mathClamp(num: i32, min: i32, max: i32): i32 {
   // return num < min ? min : (num > max ? max : num);
   return num;
 }
+
 export class SpatialHash {
   private cs: i32 // cellSize
   private ox: i32 // Offset X
@@ -38,6 +40,7 @@ export class SpatialHash {
   private h: THash
   // h: THash
   private p: TPrevItemCell = new Map()
+  private f: TFullPositions = new Map() // Full positions
 
   constructor(cellSize: i32, boundsMinX: i32, boundsMinY: i32, boundsMaxX: i32, boundsMaxY: i32){
     this.cs = cellSize;
@@ -76,6 +79,12 @@ export class SpatialHash {
       this.p.set(item, cellid);
     }
   }
+  private cacheFullPosition(item: TItem, x: i32, y: i32): void {
+    const fullPos = new Int32Array(2);
+    fullPos[0] = x;
+    fullPos[1] = y;
+    this.f.set(item, fullPos);
+  }
   private deleteIn(item: TItem, cellid: TCellid): void {
     const cell: TCell = this.h[cellid];
     const id = cell.indexOf(item);
@@ -84,22 +93,6 @@ export class SpatialHash {
     }
     this.p.delete(item);
   }
-  // _find(x: i32, y: i32, item: TItem): i32 {
-  //   const cell = this.getCell(x, y);
-  //   return cell.indexOf(item);
-  // }
-  // _del(x: i32, y: i32, item: TItem): i32 {
-  //   const cellid = this.getIndex(x, y);
-  //   this.deleteIn(item, cellid)
-  //   return this.h[cellid].length;
-  // }
-  // _length(x: i32, y: i32): i32 {
-  //   const cell = this.getCell(x, y);
-  //   return cell.length;
-  // }
-  // _hashValues(): TItem[][] {
-  //   return this.h.values();
-  // }
 
   update(item: TItem, x: i32, y: i32): void {
     const cellX: i32 = (x - this.ox) / this.cs;
@@ -112,17 +105,20 @@ export class SpatialHash {
       }
       this.save(item, nextCellid);
     }
+    this.cacheFullPosition(item, x, y);
   }
   insert(item: TItem, x: i32, y: i32): void {
     const cellX: i32 = (x - this.ox) / this.cs;
     const cellY: i32 = (y - this.oy) / this.cs;
     const сellid: i32 = this.getIndex(cellX, cellY);
     this.save(item, сellid);
+    this.cacheFullPosition(item, x, y);
   }
   remove (item: TItem): void {
     if (this.p.has(item)) {
       const cellid: TCellid = this.p.get(item);
       this.deleteIn(item, cellid);
+      this.f.delete(item);
     }
   }
 
@@ -137,7 +133,20 @@ export class SpatialHash {
       const pids: TItem[] = this.tryGetItems(ccx + sx, ccy + sy);
       arrayPushElements(res, pids);
     }
-    return res;
+
+    // Filter by radius
+    const fres: TItem[] = [];
+    const cs2 = this.cs ** 2;
+    let fix = 0;
+    for (let i = 0; i < res.length; i++) {
+      const pid = res[i];
+      const part = this.f.get(pid);
+      if ((part[0] - x) ** 2 + (part[1] - y) ** 2 <= cs2) {
+        fres[fix++] = pid;
+      }
+    }
+
+    return fres;
   }
   getFromBounds(boundsMinX: i32, boundsMinY: i32, boundsMaxX: i32, boundsMaxY: i32): TItem[] {
     const x1: i32 = (boundsMinX - this.ox) / this.cs;
@@ -147,7 +156,7 @@ export class SpatialHash {
     const res: TItem[] = [];
     for (let y = y1; y <= y2; y++) {
       for (let x = x1; x <= x2; x++) {
-        const pids = this.tryGetItems(x, y);
+        const pids = this.getCell(x, y);
         arrayPushElements(res, pids);
       }
     }
