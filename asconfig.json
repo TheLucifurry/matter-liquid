@@ -1,14 +1,16 @@
 {
   "targets": {
-    "debug": {
+    "dev": {
       "binaryFile": "build/assembly.wasm",
       "textFile": "build/assembly.wat",
+      "tsdFile": "types/assembly.d.ts",
       "sourceMap": true,
       "debug": true
     },
-    "release": {
+    "build": {
       "binaryFile": "build/assembly.wasm",
       "textFile": "build/assembly.wat",
+      "tsdFile": "types/assembly.d.ts",
       "sourceMap": true,
       "optimizeLevel": 3,
       "shrinkLevel": 1,
@@ -16,5 +18,7 @@
       "noAssert": false
     }
   },
-  "options": {}
+  "options": {
+    "exportRuntime": true
+  }
 }
