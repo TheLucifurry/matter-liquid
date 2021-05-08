@@ -154,7 +154,7 @@ export class SpatialHash {
     let fix = 0;
     for (let i = 0; i < res.length; i++) {
       const pid = res[i];
-      const nx = this.f[pid] || i32.MAX_VALUE, ny = this.f[pid + 1] || i32.MAX_VALUE;
+      const nx = this.f[pid], ny = this.f[pid + 1];
       if ((nx - x) ** 2 + (ny - y) ** 2 <= cs2) {
         fres[fix++] = pid;
       }
