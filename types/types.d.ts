@@ -29,6 +29,7 @@ type TLiquidConfig = {
   isDebug?: boolean
 };
 type TLiquid = {
+  readonly asm: TASModule // Assembly module
   readonly e: Matter.Engine // Engine
   readonly r: Matter.Render // Render
   readonly w: Matter.World // World
@@ -39,7 +40,8 @@ type TLiquid = {
   readonly iwx: boolean // isWrappedX
   readonly iwy: boolean // isWrappedX
   readonly l: TLiquidPrototypeComputed[] // Liquids prototypes
-  readonly sh: TSpatialHash // SpatialHash
+  // readonly sh: TSpatialHash // SpatialHash
+  readonly sh: CSpatialHash; // SpatialHash
   readonly p: TParticle[] // Particles
   readonly lpl: { [key: number]: TLiquidPrototypeComputed }, // LiquidPrototypeLink
   readonly lnlid: { [key: string]: number }, // LiquidNamesToLid
@@ -48,6 +50,7 @@ type TLiquid = {
   readonly ev: TEvents // Events store
   u: any // Compute update callback
 
+  dpl: number[] // delete particle list
   bb: number // BordersBounce
   ip: boolean // IsPaused
   g: number // GravityRatio
