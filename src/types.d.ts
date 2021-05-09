@@ -34,6 +34,7 @@ type TLiquid = {
   readonly e: Matter.Engine // Engine
   readonly r: Matter.Render // Render
   readonly w: Matter.World // World
+  readonly x: TChemixStore // Chemics data storage
   readonly st: TStats // Statistics
   readonly c: WebGL2RenderingContext // Render context
   readonly h: number // Interaction radius
@@ -61,6 +62,18 @@ type TLiquid = {
 type TStats = {
   // c: number // Particles count
   cl: number[] // Particles count by liquid prototypes
+};
+
+// Chemics
+type TChemicalReactionData = [number[][], number[][]];
+type TChemicalReactionCallback = (data: TChemicalReactionData) => void;
+type TChemixStore = {
+  // isEnabled: boolean,
+  iterStep: number, // Iteration step
+  isReady: boolean // true when it is an iteration for check collisions
+  colls: { [key: number]: number[] }[], // Prepared collision data
+  canReacts: boolean[] // Possibility of reaction for every liquidid
+  cbs: TChemicalReactionCallback[] // Callbacks list
 };
 
 // Liquid & particle

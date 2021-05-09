@@ -50,9 +50,10 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
   const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
   const computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
   const updateEveryFrame = config.updateEveryFrame || EVERY_FRAME;
-  let tick = 0;
 
   const bounds = config.bounds;
+  const engineTiming = config.engine.timing;
+  let tick = 0;
 
   const liquid: TLiquid = {
     h: radius,
@@ -66,6 +67,14 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     irc: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
     l: liquidPrototypes,
     lnlid,
+    x: {
+      isReady: false,
+      iterStep: 10, // every 30 frame (0.5 sec)
+      canReacts: [],
+      // canReacts: config.liquids.map(() => false),
+      colls: [],
+      cbs: [],
+    },
 
     bb: config.bordersBounce || BORDERS_BOUNCE_VALUE,
     ip: false,
@@ -85,7 +94,8 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     },
     u: () => {
       if (tick++ % updateEveryFrame === 0) {
-        computeUpdater(liquid, liquid.e.timing.timeScale * liquid.dt);
+        liquid.x.isReady = tick % liquid.x.iterStep === 0;
+        computeUpdater(liquid, engineTiming.timeScale * liquid.dt);
       }
     },
   };

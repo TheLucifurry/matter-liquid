@@ -19,6 +19,7 @@
     "no-console": 0,
     "no-plusplus": 0,
     "no-continue": 0,
+    "no-return-assign": 0,
     "no-param-reassign": 0,
     "no-nested-ternary": 0,
     "no-mixed-operators": 0,
@@ -29,11 +30,12 @@
     "no-restricted-globals": 0,
     "class-methods-use-this": 1,
 
+    "@typescript-eslint/no-shadow": 1,
+    "@typescript-eslint/no-namespace": 0,
+    "@typescript-eslint/no-unused-vars": 1,
     "@typescript-eslint/ban-ts-comment": 0,
     "@typescript-eslint/no-explicit-any": 0,
     "@typescript-eslint/naming-convention": 0,
-    "@typescript-eslint/no-shadow": 1,
-    "@typescript-eslint/no-unused-vars": 1,
 
     "compat/compat": 1
   },

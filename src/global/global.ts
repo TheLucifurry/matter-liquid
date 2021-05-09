@@ -2,6 +2,7 @@ import Matter from 'matter-js';
 import Liquid from '../liquid/liquid';
 import Dripper from './dripper';
 import Dryer from './dryer';
+import Chemics from './chemics';
 import VirtualCanvas from '../helpers/virtualCanvas';
 import * as Utils from '../helpers/utils';
 import * as Cycles from '../helpers/cycles';
@@ -17,6 +18,7 @@ const GlobalLiquid = {
   create: Liquid,
   drip: Dripper,
   dry: Dryer,
+  chemics: Chemics,
 
   setPause(liquid: TLiquid, isPause = true): void {
     if (isPause) {

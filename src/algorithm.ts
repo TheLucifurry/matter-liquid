@@ -167,10 +167,17 @@ function adjustSprings(liquid: TLiquid, updatedPids: number[], dt: number) {
 }
 function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt: number) {
   const mass = liquid.lpl[iPid][L.MASS] as number;
+  const iLid = liquid.lpl[iPid][L.ID] as number;
   const p0 = liquid.h * 0.2; // rest density
   const k = 0.3; // stiffness range[0..1]
   const kNear = liquid.h * 0.3; // stiffness near (вроде, влияет на текучесть)
   const maxStep = liquid.h * 0.8;
+
+  // Chemics (experimental)
+  const chemics = liquid.x;
+  const currentLiquidProto = liquid.lpl[iPid];
+  const isRecordCollisions = chemics.isReady && chemics.canReacts[iLid];
+  if (isRecordCollisions) chemics.colls[iLid][iPid] = [];
 
   let p = 0;
   let pNear = 0;
@@ -187,6 +194,9 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt
     p += oneMinQ ** 2;
     pNear += oneMinQ ** 3;
     pairsDataList[n] = [oneMinQ, jPid, r];
+
+    // Chemics (experimental)
+    if (isRecordCollisions && liquid.lpl[jPid] !== currentLiquidProto) chemics.colls[iLid][iPid].push(jPid);
   }
   // const P = k * (p - p0);
   const pBig = k * (p - p0) * mass; // { * mass } Экспериментальный способ учета массы при взаимодействии
@@ -307,6 +317,36 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
 
     liquid.sh.update(pid, part[P.X], part[P.Y]);
   });
+
+  // Chemics (experimental)
+  const chemics = liquid.x;
+  const protoLinks = liquid.lpl;
+  if (chemics.isReady) {
+    for (let lid = 0; lid < chemics.colls.length; lid++) {
+      if (!chemics.canReacts[lid]) continue;
+
+      const liquidCollisions = chemics.colls[lid];
+      const owned: number[][] = [];
+      const other: number[][] = [];
+      liquid.l.forEach((_, ix) => { owned[ix] = []; other[ix] = []; });
+
+      // @ts-ignore
+      const iPids: number[] = Object.keys(liquidCollisions);
+      for (let i = 0; i < iPids.length; i++) {
+        const iPid = iPids[i];
+        const jPids = liquidCollisions[iPid];
+        for (let j = 0; j < jPids.length; j++) {
+          const jPid = jPids[j];
+          const jLid = protoLinks[jPid][L.ID] as number;
+          owned[jLid].push(iPid);
+          other[jLid].push(jPid);
+        }
+      }
+
+      const collisionData: TChemicalReactionData = [owned, other];
+      chemics.cbs[lid](collisionData);
+    }
+  }
 }
 
 export function simple(liquid: TLiquid, dt: number): void {
@@ -317,6 +357,7 @@ export function simple(liquid: TLiquid, dt: number): void {
   const activeRect: TRect = liquid.irc ? getRectFromBoundsWithPadding(liquid.r.bounds, liquid.abp) : null;
   const worldBounds: TBounds = liquid.b;
   const limit = liquid.h * VELOCITY_LIMIT_FACTOR;
+  liquid.x.colls = liquid.l.map(() => ([]));
 
   foreachActive(liquid, activeRect, liquid.p, (part, pid) => {
     updatedPids.push(pid);
