@@ -48,14 +48,16 @@ export function generateParticleTexture(color: string, radius: number): TVirtual
 function drawParticles(liquid: TLiquid) {
   const ctx = liquid.r.context;
   const renderRect = getRectFromBoundsWithPadding(liquid.r.bounds, liquid.rbp);
-  arrayEach(liquid.p, (part, pid) => {
-    if (part === null || !checkPointInRect(part[P.X], part[P.Y], renderRect)) return;
+  const pids = liquid.sh.getFromRect(renderRect);
+  for (let i = 0; i < pids.length; i++) {
+    const pid = pids[i];
+    const part = liquid.p[pid];
     const x = Math.floor(part[P.X]);
     const y = Math.floor(part[P.Y]);
     const particleTexture = liquid.lpl[pid][L.TEXTURE] as OffscreenCanvas;
     const texSizeHalf = particleTexture.height / 2;
     ctx.drawImage(particleTexture, x - texSizeHalf, y - texSizeHalf);
-  });
+  }
 }
 
 let mouseController: Matter.MouseConstraint;
