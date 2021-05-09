@@ -38,11 +38,6 @@ export function getParticlesInsideBodyIds(particles: TParticle[], body: Matter.B
   return res;
 }
 
-export function getWorldWidth(liquid: TLiquid, defaultValue: number): number {
-  const diff = liquid.b.max.x - liquid.b.min.x;
-  return isFinite(diff) ? diff : defaultValue;
-}
-
 export function getLineIntersectionPoint(line1start: TVector, line1end: TVector, line2start: TVector, line2end: TVector): TVector {
   const d1 = (line1start[0] - line1end[0]) * (line2start[1] - line2end[1]); // (x1 - x2) * (y3 - y4)
   const d2 = (line1start[1] - line1end[1]) * (line2start[0] - line2end[0]); // (y1 - y2) * (x3 - x4)

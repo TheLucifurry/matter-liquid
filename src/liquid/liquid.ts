@@ -52,11 +52,13 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
   const updateEveryFrame = config.updateEveryFrame || EVERY_FRAME;
   let tick = 0;
 
+  const bounds = config.bounds;
+
   const liquid: TLiquid = {
     h: radius,
     iwx: isWrappedSides[0],
     iwy: isWrappedSides[1],
-    b: config.bounds,
+    b: [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y, bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y],
     e: config.engine,
     r: config.render,
     w: config.engine.world,

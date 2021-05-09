@@ -30,7 +30,7 @@ type TLiquidConfig = {
   isDebug?: boolean
 };
 type TLiquid = {
-  readonly b: Matter.Bounds // World bounds
+  readonly b: TBounds // World bounds
   readonly e: Matter.Engine // Engine
   readonly r: Matter.Render // Render
   readonly w: Matter.World // World
@@ -104,6 +104,7 @@ type TEvents = {
 
 // Basic
 type TRect = [ x1: number, y1: number, x2: number, y2: number ];
+type TBounds = [x: number, y: number, x2: number, y2: number, w: number, h: number];
 type TVector = [number, number];
 type TFourNumbers = [ number, number, number, number ];
 type TVirtualCanvas = OffscreenCanvas | HTMLCanvasElement;

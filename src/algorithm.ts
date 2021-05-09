@@ -222,7 +222,7 @@ function findOutsidePos(body: Matter.Body, prevParticlePos: TVector, currentPart
   return getLineIntersectionPoint(surface[0], surface[1], prevParticlePos, vectorAddVector(prevParticlePos, surfNorm));
 }
 
-function resolveCollisions(liquid: TLiquid, activeZone: TRect, worldRect: TRect, updatablePids: number[]) {
+function resolveCollisions(liquid: TLiquid, activeZone: TRect, worldBounds: TBounds, updatablePids: number[]) {
   const { p: particles } = liquid;
   const bodies = activeZone ? getBodiesInRect(liquid.w.bodies, activeZone) : liquid.w.bodies;
   const originalBodiesData: TOriginalBodyData[] = [];
@@ -263,7 +263,7 @@ function resolveCollisions(liquid: TLiquid, activeZone: TRect, worldRect: TRect,
   bodies.forEach((body) => {
     const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, liquid.sh, updatablePids);
     foreachIds(particles, particlesInBodyIds, (part) => { // foreach particle inside the body
-      if (!checkPointInRect(part[P.X], part[P.Y], worldRect)) return;
+      if (!checkPointInRect(part[P.X], part[P.Y], worldBounds)) return;
       const I = computeI(part, body); // compute collision impulse I
       // console.log(`I: [${I.join(', ')}]`);
       const prevPos: TVector = [part[P.X], part[P.Y]];
@@ -286,23 +286,23 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
     const b = liquid.b;
     if (!liquid.iwx) {
       const oldX = part[P.X];
-      part[P.X] = mathClamp(oldX, b.min.x, b.max.x);
+      part[P.X] = mathClamp(oldX, b[0], b[2]);
       if (oldX !== part[P.X]) {
         part[P.VEL_X] *= -bounce;
         part[P.VEL_Y] *= bounce;
       }
     } else {
-      part[P.X] = mathWrap(part[P.X], b.min.x, b.max.x);
+      part[P.X] = mathWrap(part[P.X], b[0], b[2]);
     }
     if (!liquid.iwy) {
       const oldY = part[P.Y];
-      part[P.Y] = mathClamp(oldY, b.min.y, b.max.y);
+      part[P.Y] = mathClamp(oldY, b[1], b[3]);
       if (oldY !== part[P.Y]) {
         part[P.VEL_X] *= bounce;
         part[P.VEL_Y] *= -bounce;
       }
     } else {
-      part[P.Y] = mathWrap(part[P.Y], b.min.y, b.max.y);
+      part[P.Y] = mathWrap(part[P.Y], b[1], b[3]);
     }
 
     liquid.sh.update(pid, part[P.X], part[P.Y]);
@@ -315,7 +315,7 @@ export function simple(liquid: TLiquid, dt: number): void {
   const gravity = Matter.Liquid.getGravity(liquid);
   const particlesPrevPositions: TSavedParticlesPositions = {};
   const activeRect: TRect = liquid.irc ? getRectFromBoundsWithPadding(liquid.r.bounds, liquid.abp) : null;
-  const worldRect: TRect = getRectFromBoundsWithPadding(liquid.b);
+  const worldBounds: TBounds = liquid.b;
   const limit = liquid.h * VELOCITY_LIMIT_FACTOR;
 
   foreachActive(liquid, activeRect, liquid.p, (part, pid) => {
@@ -331,7 +331,7 @@ export function simple(liquid: TLiquid, dt: number): void {
   foreachIds(liquid.p, updatedPids, (part, pid) => {
     doubleDensityRelaxation(liquid, part, pid, dt);
   });
-  resolveCollisions(liquid, activeRect, worldRect, updatedPids);
+  resolveCollisions(liquid, activeRect, worldBounds, updatedPids);
   endComputing(liquid, updatedPids, dt, particlesPrevPositions);
 }
 
