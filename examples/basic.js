@@ -8,7 +8,7 @@ export default function () {
   } = Tools.init();
 
   const color = Colors.getPalette();
-  const worldSize = 1024 * 2;
+  const worldSize = 1024;
   const worldOffset = -worldSize / 2;
   const bounds = Tools.createBounds(worldOffset, worldOffset, worldSize, worldSize);
 

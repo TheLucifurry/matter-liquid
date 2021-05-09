@@ -15,7 +15,6 @@ export default function () {
   Tools.cameraLookAt(render, bounds);
   const { mouseConstraint } = Tools.initMouse(render);
   Tools.setGravityControl(engine);
-
   const liquid = Liquid.create({
     bounds,
     engine,

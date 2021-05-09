@@ -12,7 +12,7 @@ export default function () {
 
   Tools.drawWorldBackground(render, color.background);
   Tools.drawWorldBorders(render, bounds, color.particle);
-  Tools.cameraLookAt(render, bounds, -200);
+  Tools.cameraLookAt(render, bounds, -50);
   const { mouseConstraint } = Tools.initMouse(render);
   viewControl(engine, render, bounds, mouseConstraint);
 
