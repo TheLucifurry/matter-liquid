@@ -1,9 +1,9 @@
 import { arrayDeleteItem } from './utils';
 
-export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TSpatialHash {
-  const leftPadding = bounds.min.x;
-  const topPadding = bounds.min.y;
-  const rowLength = Math.round((bounds.max.x - bounds.min.x) / cellSize);
+export default function SpatialHash(cs: number, bounds: Matter.Bounds): TSpatialHash {
+  const ox = bounds.min.x; // Offset X
+  const oy = bounds.min.y; // Offset Y
+  const rowLength = Math.round((bounds.max.x - bounds.min.x) / cs);
   // const rowCount = Math.round((bounds.max.y - bounds.min.y) / cellSize);
 
   function getIndex(x: number, y: number): TSHCellId {
@@ -38,8 +38,8 @@ export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TS
     //   sh.p = {};
     // },
     update: (item: TSHItem, x: number, y: number): void => {
-      const cellX = Math.trunc((x - leftPadding) / cellSize);
-      const cellY = Math.trunc((y - topPadding) / cellSize);
+      const cellX = Math.trunc((x - ox) / cs);
+      const cellY = Math.trunc((y - oy) / cs);
       const prevCellid = sh.p[item];
       const nextCellid = getIndex(cellX, cellY);
       if (prevCellid !== nextCellid) {
@@ -50,8 +50,8 @@ export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TS
       }
     },
     insert: (item: TSHItem, x: number, y: number): void => {
-      const cellX = Math.trunc((x - leftPadding) / cellSize);
-      const cellY = Math.trunc((y - topPadding) / cellSize);
+      const cellX = Math.trunc((x - ox) / cs);
+      const cellY = Math.trunc((y - oy) / cs);
       const сellid = getIndex(cellX, cellY);
       save(sh, item, сellid);
     },
@@ -69,8 +69,8 @@ export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TS
     //   });
     // },
     getNearby: (x: number, y: number, particles: TParticle[]): number[] => {
-      const ccx = Math.trunc((x - leftPadding) / cellSize);
-      const ccy = Math.trunc((y - topPadding) / cellSize);
+      const ccx = Math.trunc((x - ox) / cs);
+      const ccy = Math.trunc((y - oy) / cs);
       const near: TSHItem[] = [
         ...getCell(sh, ccx - 1, ccy - 1),
         ...getCell(sh, ccx, ccy - 1),
@@ -85,17 +85,19 @@ export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TS
       for (let i = 0; i < near.length; i++) { // Filter only parts in radius
         const pid = near[i];
         const part = particles[pid];
-        if ((part[0] - x) ** 2 + (part[1] - y) ** 2 <= cellSize ** 2) {
+        if ((part[0] - x) ** 2 + (part[1] - y) ** 2 <= cs ** 2) {
           res.push(pid);
         }
       }
       return res;
     },
-    getFromBounds: (bounds: Matter.Bounds): TSHItem[] => {
-      const x1 = Math.trunc((bounds.min.x - leftPadding) / cellSize);
-      const y1 = Math.trunc((bounds.min.y - topPadding) / cellSize);
-      const x2 = Math.trunc((bounds.max.x - leftPadding) / cellSize);
-      const y2 = Math.trunc((bounds.max.y - topPadding) / cellSize);
+    // eslint-disable-next-line arrow-body-style
+    getFromBounds: (bounds: Matter.Bounds): TSHItem[] => sh.getFromRect([bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y]),
+    getFromRect: (rect: TRect): TSHItem[] => {
+      const x1 = Math.trunc((rect[0] - ox) / cs);
+      const y1 = Math.trunc((rect[1] - oy) / cs);
+      const x2 = Math.trunc((rect[2] - ox) / cs);
+      const y2 = Math.trunc((rect[3] - oy) / cs);
       const res = [];
       for (let y = y1; y <= y2; y++) {
         for (let x = x1; x <= x2; x++) {
@@ -106,7 +108,7 @@ export default function SpatialHash(cellSize: number, bounds: Matter.Bounds): TS
     },
 
     ...(!DEV ? {} : { // DEV only methods
-      getCoordsFromCellid: (cellid: TSHCellId): TVector => [(cellid % rowLength) * cellSize + leftPadding, Math.trunc(cellid / rowLength) * cellSize + topPadding],
+      getCoordsFromCellid: (cellid: TSHCellId): TVector => [(cellid % rowLength) * cs + ox, Math.trunc(cellid / rowLength) * cs + oy],
     }),
   };
   return Object.seal(sh);
@@ -124,6 +126,7 @@ declare global {
     remove: (item: TSHItem) => void
     getNearby: (x: number, y: number, particles: TParticle[]) => number[]
     getFromBounds: (bounds: Matter.Bounds) => TSHItem[]
+    getFromRect: (bounds: TRect) => TSHItem[]
 
     // DEV only methods
     getCoordsFromCellid?: (cellid: TSHCellId) => TVector
