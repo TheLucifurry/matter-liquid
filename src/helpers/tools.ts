@@ -38,8 +38,8 @@ export function getParticlesInsideBodyIds(particles: TParticle[], body: Matter.B
   return res;
 }
 
-export function getWorldWidth(world: Matter.World, defaultValue: number): number {
-  const diff = world.bounds.max.x - world.bounds.min.x;
+export function getWorldWidth(liquid: TLiquid, defaultValue: number): number {
+  const diff = liquid.b.max.x - liquid.b.min.x;
   return isFinite(diff) ? diff : defaultValue;
 }
 

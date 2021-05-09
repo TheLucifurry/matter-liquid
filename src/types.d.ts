@@ -10,6 +10,7 @@ declare const DEV: boolean;
 
 // Core
 type TLiquidConfig = {
+  bounds: Matter.Bounds
   engine: Matter.Engine
   render: Matter.Render
   liquids: TLiquidPrototype[]
@@ -29,6 +30,7 @@ type TLiquidConfig = {
   isDebug?: boolean
 };
 type TLiquid = {
+  readonly b: Matter.Bounds // World bounds
   readonly e: Matter.Engine // Engine
   readonly r: Matter.Render // Render
   readonly w: Matter.World // World

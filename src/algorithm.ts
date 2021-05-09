@@ -283,7 +283,7 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
     computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
 
     const bounce = liquid.bb;
-    const b = liquid.w.bounds;
+    const b = liquid.b;
     if (!liquid.iwx) {
       const oldX = part[P.X];
       part[P.X] = mathClamp(oldX, b.min.x, b.max.x);
@@ -315,7 +315,7 @@ export function simple(liquid: TLiquid, dt: number): void {
   const gravity = Matter.Liquid.getGravity(liquid);
   const particlesPrevPositions: TSavedParticlesPositions = {};
   const activeRect: TRect = liquid.irc ? getRectFromBoundsWithPadding(liquid.r.bounds, liquid.abp) : null;
-  const worldRect: TRect = getRectFromBoundsWithPadding(liquid.w.bounds);
+  const worldRect: TRect = getRectFromBoundsWithPadding(liquid.b);
   const limit = liquid.h * VELOCITY_LIMIT_FACTOR;
 
   foreachActive(liquid, activeRect, liquid.p, (part, pid) => {

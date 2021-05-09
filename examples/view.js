@@ -1,32 +1,34 @@
-import { setWorldSize, drawWorldBackground, drawWorldBorders, init, cameraLookAt, initMouse, setDripper, getWorldParams } from './lib/fragments.js';
+import Tools from './lib/fragments.js';
 import Colors from './lib/colors.js';
 
 export default function () {
   const { Liquid } = Matter;
-  const { engine, world, render, runner } = init();
+  const { engine, world, render, runner } = Tools.init();
 
   const color = Colors.getPalette();
   const worldSize = 1024;
+  const worldOffset = -worldSize / 2;
+  const bounds = Tools.createBounds(worldOffset, worldOffset, worldSize, worldSize);
 
-  setWorldSize(world, worldSize);
-  drawWorldBackground(render, color.background);
-  drawWorldBorders(render, world, color.particle);
-  cameraLookAt(render, world.bounds, -100);
-  const { mouseConstraint } = initMouse(render);
-  viewControl(engine, render, mouseConstraint);
+  Tools.drawWorldBackground(render, color.background);
+  Tools.drawWorldBorders(render, bounds, color.particle);
+  Tools.cameraLookAt(render, bounds, -200);
+  const { mouseConstraint } = Tools.initMouse(render);
+  viewControl(engine, render, bounds, mouseConstraint);
 
   const liquid = Liquid.create({
+    bounds,
     engine,
     render,
     liquids: [{ color: color.particle }], // Define one liquid
-    updateEveryFrame: 1,  // Set max 60 FPS
+    updateEveryFrame: 1, // Set max 60 FPS
   });
-  const { minX, maxX, minY, maxY, width, height } = getWorldParams(world);
+  const { minX, maxX, minY, maxY, width, height } = Tools.getBoundsParams(bounds);
   const liquidCyanId = 0;
   const seaHeight = 400;
   Liquid.drip.rect(liquid, liquidCyanId, minX, maxY - seaHeight, width, seaHeight);
 
-  setDripper(render, liquid, mouseConstraint);
+  Tools.setDripper(render, liquid, mouseConstraint);
 
   window.DEMO_LOADED(liquid, 'Mouse move - camera pos. | Wheel - camera scale');
   return {
@@ -41,7 +43,7 @@ export default function () {
   };
 };
 
-function viewControl(engine, render, mouseConstraint) {
+function viewControl(engine, render, bounds, mouseConstraint) {
   const { Mouse, Bounds, Events, Vector } = Matter;
 
   const viewportCentre = {
@@ -103,17 +105,17 @@ function viewControl(engine, render, mouseConstraint) {
       translate = Vector.mult(direction, speed);
 
       // prevent the view moving outside the world bounds
-      if (render.bounds.min.x + translate.x < world.bounds.min.x)
-        translate.x = world.bounds.min.x - render.bounds.min.x;
+      if (render.bounds.min.x + translate.x < bounds.min.x)
+        translate.x = bounds.min.x - render.bounds.min.x;
 
-      if (render.bounds.max.x + translate.x > world.bounds.max.x)
-        translate.x = world.bounds.max.x - render.bounds.max.x;
+      if (render.bounds.max.x + translate.x > bounds.max.x)
+        translate.x = bounds.max.x - render.bounds.max.x;
 
-      if (render.bounds.min.y + translate.y < world.bounds.min.y)
-        translate.y = world.bounds.min.y - render.bounds.min.y;
+      if (render.bounds.min.y + translate.y < bounds.min.y)
+        translate.y = bounds.min.y - render.bounds.min.y;
 
-      if (render.bounds.max.y + translate.y > world.bounds.max.y)
-        translate.y = world.bounds.max.y - render.bounds.max.y;
+      if (render.bounds.max.y + translate.y > bounds.max.y)
+        translate.y = bounds.max.y - render.bounds.max.y;
 
       // move the view
       Bounds.translate(render.bounds, translate);

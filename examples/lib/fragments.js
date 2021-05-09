@@ -1,7 +1,7 @@
 import * as Util from './utils.js';
 import loadSvg from './loaderSVG.js';
 
-export function init() {
+function init() {
   // create engine
   const engine = Matter.Engine.create();
   const { world } = engine;
@@ -30,33 +30,33 @@ export function init() {
   }
 }
 
-export function setWorldSize(world, width, height = width) {
-  world.bounds.min.x = -width / 2;
-  world.bounds.min.y = -height / 2;
-  world.bounds.max.x = width / 2;
-  world.bounds.max.y = height / 2;
+function createBounds(x, y, width, height) {
+  return {
+    min: { x, y },
+    max: { x: x + width, y: y + height },
+  }
 }
 
-export function drawWorldBackground(render, color) {
+function drawWorldBackground(render, color) {
   render.options.background = color;
 }
-export function drawWorldBorders(render, world, color) {
+function drawWorldBorders(render, bounds, color) {
   Matter.Events.on(render, 'afterRender', () => {
     Matter.Render.startViewTransform(render);
     render.context.strokeStyle = color;
-    render.context.strokeRect(world.bounds.min.x, world.bounds.min.y, world.bounds.max.x - world.bounds.min.x, world.bounds.max.y - world.bounds.min.y);
+    render.context.strokeRect(bounds.min.x, bounds.min.y, bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y);
   });
 }
 
 
-export function cameraLookAt(render, bounds, padding = 50) {
+function cameraLookAt(render, bounds, padding = 50) {
   Matter.Render.lookAt(render, {
     min: { x: bounds.min.x - padding, y: bounds.min.y - padding },
     max: { x: bounds.max.x + padding, y: bounds.max.y + padding },
   });
 }
 
-export function initMouse(render) {
+function initMouse(render) {
   const mouse = Matter.Mouse.create(render.canvas);
   const mouseConstraint = Matter.MouseConstraint.create(render.engine, {
     mouse,
@@ -64,7 +64,7 @@ export function initMouse(render) {
       render: { visible: false },
     },
   });
-  Matter.World.add(render.engine.world, mouseConstraint);
+  Matter.Composite.add(render.engine.world, mouseConstraint);
   render.mouse = mouse; // keep the mouse in sync with rendering
 
   return {
@@ -73,7 +73,7 @@ export function initMouse(render) {
   };
 }
 
-export function setDripper(render, liquid, mouseConstraint, isSwitchLiquidsByShift = true) {
+function setDripper(render, liquid, mouseConstraint, isSwitchLiquidsByShift = true) {
   const { Liquid } = Matter;
   const radius = 100;
   Util.onpressedPointer(render.canvas, (event, isMainButton) => {
@@ -88,7 +88,7 @@ export function setDripper(render, liquid, mouseConstraint, isSwitchLiquidsByShi
   }, 50);
 }
 
-export function setGravityControl(engine) {
+function setGravityControl(engine) {
   const { gravity } = engine.world;
   const defGravity = { x: 0, y: 0 };
 
@@ -99,12 +99,11 @@ export function setGravityControl(engine) {
   Util.onkey(Util.KEY_CODES.SPACE, () => Object.assign(gravity, defGravity));
 }
 
-export function getWorldParams(world) {
-  const worldBounds = world.bounds;
-  const minX = worldBounds.min.x;
-  const maxX = worldBounds.max.x;
-  const minY = worldBounds.min.y;
-  const maxY = worldBounds.max.y;
+function getBoundsParams(bounds) {
+  const minX = bounds.min.x;
+  const maxX = bounds.max.x;
+  const minY = bounds.min.y;
+  const maxY = bounds.max.y;
   const width = maxX - minX;
   const height = maxY - minY;
   return {
@@ -119,7 +118,7 @@ export function getWorldParams(world) {
   };
 }
 
-export function loadBodies(paths, props) {
+function loadBodies(paths, props) {
   return new Promise(next => {
     const res = [];
     paths.forEach(function (path, i) {
@@ -147,4 +146,17 @@ export function loadBodies(paths, props) {
     });
 
   })
+}
+
+export default {
+  init,
+  createBounds,
+  drawWorldBackground,
+  drawWorldBorders,
+  cameraLookAt,
+  initMouse,
+  setDripper,
+  setGravityControl,
+  getBoundsParams,
+  loadBodies,
 }

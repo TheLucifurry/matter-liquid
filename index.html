@@ -42,7 +42,7 @@
   <script src="https://cdn.jsdelivr.net/gh/schteppe/poly-decomp.js/build/decomp.min.js"></script>
 
   <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/liabru/matter-js@0.16.1/build/matter.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/liabru/matter-js@0.17.1/build/matter.js"></script>
   <!-- <script src="https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.14.0/build/matter-tools.min.js"></script> -->
   <script src="https://cdn.jsdelivr.net/gh/liabru/matter-tools@0.14.0/build/matter-tools.demo.min.js"></script>
 
@@ -55,7 +55,6 @@
     import examWrap from './examples/wrap.js';
     import examBodies from './examples/bodies.js';
     import examMultiLiquid from './examples/multi_liquid.js';
-    import examDev from './examples/dev.js';
 
     let pluginName = 'matter-liquid'; // PLUGIN_NAME
     let repoUrl = 'https://github.com/Wexelus/matter-liquid'; // PLUGIN_REPO_URL
@@ -119,12 +118,6 @@
         example('Wrap', examWrap),
         example('Bodies', examBodies),
         example('Multi Liquid', examMultiLiquid),
-        {
-          name: '(Dev)',
-          id: 'dev',
-          init: examDev,
-          sourceLink: repoUrl + '/blob/master/examples/dev.js'
-        },
       ]
     });
 

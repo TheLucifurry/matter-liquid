@@ -1,33 +1,35 @@
-import { setWorldSize, drawWorldBackground, drawWorldBorders, init, cameraLookAt, initMouse, setDripper, getWorldParams } from './lib/fragments.js';
+import Tools from './lib/fragments.js';
 import Colors from './lib/colors.js';
 
 export default function () {
   const { Liquid } = Matter;
-  const { engine, world, render, runner } = init();
+  const { engine, world, render, runner } = Tools.init();
 
   const color = Colors.getPalette();
   const worldSize = 1024;
+  const worldOffset = -worldSize / 2;
+  const bounds = Tools.createBounds(worldOffset, worldOffset, worldSize, worldSize);
 
-  setWorldSize(world, worldSize);
-  drawWorldBackground(render, color.background);
-  drawWorldBorders(render, world, color.particle);
-  cameraLookAt(render, world.bounds);
-  const { mouseConstraint } = initMouse(render);
+  Tools.drawWorldBackground(render, color.background);
+  Tools.drawWorldBorders(render, bounds, color.particle);
+  Tools.cameraLookAt(render, bounds);
+  const { mouseConstraint } = Tools.initMouse(render);
 
   const liquid = Liquid.create({
+    bounds,
     engine,
     render,
     liquids: [{ color: color.particle }], // Define one liquid
     worldWrapping: true,
   });
-  const { maxX, maxY } = getWorldParams(world);
+  const { maxX, maxY } = Tools.getBoundsParams(bounds);
   const liquidId = 0;
   Liquid.drip.rect(liquid, liquidId, maxX - 300, maxY - 300, 200, 200);
 
-  world.gravity.x = .2;
-  world.gravity.y = .2;
+  world.gravity.x = 0.2;
+  world.gravity.y = 0.2;
 
-  setDripper(render, liquid, mouseConstraint);
+  Tools.setDripper(render, liquid, mouseConstraint);
 
   window.DEMO_LOADED(liquid);
   return {

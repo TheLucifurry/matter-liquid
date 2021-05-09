@@ -4,7 +4,7 @@ import GlobalLiquid from './global/global';
 const MatterLiquid = {
   name: Package.name,
   version: Package.version,
-  for: 'matter-js@0.16.1',
+  for: 'matter-js@0.17.1',
   // uses: [],
   // options: {
   //   something: true,

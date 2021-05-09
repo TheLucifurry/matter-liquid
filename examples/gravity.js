@@ -1,32 +1,34 @@
-import { setWorldSize, drawWorldBackground, drawWorldBorders, init, cameraLookAt, initMouse, setDripper, getWorldParams, setGravityControl } from './lib/fragments.js';
+import Tools from './lib/fragments.js';
 import Colors from './lib/colors.js';
 
 export default function () {
   const { Liquid } = Matter;
-  const { engine, world, render, runner } = init();
+  const { engine, world, render, runner } = Tools.init();
 
   const color = Colors.getPalette();
   const worldSize = 1024;
+  const worldOffset = -worldSize / 2;
+  const bounds = Tools.createBounds(worldOffset, worldOffset, worldSize, worldSize);
 
-  setWorldSize(world, worldSize);
-  drawWorldBackground(render, color.background);
-  drawWorldBorders(render, world, color.particle);
-  cameraLookAt(render, world.bounds);
-  const { mouseConstraint } = initMouse(render);
-  setGravityControl(engine);
+  Tools.drawWorldBackground(render, color.background);
+  Tools.drawWorldBorders(render, bounds, color.particle);
+  Tools.cameraLookAt(render, bounds);
+  const { mouseConstraint } = Tools.initMouse(render);
+  Tools.setGravityControl(engine);
 
   const liquid = Liquid.create({
+    bounds,
     engine,
     render,
     liquids: [{ color: color.particle }], // Define one liquid
-    updateEveryFrame: 1,  // Set max 60 FPS
+    updateEveryFrame: 1, // Set max 60 FPS
   });
-  const { minX, maxX, minY, maxY, width } = getWorldParams(world);
+  const { minX, maxX, minY, maxY, width } = Tools.getBoundsParams(bounds);
   const liquidCyanId = 0;
   const seaHeight = 400;
   Liquid.drip.rect(liquid, liquidCyanId, minX, maxY - seaHeight, width, seaHeight);
 
-  setDripper(render, liquid, mouseConstraint);
+  Tools.setDripper(render, liquid, mouseConstraint);
 
   window.DEMO_LOADED(liquid, 'Arrow keys - direction | Space - disable')
   return {
