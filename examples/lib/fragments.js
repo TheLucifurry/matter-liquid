@@ -76,16 +76,21 @@ function initMouse(render) {
 function setDripper(render, liquid, mouseConstraint, isSwitchLiquidsByShift = true) {
   const { Liquid } = Matter;
   const radius = 100;
+  const store = {
+    main: 0,
+    secondary: 1,
+  }
   Util.onpressedPointer(render.canvas, (event, isMainButton) => {
-    const liquidCyanId = isSwitchLiquidsByShift && event.shiftKey ? 1 : 0;
+    const liquidLink = isSwitchLiquidsByShift && event.shiftKey ? store.secondary : store.main;
     let point = mouseConstraint.mouse.position;
     const x = point.x - radius, y = point.y - radius;
     if (isMainButton) {
-      Liquid.drip.rect(liquid, liquidCyanId, x, y, radius * 2, radius * 2);
+      Liquid.drip.rect(liquid, liquidLink, x, y, radius * 2, radius * 2);
     } else {
       Liquid.dry.rect(liquid, x, y, radius * 2, radius * 2);
     }
   }, 50);
+  return store;
 }
 
 function setGravityControl(engine) {

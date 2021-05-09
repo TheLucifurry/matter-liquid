@@ -11,6 +11,7 @@ This plugin allows you to make fluids that can collide with bodies and interact 
 [Wrap](https://wexelus.github.io/matter-liquid/#wrap)  
 [Bodies](https://wexelus.github.io/matter-liquid/#bodies)  
 [Multi Liquid](https://wexelus.github.io/matter-liquid/#multi_liquid)  
+[Chemics](https://wexelus.github.io/matter-liquid/#chemics)  
 
 **The plugin is currently in development!**
 <!-- ## Features
