@@ -1,7 +1,7 @@
 import { P } from '../constants';
 import { checkPointInRect } from './utils';
 
-export function arrayEach(array: any[], iteratee: (element: any, index: number)=>void): void { // From lodash
+export function arrayEach<T>(array: T[], iteratee: (element: T, index: number)=>void): void { // From lodash
   let index = -1;
   const { length } = array;
   while (++index < length) iteratee(array[index], index);
