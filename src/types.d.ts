@@ -94,6 +94,7 @@ type TFluidPrototypeComputed = [
 ];
 type TFluidKey = string | number;
 type TParticle = Float32Array;
+type TParticleId = number;
 
 // Spatial hash
 type TSHCellId = number;
