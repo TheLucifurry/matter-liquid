@@ -61,9 +61,9 @@ function partPosSub(part: TParticle, vec: TVector) {
   part[P.X] -= vec[0];
   part[P.Y] -= vec[1];
 }
-function getSpringKey(currentParticleid: number, neighborPid: number): TSHCellId {
+function getSpringKey(currentPid: number, neighborPid: number): TSHCellId {
   return 0;
-  // return `${currentParticleid}.${neighborPid}`;
+  // return `${currentPid}.${neighborPid}`;
 }
 function getPidsFromSpringKey(springKey: string): TVector {
   const [currentPid, neighborPid] = springKey.split('.');
@@ -166,8 +166,8 @@ function adjustSprings(liquid: TLiquid, updatedPids: number[], dt: number) {
   });
 }
 function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt: number) {
-  const mass = liquid.lpl[iPid][L.MASS] as number;
-  const iLid = liquid.lpl[iPid][L.ID] as number;
+  const mass = liquid.fpl[iPid][L.MASS] as number;
+  const iFid = liquid.fpl[iPid][L.ID] as number;
   const p0 = liquid.h * 0.2; // rest density
   const k = 0.3; // stiffness range[0..1]
   const kNear = liquid.h * 0.3; // stiffness near (вроде, влияет на текучесть)
@@ -175,9 +175,9 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt
 
   // Chemics
   const chemics = liquid.x;
-  const currentLiquidProto = liquid.lpl[iPid];
-  const isRecordCollisions = chemics.reacts[iLid] && chemics.ready[iLid];
-  if (isRecordCollisions) chemics.data[iLid][iPid] = [];
+  const currentLiquidProto = liquid.fpl[iPid];
+  const isRecordCollisions = chemics.reacts[iFid] && chemics.ready[iFid];
+  if (isRecordCollisions) chemics.data[iFid][iPid] = [];
 
   let p = 0;
   let pNear = 0;
@@ -196,7 +196,7 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt
     pairsDataList[n] = [oneMinQ, jPid, r];
 
     // Chemics
-    if (isRecordCollisions && liquid.lpl[jPid] !== currentLiquidProto) chemics.data[iLid][iPid].push(jPid);
+    if (isRecordCollisions && liquid.fpl[jPid] !== currentLiquidProto) chemics.data[iFid][iPid].push(jPid);
   }
   // const P = k * (p - p0);
   const pBig = k * (p - p0) * mass; // { * mass } Экспериментальный способ учета массы при взаимодействии
@@ -320,11 +320,11 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
 
   // Chemics
   const chemics = liquid.x;
-  const protoLinks = liquid.lpl;
-  for (let lid = 0; lid < chemics.data.length; lid++) {
-    if (!chemics.reacts[lid] || !chemics.ready[lid]) continue;
+  const protoLinks = liquid.fpl;
+  for (let fid = 0; fid < chemics.data.length; fid++) {
+    if (!chemics.reacts[fid] || !chemics.ready[fid]) continue;
 
-    const liquidCollisions = chemics.data[lid];
+    const liquidCollisions = chemics.data[fid];
     const owned: number[][] = [];
     const other: number[][] = [];
     liquid.l.forEach((_, ix) => { owned[ix] = []; other[ix] = []; });
@@ -336,14 +336,14 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
       const jPids = liquidCollisions[iPid];
       for (let j = 0; j < jPids.length; j++) {
         const jPid = jPids[j];
-        const jLid = protoLinks[jPid][L.ID] as number;
-        owned[jLid].push(iPid);
-        other[jLid].push(jPid);
+        const jFid = protoLinks[jPid][L.ID] as number;
+        owned[jFid].push(iPid);
+        other[jFid].push(jPid);
       }
     }
 
     const collisionData: TChemicalReactionData = [owned, other];
-    chemics.cbl[lid](collisionData);
+    chemics.cbl[fid](collisionData);
   }
 }
 
@@ -359,7 +359,7 @@ export function simple(liquid: TLiquid, dt: number): void {
 
   foreachActive(liquid, activeRect, liquid.p, (part, pid) => {
     updatedPids.push(pid);
-    applyGravity(part, dt, gravity, liquid.lpl[pid][L.MASS] as number); // vi ← vi + ∆tg
+    applyGravity(part, dt, gravity, liquid.fpl[pid][L.MASS] as number); // vi ← vi + ∆tg
     particlesPrevPositions[pid] = [part[P.X], part[P.Y]]; // Save previous position: xi^prev ← xi
 
     limitVelocity(part, limit);

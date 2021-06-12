@@ -24,8 +24,8 @@ export default function () {
     bounds,
     engine,
     render,
-    liquids: [{ color: color.particle }], // Define one liquid
-    updateEveryFrame: 1, // Set max 60 FPS
+    fluids: [{ color: color.particle }], // Define one liquid
+    updateStep: 1, // Set max 60 FPS
     // isPaused: true,
   });
   const {

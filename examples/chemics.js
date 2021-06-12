@@ -6,7 +6,7 @@ export default function () {
   const { Composite, Bodies, Liquid } = Matter;
   const { engine, world, render, runner } = Tools.init();
 
-  const color = Colors.palettes[Colors.names.BALCK];
+  const color = Colors.palettes[Colors.names.BLACK];
   const colorWater = Colors.palettes[Colors.names.BLUE];
   const colorLava = Colors.palettes[Colors.names.ORANGE];
   const colorSteam = Colors.palettes[Colors.names.WHITE];
@@ -39,9 +39,9 @@ export default function () {
     bounds,
     engine,
     render,
-    updateEveryFrame: 1, // Set max 60 FPS
+    updateStep: 1, // Set max 60 FPS
     enableChemics: true,
-    liquids: [{
+    fluids: [{
       name: 'water',
       color: colorWater.particle,
     }, {
@@ -61,7 +61,7 @@ export default function () {
   Liquid.drip.rect(liquid, 'lava', -worldSize / 2, maxY - poolWidth, worldSize, poolWidth);
   Liquid.drip.rect(liquid, 'steam', -worldSize / 2, -worldSize / 2, worldSize, poolWidth / 2);
 
-  const lavaId = Liquid.getLiquidId(liquid, 'lava');
+  const lavaId = Liquid.getFluidId(liquid, 'lava');
   Liquid.chemics.reacts(liquid, 'water', ([owned, other]) => {
     const reactedWithLava = owned[lavaId];
     Liquid.chemics.transByName(liquid, reactedWithLava, 'steam');
@@ -86,12 +86,12 @@ export default function () {
 
 
 
-function setSyntesator(render, liquid, mouseConstraint, liquidKey) {
+function setSyntesator(render, liquid, mouseConstraint, fluidKey) {
   const { Liquid } = Matter;
   const radius = 100;
   Utils.onpressedPointer(render.canvas, (event, isMainButton) => {
     let point = mouseConstraint.mouse.position;
     const x = point.x - radius, y = point.y - radius;
-    Liquid.chemics.transRect(liquid, liquidKey, x, y, radius * 2, radius * 2);
+    Liquid.chemics.transRect(liquid, fluidKey, x, y, radius * 2, radius * 2);
   }, 50);
 }

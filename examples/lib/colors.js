@@ -9,7 +9,7 @@ const palettes = [
   palette('#e7e', '#150320', '#352340'), // violet
   palette('#0f0', '#051102', '#253122'), // lime
   palette('#fff', '#111', '#212121'),    // white
-  palette('#555', '#000', '#777'),    // balck
+  palette('#555', '#000', '#777'),    // black
 ]
 let currentPaletteId = randomInt(0, palettes.length - 1);
 
@@ -25,6 +25,6 @@ export default {
     VIOLET: 2,
     GREEN: 3,
     WHITE: 4,
-    BALCK: 5,
+    BLACK: 5,
   }
 }

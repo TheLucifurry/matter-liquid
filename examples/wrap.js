@@ -19,12 +19,12 @@ export default function () {
     bounds,
     engine,
     render,
-    liquids: [{ color: color.particle }], // Define one liquid
+    fluids: [{ color: color.particle }], // Define one liquid
     worldWrapping: true,
   });
   const { maxX, maxY } = Tools.getBoundsParams(bounds);
-  const liquidId = 0;
-  Liquid.drip.rect(liquid, liquidId, maxX - 300, maxY - 300, 200, 200);
+  const fluidId = 0;
+  Liquid.drip.rect(liquid, fluidId, maxX - 300, maxY - 300, 200, 200);
 
   world.gravity.x = 0.2;
   world.gravity.y = 0.2;

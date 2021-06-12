@@ -48,13 +48,13 @@ const GlobalLiquid = {
   getParticlesCount(liquid: TLiquid): number {
     return liquid.p.length - liquid.fpids.length;
   },
-  getLiquidId(liquid: TLiquid, liquidKey: TLiquidKey): number {
+  getFluidId(liquid: TLiquid, fluidKey: TFluidKey): number {
     if (DEV) {
-      if (typeof liquidKey === 'string' && liquid.lnlid[liquidKey] == null) {
-        throw new Error(`MatterLiquid: liquid prototype named "${liquidKey}" does not exist`);
+      if (typeof fluidKey === 'string' && liquid.fnfid[fluidKey] == null) {
+        throw new Error(`MatterLiquid: liquid prototype named "${fluidKey}" does not exist`);
       }
     }
-    return typeof liquidKey === 'number' ? liquidKey : liquid.lnlid[liquidKey];
+    return typeof fluidKey === 'number' ? fluidKey : liquid.fnfid[fluidKey];
   },
 };
 

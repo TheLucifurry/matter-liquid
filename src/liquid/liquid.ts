@@ -2,7 +2,7 @@ import Matter from 'matter-js';
 import * as Algorithm from '../algorithm';
 import * as Renderer from '../render';
 import {
-  GRAVITY_RATIO, INTERACTION_RADIUS, EVERY_FRAME, TIME_SCALE, IS_REGIONAL_COMPUTING, IS_WORLD_WRAPPED, PARTICLE_TEX_RADIUS_SCALE, BORDERS_BOUNCE_VALUE, PARTICLE_COLOR, CHEMICS_ITERATION_STEP,
+  GRAVITY_RATIO, INTERACTION_RADIUS, UPDATE_STEP, TIME_SCALE, IS_REGIONAL_COMPUTING, IS_WORLD_WRAPPED, PARTICLE_TEX_RADIUS_SCALE, BORDERS_BOUNCE_VALUE, PARTICLE_COLOR, CHEMICS_ITERATION_STEP,
 } from '../constants';
 import SpatialHash from '../helpers/spatialHash';
 import createEventsObject from './events';
@@ -10,10 +10,10 @@ import VirtualCanvas from '../helpers/virtualCanvas';
 import * as WebGL from '../gpu/webgl';
 import { colorHexToVec4 } from '../helpers/utils';
 
-function createLiquidPrototype(liquidid: number, props: TLiquidPrototype, particleRadius: number): TLiquidPrototypeComputed {
+function createFluidPrototype(fid: number, props: TFluidPrototype, particleRadius: number): TFluidPrototypeComputed {
   const color: string = props.color || PARTICLE_COLOR as string;
   return [
-    liquidid,
+    fid,
     color,
     colorHexToVec4(color),
     props.texture || Renderer.generateParticleTexture(color, particleRadius),
@@ -35,12 +35,12 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     isWrappedSides = typeof configWrapping === 'boolean' ? [configWrapping, configWrapping] : configWrapping;
   }
 
-  const lnlid: { [key: string]: number } = {};
-  const liquidPrototypes: TLiquidPrototypeComputed[] = config.liquids.map((prototypeParams, lid) => {
+  const fnfid: { [key: string]: number } = {};
+  const liquidPrototypes: TFluidPrototypeComputed[] = config.fluids.map((prototypeParams, fid) => {
     if (prototypeParams.name) {
-      lnlid[prototypeParams.name] = lid;
+      fnfid[prototypeParams.name] = fid;
     }
-    return createLiquidPrototype(lid, prototypeParams, particleTextureSize);
+    return createFluidPrototype(fid, prototypeParams, particleTextureSize);
   });
 
   const mainCanvas = config.render.canvas;
@@ -50,13 +50,14 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
   // Create updaters
   const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
   const computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
-  const updateEveryFrame = config.updateEveryFrame || EVERY_FRAME;
+  const updateStep = config.updateStep || UPDATE_STEP;
 
   const bounds = config.bounds;
   const engineTiming = config.engine.timing;
   let tick = 0;
 
   const liquid: TLiquid = {
+    fnfid,
     h: radius,
     iwx: isWrappedSides[0],
     iwy: isWrappedSides[1],
@@ -67,10 +68,9 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     c: renderingContext,
     irc: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
     l: liquidPrototypes,
-    lnlid,
-    x: config.liquids.reduce((accumulator: TChemicsStore, liquidProto: TLiquidPrototype, ix) => {
+    x: config.fluids.reduce((accumulator: TChemicsStore, liquidProto: TFluidPrototype, ix) => {
       accumulator.ready[ix] = false;
-      accumulator.step[ix] = liquidProto.chemicsIterationStep || CHEMICS_ITERATION_STEP;
+      accumulator.step[ix] = liquidProto.chemicsUS || CHEMICS_ITERATION_STEP;
       accumulator.reacts[ix] = false;
       return accumulator;
     }, {
@@ -90,7 +90,7 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     p: [],
     s: {},
     fpids: [],
-    lpl: {},
+    fpl: {},
     dt: config.timeScale || TIME_SCALE,
 
     ev: createEventsObject(),
@@ -98,7 +98,7 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
       cl: liquidPrototypes.map(() => 0),
     },
     u: () => {
-      if (tick++ % updateEveryFrame === 0) {
+      if (tick++ % updateStep === 0) {
         // Chemics update flags
         if (isChemicsEnabled) {
           const readyList = liquid.x.ready;

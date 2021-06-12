@@ -24,7 +24,7 @@ export function init(gl: WebGL2RenderingContext, liquid: TLiquid) {
   gl.enableVertexAttribArray(a_position);
 }
 
-function renderLiquid(gl: WebGL2RenderingContext, points: Float32Array, liquidProto: TLiquidPrototypeComputed) {
+function renderLiquid(gl: WebGL2RenderingContext, points: Float32Array, liquidProto: TFluidPrototypeComputed) {
   const color = liquidProto[L.COLOR_VEC4] as TFourNumbers;
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
@@ -47,11 +47,11 @@ export function update(liquid: TLiquid) {
   for (let pid = 0; pid < liquid.p.length; pid++) {
     const part = liquid.p[pid];
     if (part === null) continue;
-    const lid = liquid.lpl[pid][L.ID] as number;
-    const buffer = bufferList[lid];
-    buffer[ixs[lid]] = part[0];
-    buffer[ixs[lid] + 1] = part[1];
-    ixs[lid] += 2;
+    const fid = liquid.fpl[pid][L.ID] as number;
+    const buffer = bufferList[fid];
+    buffer[ixs[fid]] = part[0];
+    buffer[ixs[fid] + 1] = part[1];
+    ixs[fid] += 2;
   }
 
   // Render

@@ -13,7 +13,7 @@ type TLiquidConfig = {
   bounds: Matter.Bounds
   engine: Matter.Engine
   render: Matter.Render
-  liquids: TLiquidPrototype[]
+  fluids: TFluidPrototype[]
 
   isPaused?: boolean
   enableChemics?: boolean
@@ -24,7 +24,7 @@ type TLiquidConfig = {
   timeScale?: number
   gravityRatio?: number
   bordersBounce?: number
-  updateEveryFrame?: number
+  updateStep?: number
   particleTextureScale?: number
 
   // Dev-only
@@ -42,11 +42,11 @@ type TLiquid = {
   readonly irc: boolean // isRegionalComputing
   readonly iwx: boolean // isWrappedX
   readonly iwy: boolean // isWrappedX
-  readonly l: TLiquidPrototypeComputed[] // Liquids prototypes
+  readonly l: TFluidPrototypeComputed[] // Fluids prototypes
   readonly sh: TSpatialHash // SpatialHash
   readonly p: TParticle[] // Particles
-  readonly lpl: { [key: number]: TLiquidPrototypeComputed }, // LiquidPrototypeLink
-  readonly lnlid: { [key: string]: number }, // LiquidNamesToLid
+  readonly fpl: { [key: number]: TFluidPrototypeComputed }, // FluidPrototypeLink
+  readonly fnfid: { [key: string]: number }, // FluidNamesToFid
   readonly fpids: number[] // FreeParticleIds
   readonly s: TSpringList // Springs
   readonly ev: TEvents // Events store
@@ -72,28 +72,28 @@ type TChemicsStore = {
   step: number[], // Iteration step
   ready: boolean[] // true when it is an iteration for check collisions
   data: { [key: number]: number[] }[], // Prepared collisions data
-  reacts: boolean[] // Possibility of reaction for every liquidid
+  reacts: boolean[] // Possibility of reaction for every fluid id
   cbl: TChemicalReactionCallback[] // Callbacks list
 };
 
-// Liquid & particle
-type TLiquidPrototype = {
+// Fluid & particle
+type TFluidPrototype = {
   name?: string
   color?: string
   texture?: TVirtualCanvas
   mass?: number,
-  chemicsIterationStep?: number
+  chemicsUS?: number // Chemics update step
   // plasticity?: number // a
   // stiffness?: number // k
 };
-type TLiquidPrototypeComputed = [
-  number, // Liquid id
+type TFluidPrototypeComputed = [
+  number, // Fluid id
   string, // Color
   TFourNumbers, // Vec4 color
   TVirtualCanvas, // Texture
   number, // Mass
 ];
-type TLiquidKey = string | number;
+type TFluidKey = string | number;
 type TParticle = Float32Array;
 
 // Spatial hash
@@ -113,7 +113,7 @@ type TSavedParticlesPositions = {
 // Events
 type TEvents = {
   pauseChange: (isPaused: boolean)=>void
-  particleRemove: (particle: TParticle, particleId: number, liquid: TLiquidPrototypeComputed)=>void
+  particleRemove: (particle: TParticle, particleId: number, liquid: TFluidPrototypeComputed)=>void
 };
 
 // Basic

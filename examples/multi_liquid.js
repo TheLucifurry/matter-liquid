@@ -21,8 +21,8 @@ export default function () {
     bounds,
     engine,
     render,
-    updateEveryFrame: 1, // Set max 60 FPS
-    liquids: [{
+    updateStep: 1, // Set max 60 FPS
+    fluids: [{
       // Default liquid
       color: color1.particle,
     }, {
