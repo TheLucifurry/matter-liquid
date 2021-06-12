@@ -1,12 +1,8 @@
 import { L, P, VELOCITY_LIMIT_FACTOR } from './constants';
 import {
-  getReflectVector,
-  vectorAddVector,
-  vectorClampMaxLength, vectorDiv, vectorEqualsVector, vectorFromTwo, vectorLength, vectorMul, vectorMulVector, vectorNormal, vectorSubVector,
+  vectorAddVector, vectorClampMaxLength, vectorDiv, vectorEqualsVector, vectorFromTwo, vectorLength, vectorMul, vectorNormal, vectorSubVector,
 } from './helpers/vector';
-import {
-  eachNeighborsOf, foreachIds, eachSpring, getNeighbors, eachNeighbors, foreachActive,
-} from './helpers/cycles';
+import { foreachIds, getNeighbors, foreachActive } from './helpers/cycles';
 import {
   getBodySurfaceIntersectsWithRay, getBodySurfaceNormal, getLineIntersectionPoint, getBodiesInRect, getParticlesInsideBodyIds, checkBodyContainsPoint, getRectFromBoundsWithPadding,
 } from './helpers/tools';
@@ -37,37 +33,11 @@ function computeI(part: TParticle, body: Matter.Body): TVector {
   const vTangent = vectorSubVector(v_, vNormal); // v¯ − v¯normal
   return vectorSubVector(vNormal, vectorMul(vTangent, mu)); // v¯normal - µ * v¯tangent
 }
-function getVelDiff(a: TParticle, b: TParticle): TVector {
-  return vectorFromTwo(
-    [b[P.VEL_X], b[P.VEL_Y]],
-    [a[P.VEL_X], a[P.VEL_Y]],
-  );
-}
-function addVel(part: TParticle, vec: TVector) {
-  part[P.VEL_X] += vec[0];
-  part[P.VEL_Y] += vec[1];
-}
-function subVel(part: TParticle, vec: TVector) {
-  part[P.VEL_X] -= vec[0];
-  part[P.VEL_Y] -= vec[1];
-}
 function partPosAdd(part: TParticle, vec: TVector, maxLength: number) {
   // const limited: TVector = vectorClampMaxLength(vec, maxLength);
   const limited: TVector = vec;
   part[P.X] += limited[0];
   part[P.Y] += limited[1];
-}
-function partPosSub(part: TParticle, vec: TVector) {
-  part[P.X] -= vec[0];
-  part[P.Y] -= vec[1];
-}
-function getSpringKey(currentPid: number, neighborPid: number): TSHCellId {
-  return 0;
-  // return `${currentPid}.${neighborPid}`;
-}
-function getPidsFromSpringKey(springKey: string): TVector {
-  const [currentPid, neighborPid] = springKey.split('.');
-  return [+currentPid, +neighborPid];
 }
 function applyGravity(part: TParticle, dt: number, gravity: TVector, mass: number) {
   part[P.VEL_X] += dt * mass * gravity[0];
@@ -87,84 +57,6 @@ function limitVelocity(part: TParticle, maxValue: number) {
   part[P.VEL_Y] = limY;
 }
 
-function applyViscosity(liquid: TLiquid, pid: number, dt: number) {
-  const i: TParticle = liquid.p[pid];
-  eachNeighborsOf(liquid, pid, (j) => {
-    const r = getR(i, j);
-    const rNormal = vectorNormal(r);
-    const q = vectorLength(vectorDiv(r, liquid.h));
-    if (q < 1) {
-      const velDiff = getVelDiff(i, j);
-      const u = vectorLength(vectorMulVector(rNormal, velDiff));
-      if (u > 0) {
-        const sigma = 0.01;
-        const beta = 0.01;
-        const I = vectorMul(rNormal, dt * (1 - q) * (sigma * u + (beta * u ** 2)));
-        const halfI = vectorDiv(I, 2);
-        subVel(i, halfI); // vi -= I/2;
-        addVel(j, halfI); // vj += I/2;
-      }
-    }
-  });
-}
-function adjustSprings(liquid: TLiquid, updatedPids: number[], dt: number) {
-  // const alpha = 0.01; // 0 до 0,2
-  const y = 0.1; // 0 до 0,2
-  foreachIds(liquid.p, updatedPids, (i, currentPid) => {
-    eachNeighborsOf(liquid, currentPid, (j, neighborPid) => {
-      const r = getR(i, j);
-      const q = vectorLength(vectorDiv(r, liquid.h));
-      if (q < 1) {
-        const r = getR(i, j);
-        const rLength = vectorLength(r);
-        let Lij = Len - rLength;
-        // let Lij = store.radius;
-
-        const springKey = getSpringKey(currentPid, neighborPid);
-        // if(springs[springKey] === undefined){
-        //   springs[springKey] = Lij;
-        // }
-        const d = y * Lij;
-        if (rLength > Len + d) { // stretch
-          Lij += dt * alpha * (rLength - Len - d);
-        } else if (rLength < Len - d) { // compress
-          Lij -= dt * alpha * (Len - d - rLength);
-        }
-
-        if (liquid.s[springKey] === undefined) {
-          liquid.s[springKey] = Lij;
-        }
-
-        // if(Lij > store.radius){
-        //   store.springs[springKey] = undefined;
-        // }
-      }
-    });
-  });
-  eachSpring(liquid.s, (springKey, spring) => {
-    if (Math.abs(spring) > liquid.h) {
-      liquid.s[springKey] = undefined;
-    }
-  });
-  eachSpring(liquid.s, (springKey, spring) => {
-    const [iPid, jPid] = getPidsFromSpringKey(springKey);
-    const i = liquid.p[iPid]; const
-      j = liquid.p[jPid];
-
-    const r = getR(i, j);
-    const rNormal = vectorNormal(r);
-    const rLength = vectorLength(r);
-    //     const Lij = Len - rLength;
-    const Lij = spring;
-
-    // dt**2 * kSpring * (1 − Lij / h) * (Lij − Rij) * R^ij
-    //       4         5    2     1    6      3      7
-    const D = vectorMul(rNormal, dt ** 2 * kSpring * (1 - Lij / liquid.h) * (Lij - rLength));
-    const DHalf = vectorDiv(D, 2);
-    partPosSub(i, DHalf); // xi -= D/2;
-    // partPosAdd(j, DHalf); // xj += D/2;
-  });
-}
 function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt: number) {
   const mass = liquid.fpl[iPid][L.MASS] as number;
   const iFid = liquid.fpl[iPid][L.ID] as number;
@@ -347,6 +239,7 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
   }
 }
 
+// eslint-disable-next-line import/prefer-default-export
 export function simple(liquid: TLiquid, dt: number): void {
   const updatedPids: number[] = [];
   // @ts-ignore
@@ -373,45 +266,3 @@ export function simple(liquid: TLiquid, dt: number): void {
   resolveCollisions(liquid, activeRect, worldBounds, updatedPids);
   endComputing(liquid, updatedPids, dt, particlesPrevPositions);
 }
-
-export function advanced(liquid: TLiquid, dt: number): void {
-  const activeRect = getRectFromBoundsWithPadding(liquid.r.bounds, liquid.abp);
-  const updatedPids: number[] = [];
-  // @ts-ignore
-  const gravity = Matter.Liquid.getGravity(liquid);
-  const particlesPrevPositions: TSavedParticlesPositions = {};
-
-  foreachActive(liquid, activeRect, liquid.p, (part, pid) => {
-    updatedPids.push(pid);
-    // applyGravity(part, dt, gravity); // vi ← vi + ∆tg
-  });
-  foreachIds(liquid.p, updatedPids, (part, pid) => {
-    applyViscosity(liquid, pid, dt);
-  });
-  foreachIds(liquid.p, updatedPids, (part, pid) => {
-    // _limitMoving(part); // Custom
-    particlesPrevPositions[pid] = [part[P.X], part[P.Y]]; // Save previous position: xi^prev ← xi
-    addParticlePositionByVelocity(part, dt); // Add Particle Position By Velocity: xi ← xi + ∆tvi
-  });
-  adjustSprings(liquid, updatedPids, dt);
-  // applySpringDisplacements
-  foreachIds(liquid.p, updatedPids, (part) => {
-    // doubleDensityRelaxation(liquid, part, dt);
-  });
-  // resolveCollisions(Store, Store.particles, activeRect, updatedPids);
-  endComputing(liquid, updatedPids, dt, particlesPrevPositions);
-}
-/*
-  foreach particle i
-    vi ← vi + ∆tg             // применяем гравитацию
-  applyViscosity            // (Раздел 5.3 ) изменяем скорости парными импульсами вязкости
-  foreach particle i
-    xi^prev ← xi              // сохраняем предыдущую позицию
-    xi ← xi +∆tvi             // переход к предсказанной позиции
-  adjustSprings             // (Раздел 5.2 ) добавляем и удаляем пружины, изменяем длину упора
-  applySpringDisplacements  // (Раздел 5.1 ) изменяем позиции согласно пружинам,
-  doubleDensityRelaxation   // (Раздел 4 ) релаксация двойной плотности и столкновения
-  resolveCollisions         // (Раздел 6 )
-  foreach particle i
-    vi ← (xi −xi^prev )/∆t    // использовать предыдущую позицию для вычисления следующей скорости
-*/

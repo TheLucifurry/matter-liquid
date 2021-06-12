@@ -31,8 +31,3 @@ export function eachNeighbors(particles: TParticle[], neighbors: number[], cb: (
 export function eachNeighborsOf(liquid: TLiquid, pid: number, cb: (neighborParticle: TParticle, neighborPid: number)=>void): void {
   eachNeighbors(liquid.p, getNeighbors(liquid, pid), cb);
 }
-export function eachSpring(springs: TSpringList, cb: (springKey: string, spring: TSpring)=>void): void {
-  for (const [key, spring] of Object.entries(springs)) {
-    cb(key, spring);
-  }
-}

@@ -17,7 +17,6 @@ type TLiquidConfig = {
 
   isPaused?: boolean
   enableChemics?: boolean
-  isAdvancedAlgorithm?: boolean
   isRegionalComputing?: boolean
   worldWrapping: boolean | [boolean, boolean]
   radius?: number

@@ -49,7 +49,7 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
 
   // Create updaters
   const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
-  const computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
+  const computeUpdater = Algorithm.simple;
   const updateStep = config.updateStep || UPDATE_STEP;
 
   const bounds = config.bounds;
@@ -112,15 +112,6 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
       }
     },
   };
-
-  // Create updaters
-  // const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
-  // const computeUpdater = config.isAdvancedAlgorithm ? Algorithm.advanced : Algorithm.simple;
-  // liquid.u = () => {
-  //   if (liquid.t++ % liquid.ef === 0) {
-  //     computeUpdater(liquid, liquid.e.timing.timeScale * liquid.dt);
-  //   }
-  // };
 
   // WebGL.init(renderingContext, liquid);
 
