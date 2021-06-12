@@ -1,4 +1,4 @@
-import { L, P } from './constants';
+import { F, P } from './constants';
 import { arrayEach } from './helpers/cycles';
 import {
   getRectFromBoundsWithPadding, getBodySurfaceIntersectsWithRay, getBodySurfaceNormal, getLineIntersectionPoint,
@@ -54,7 +54,7 @@ function drawParticles(liquid: TLiquid) {
     const part = liquid.p[pid];
     const x = Math.floor(part[P.X]);
     const y = Math.floor(part[P.Y]);
-    const particleTexture = liquid.fpl[pid][L.TEXTURE] as OffscreenCanvas;
+    const particleTexture = liquid.fpl[pid][F.TEXTURE] as OffscreenCanvas;
     const texSizeHalf = particleTexture.height / 2;
     ctx.drawImage(particleTexture, x - texSizeHalf, y - texSizeHalf);
   }

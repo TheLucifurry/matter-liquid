@@ -1,4 +1,4 @@
-import { L, P } from '../constants';
+import { F, P } from '../constants';
 import { checkPointInRect } from '../helpers/utils';
 
 const Dryer = {
@@ -11,7 +11,7 @@ const Dryer = {
     if (liquid.fpids.indexOf(pid) === -1) {
       liquid.fpids.unshift(pid);
     }
-    liquid.st.cl[prototype[L.ID] as number]--;
+    liquid.st.cl[prototype[F.ID] as number]--;
     // TODO: remove associated springs
   },
   rect(liquid: TLiquid, zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number): void {

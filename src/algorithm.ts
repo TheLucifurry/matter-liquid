@@ -1,4 +1,4 @@
-import { L, P, VELOCITY_LIMIT_FACTOR } from './constants';
+import { F, P, VELOCITY_LIMIT_FACTOR } from './constants';
 import {
   vectorAddVector, vectorClampMaxLength, vectorDiv, vectorEqualsVector, vectorFromTwo, vectorLength, vectorMul, vectorNormal, vectorSubVector,
 } from './helpers/vector';
@@ -58,8 +58,8 @@ function limitVelocity(part: TParticle, maxValue: number) {
 }
 
 function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt: number) {
-  const mass = liquid.fpl[iPid][L.MASS] as number;
-  const iFid = liquid.fpl[iPid][L.ID] as number;
+  const mass = liquid.fpl[iPid][F.MASS] as number;
+  const iFid = liquid.fpl[iPid][F.ID] as number;
   const p0 = liquid.h * 0.2; // rest density
   const k = 0.3; // stiffness range[0..1]
   const kNear = liquid.h * 0.3; // stiffness near (вроде, влияет на текучесть)
@@ -228,7 +228,7 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
       const jPids = liquidCollisions[iPid];
       for (let j = 0; j < jPids.length; j++) {
         const jPid = jPids[j];
-        const jFid = protoLinks[jPid][L.ID] as number;
+        const jFid = protoLinks[jPid][F.ID] as number;
         owned[jFid].push(iPid);
         other[jFid].push(jPid);
       }
@@ -252,7 +252,7 @@ export function simple(liquid: TLiquid, dt: number): void {
 
   foreachActive(liquid, activeRect, liquid.p, (part, pid) => {
     updatedPids.push(pid);
-    applyGravity(part, dt, gravity, liquid.fpl[pid][L.MASS] as number); // vi ← vi + ∆tg
+    applyGravity(part, dt, gravity, liquid.fpl[pid][F.MASS] as number); // vi ← vi + ∆tg
     particlesPrevPositions[pid] = [part[P.X], part[P.Y]]; // Save previous position: xi^prev ← xi
 
     limitVelocity(part, limit);

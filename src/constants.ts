@@ -19,7 +19,7 @@ export const P = {
   VEL_X: 2,
   VEL_Y: 3,
 };
-export const L = {
+export const F = {
   ID: 0,
   COLOR: 1,
   COLOR_VEC4: 2,

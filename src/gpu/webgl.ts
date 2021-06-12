@@ -1,4 +1,4 @@
-import { L } from '../constants';
+import { F } from '../constants';
 import shaderVertSrc from './shaders/convert.vert';
 import shaderFragSrc from './shaders/draw.frag';
 import { createShader, createProgram } from './utils';
@@ -25,7 +25,7 @@ export function init(gl: WebGL2RenderingContext, liquid: TLiquid) {
 }
 
 function renderLiquid(gl: WebGL2RenderingContext, points: Float32Array, liquidProto: TFluidPrototypeComputed) {
-  const color = liquidProto[L.COLOR_VEC4] as TFourNumbers;
+  const color = liquidProto[F.COLOR_VEC4] as TFourNumbers;
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
   gl.vertexAttribPointer(a_position, 2, gl.FLOAT, false, 0, 0);
@@ -47,7 +47,7 @@ export function update(liquid: TLiquid) {
   for (let pid = 0; pid < liquid.p.length; pid++) {
     const part = liquid.p[pid];
     if (part === null) continue;
-    const fid = liquid.fpl[pid][L.ID] as number;
+    const fid = liquid.fpl[pid][F.ID] as number;
     const buffer = bufferList[fid];
     buffer[ixs[fid]] = part[0];
     buffer[ixs[fid] + 1] = part[1];
