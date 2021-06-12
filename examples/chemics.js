@@ -64,7 +64,6 @@ export default function () {
   const lavaId = Liquid.getLiquidId(liquid, 'lava');
   Liquid.chemics.reacts(liquid, 'water', ([owned, other]) => {
     const reactedWithLava = owned[lavaId];
-    console.dir(reactedWithLava);
     Liquid.chemics.transByName(liquid, reactedWithLava, 'steam')
   })
 
