@@ -24,8 +24,8 @@ const Chemics = {
   reacts(liquid: TLiquid, liquidKey: TLiquidKey, callback: TChemicalReactionCallback) {
     // @ts-ignore
     const lid = Matter.Liquid.getLiquidId(liquid, liquidKey);
-    liquid.x.canReacts[lid] = true;
-    liquid.x.cbs[lid] = callback;
+    liquid.x.reacts[lid] = true;
+    liquid.x.cbl[lid] = callback;
   },
   // reactsBody
 };

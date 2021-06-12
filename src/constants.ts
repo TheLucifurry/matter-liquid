@@ -9,6 +9,7 @@ export const IS_WORLD_WRAPPED = false;
 export const PARTICLE_TEX_RADIUS_SCALE = 0.3;
 export const BORDERS_BOUNCE_VALUE = 0.5;
 export const PARTICLE_COLOR = '#fff';
+export const CHEMICS_ITERATION_STEP = 10; // every 10 frame (6 FPS for 60 FPS of engine)
 
 // Constants
 export const VELOCITY_LIMIT_FACTOR = 0.75;

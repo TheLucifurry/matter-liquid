@@ -16,6 +16,7 @@ type TLiquidConfig = {
   liquids: TLiquidPrototype[]
 
   isPaused?: boolean
+  enableChemics?: boolean
   isAdvancedAlgorithm?: boolean
   isRegionalComputing?: boolean
   worldWrapping: boolean | [boolean, boolean]
@@ -34,7 +35,7 @@ type TLiquid = {
   readonly e: Matter.Engine // Engine
   readonly r: Matter.Render // Render
   readonly w: Matter.World // World
-  readonly x: TChemixStore // Chemics data storage
+  readonly x: TChemicsStore // Chemics data storage
   readonly st: TStats // Statistics
   readonly c: WebGL2RenderingContext // Render context
   readonly h: number // Interaction radius
@@ -67,13 +68,12 @@ type TStats = {
 // Chemics
 type TChemicalReactionData = [number[][], number[][]];
 type TChemicalReactionCallback = (data: TChemicalReactionData) => void;
-type TChemixStore = {
-  // isEnabled: boolean,
-  iterStep: number, // Iteration step
-  isReady: boolean // true when it is an iteration for check collisions
-  colls: { [key: number]: number[] }[], // Prepared collision data
-  canReacts: boolean[] // Possibility of reaction for every liquidid
-  cbs: TChemicalReactionCallback[] // Callbacks list
+type TChemicsStore = {
+  step: number[], // Iteration step
+  ready: boolean[] // true when it is an iteration for check collisions
+  data: { [key: number]: number[] }[], // Prepared collisions data
+  reacts: boolean[] // Possibility of reaction for every liquidid
+  cbl: TChemicalReactionCallback[] // Callbacks list
 };
 
 // Liquid & particle
@@ -82,6 +82,7 @@ type TLiquidPrototype = {
   color?: string
   texture?: TVirtualCanvas
   mass?: number,
+  chemicsIterationStep?: number
   // plasticity?: number // a
   // stiffness?: number // k
 };

@@ -2,7 +2,7 @@ import Matter from 'matter-js';
 import * as Algorithm from '../algorithm';
 import * as Renderer from '../render';
 import {
-  GRAVITY_RATIO, INTERACTION_RADIUS, EVERY_FRAME, TIME_SCALE, IS_REGIONAL_COMPUTING, IS_WORLD_WRAPPED, PARTICLE_TEX_RADIUS_SCALE, BORDERS_BOUNCE_VALUE, PARTICLE_COLOR,
+  GRAVITY_RATIO, INTERACTION_RADIUS, EVERY_FRAME, TIME_SCALE, IS_REGIONAL_COMPUTING, IS_WORLD_WRAPPED, PARTICLE_TEX_RADIUS_SCALE, BORDERS_BOUNCE_VALUE, PARTICLE_COLOR, CHEMICS_ITERATION_STEP,
 } from '../constants';
 import SpatialHash from '../helpers/spatialHash';
 import createEventsObject from './events';
@@ -25,6 +25,7 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
   // @ts-ignore
   const Liquid: TGlobalLiquid = Matter.Liquid;
   const radius = config.radius || INTERACTION_RADIUS;
+  const isChemicsEnabled = !!config.enableChemics;
 
   const particleTextureSize = radius * (config.particleTextureScale || PARTICLE_TEX_RADIUS_SCALE);
 
@@ -67,14 +68,18 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     irc: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
     l: liquidPrototypes,
     lnlid,
-    x: {
-      isReady: false,
-      iterStep: 10, // every 30 frame (0.5 sec)
-      canReacts: [],
-      // canReacts: config.liquids.map(() => false),
-      colls: [],
-      cbs: [],
-    },
+    x: config.liquids.reduce((accumulator: TChemicsStore, liquidProto: TLiquidPrototype, ix) => {
+      accumulator.ready[ix] = false;
+      accumulator.step[ix] = liquidProto.chemicsIterationStep || CHEMICS_ITERATION_STEP;
+      accumulator.reacts[ix] = false;
+      return accumulator;
+    }, {
+      ready: [],
+      step: [],
+      reacts: [],
+      data: [],
+      cbl: [],
+    } as TChemicsStore),
 
     bb: config.bordersBounce || BORDERS_BOUNCE_VALUE,
     ip: false,
@@ -94,7 +99,15 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     },
     u: () => {
       if (tick++ % updateEveryFrame === 0) {
-        liquid.x.isReady = tick % liquid.x.iterStep === 0;
+        // Chemics update flags
+        if (isChemicsEnabled) {
+          const readyList = liquid.x.ready;
+          for (let i = 0; i < readyList.length; i++) {
+            readyList[i] = (tick - i) % liquid.x.step[i] === 0;
+          }
+        }
+
+        // Call updater
         computeUpdater(liquid, engineTiming.timeScale * liquid.dt);
       }
     },

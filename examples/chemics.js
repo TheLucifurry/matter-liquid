@@ -40,6 +40,7 @@ export default function () {
     engine,
     render,
     updateEveryFrame: 1, // Set max 60 FPS
+    enableChemics: true,
     liquids: [{
       name: 'water',
       color: colorWater.particle,
@@ -59,13 +60,12 @@ export default function () {
   Liquid.drip.rect(liquid, 'water', -poolWidth / 2, -poolWidth / 2, poolWidth, poolWidth);
   Liquid.drip.rect(liquid, 'lava', -worldSize / 2, maxY - poolWidth, worldSize, poolWidth);
   Liquid.drip.rect(liquid, 'steam', -worldSize / 2, -worldSize / 2, worldSize, poolWidth / 2);
-  // Liquid.drip.rect(liquid, 'steam', centerX - poolWidth / 2, minY + padding, poolWidth, height - padding * 2);
 
   const lavaId = Liquid.getLiquidId(liquid, 'lava');
   Liquid.chemics.reacts(liquid, 'water', ([owned, other]) => {
     const reactedWithLava = owned[lavaId];
-    Liquid.chemics.transByName(liquid, reactedWithLava, 'steam')
-  })
+    Liquid.chemics.transByName(liquid, reactedWithLava, 'steam');
+  });
 
   setSyntesator(render, liquid, mouseConstraint, 'water');
 
