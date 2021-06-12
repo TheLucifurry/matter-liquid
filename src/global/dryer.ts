@@ -1,4 +1,5 @@
 import { F, P } from '../constants';
+import { arrayEach } from '../helpers/cycles';
 import { checkPointInRect } from '../helpers/utils';
 
 const Dryer = {
@@ -12,11 +13,11 @@ const Dryer = {
       liquid.fpids.unshift(pid);
     }
     liquid.st.cl[prototype[F.ID] as number]--;
-    // TODO: remove associated springs
   },
   rect(liquid: TLiquid, zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number): void {
-    // TODO: Optimize particle finding by using SpatialHash
-    liquid.p.forEach((part, pid) => {
+    const inboundsParticles = liquid.sh.getFromRect([zoneX, zoneY, zoneX + zoneWidth, zoneY + zoneHeight]);
+    arrayEach<TParticleId>(inboundsParticles, (pid) => {
+      const part = liquid.p[pid];
       if (part !== null && checkPointInRect(part[P.X], part[P.Y], [zoneX, zoneY, zoneX + zoneWidth, zoneY + zoneHeight])) {
         Dryer.dry(liquid, pid);
       }
