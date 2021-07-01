@@ -4,6 +4,7 @@ const path = require('path');
 const replace = require('replace-in-file');
 const pkg = require('./package.json');
 const TerserPlugin = require('terser-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const name = pkg.name;
 const date = new Date().toISOString().slice(0, 10);
@@ -64,7 +65,12 @@ module.exports = {
     rules: [
       {
         test: /\.(frag|vert)$/,
-        use: 'glsl-shader-loader'
+        use: {
+          loader: 'webpack-glsl-minify',
+          options: {
+            preserveAll: true,
+          }
+        },
       },
       {
         test: /\.ts$/,
@@ -93,6 +99,9 @@ module.exports = {
       DEV: `${isDevMode}`,
     }),
     // new webpack.BannerPlugin(banner),
+    new BundleAnalyzerPlugin({
+      openAnalyzer: !isDevMode,
+    }),
     afterBuildTaskPlugin,
   ],
   devServer: {
