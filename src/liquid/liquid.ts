@@ -45,7 +45,10 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
 
   const mainCanvas = config.render.canvas;
   const virtualCanvas = VirtualCanvas(mainCanvas.clientWidth, mainCanvas.clientHeight);
-  const renderingContext = virtualCanvas.getContext('webgl2');
+  const renderingContext = virtualCanvas.getContext('webgl2', {
+    // alpha: false,
+    premultipliedAlpha: false, // Запрашиваем альфа без предварительного умножения
+  });
 
   // Create updaters
   const renderUpdater = DEV && config.isDebug ? Renderer.updateDebug : Renderer.update;
@@ -113,7 +116,7 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     },
   };
 
-  // WebGL.init(renderingContext, liquid);
+  WebGL.init(renderingContext, liquid);
 
   // Init updaters
   Matter.Events.on(config.render, 'afterRender', () => renderUpdater(liquid));

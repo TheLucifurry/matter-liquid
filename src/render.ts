@@ -106,16 +106,17 @@ if (DEV) {
   };
 }
 export function update(liquid: TLiquid): void {
-  const mainCtx = liquid.r.context;
+  const { context } = liquid.r;
   // @ts-ignore
-  Matter.Render.startViewTransform(liquid.r);
-  drawParticles(liquid);
+  // Matter.Render.startViewTransform(liquid.r);
+  // drawParticles(liquid);
   // @ts-ignore
-  // Matter.Render.startViewTransform({ ...liquid.r, context });
-  // WebGL.update(liquid);
+  Matter.Render.startViewTransform({ ...liquid.r, context });
+  WebGL.update(liquid);
 
   if (DEV) {
-    const ctx = mainCtx;
+    const ENABLED = false;
+    const ctx = context;
     // const inters = checkRayIntersectsLine(line1, line2, [point1.x, point1.y], [point2.x, point2.y]);
     // drawPoint(ctx, point1, 'green');
     // drawPoint(ctx, point2, 'lime');
@@ -128,7 +129,7 @@ export function update(liquid: TLiquid): void {
     //   drawPoint(ctx, [part[P.X], part[P.Y]], 'red', 18);
     // });
 
-    if (body) {
+    if (ENABLED && body) {
       const bodyPos: TVector = [body.position.x, body.position.y];
       const currentParticlePos: TVector = [point2.x, point2.y];
       const prevParticlePos: TVector = [point2.x, point2.y];
