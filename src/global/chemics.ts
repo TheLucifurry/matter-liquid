@@ -1,11 +1,16 @@
-import { P } from '../constants';
+import { F, P } from '../constants';
 import { checkPointInRect } from '../helpers/utils';
 
 const Chemics = {
   trans(liquid: TLiquid, pids: number[], fid: number): void {
     const linkList = liquid.fpl;
-    const liquidProto = liquid.l[fid];
-    pids.forEach((pid) => linkList[pid] = liquidProto);
+    const nextFluidProto = liquid.l[fid];
+    pids.forEach((pid) => {
+      const oldFluidProto = liquid.fpl[pid];
+      linkList[pid] = nextFluidProto;
+      liquid.st.cl[oldFluidProto[F.ID] as number]--;
+      liquid.st.cl[nextFluidProto[F.ID] as number]++;
+    });
   },
   transByName(liquid: TLiquid, pids: number[], fluidKey: TFluidKey): void {
     // @ts-ignore

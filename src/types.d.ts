@@ -1,9 +1,17 @@
+interface ShaderModule {
+  consts: any
+  sourceCode: string
+  uniforms: {
+    [name: string]: { variableName: string, variableType: string }
+  }
+}
+
 declare module '*.vert' {
-  const value: string;
+  const value: ShaderModule;
   export default value;
 }
 declare module '*.frag' {
-  const value: string;
+  const value: ShaderModule;
   export default value;
 }
 declare const DEV: boolean;
@@ -44,7 +52,7 @@ type TLiquid = {
   readonly l: TFluidPrototypeComputed[] // Fluids prototypes
   readonly sh: TSpatialHash // SpatialHash
   readonly p: TParticle[] // Particles
-  readonly fpl: { [key: number]: TFluidPrototypeComputed }, // FluidPrototypeLink
+  readonly fpl: { [key: number]: TFluidPrototypeComputed }, // FluidPrototypeLink by pid key
   readonly fnfid: { [key: string]: number }, // FluidNamesToFid
   readonly fpids: number[] // FreeParticleIds
   readonly s: TSpringList // Springs

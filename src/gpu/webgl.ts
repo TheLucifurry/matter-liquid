@@ -1,36 +1,52 @@
+/* eslint-disable no-bitwise */
+/* eslint-disable @typescript-eslint/dot-notation */
+import {
+  ProgramInfo,
+  BufferInfo,
+  createProgramInfo,
+  createBufferInfoFromArrays,
+  setUniforms,
+  setAttribInfoBufferFromArray,
+  setBuffersAndAttributes,
+  drawBufferInfo,
+} from 'twgl.js';
 import { F } from '../constants';
-import shaderVertSrc from './shaders/convert.vert';
-import shaderFragSrc from './shaders/draw.frag';
-import { createShader, createProgram } from './utils';
+import vertexShader from './shaders/convert.vert';
+import fragmentShader from './shaders/draw.frag';
+// import fragment2Shader from './shaders/texturate.frag';
+// import fragmentShader from './shaders/draw_old.frag';
+// import { createShader, createProgram } from './utils';
 
-let a_position: number;
-let u_color: WebGLUniformLocation;
-let u_renderBounds: WebGLUniformLocation;
-let program: WebGLProgram;
-let positionBuffer: WebGLBuffer;
+const UNIFORMS = {
+  camera: vertexShader.uniforms['u_camera'].variableName,
+  color: fragmentShader.uniforms['u_color'].variableName,
+};
+const ATTRIBUTES = {
+  position: 'a_position',
+};
 
-export function init(gl: WebGL2RenderingContext, liquid: TLiquid) {
-  const vertexShader = createShader(gl, gl.VERTEX_SHADER, shaderVertSrc);
-  const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, shaderFragSrc);
-  program = createProgram(gl, vertexShader, fragmentShader);
-
-  // Attrs
-  a_position = gl.getAttribLocation(program, 'a_position');
-  u_renderBounds = gl.getUniformLocation(program, 'bounds');
-  u_color = gl.getUniformLocation(program, 'color');
-
-  // Buffer
-  positionBuffer = gl.createBuffer();
-  gl.enableVertexAttribArray(a_position);
+if (DEV) {
+  console.log('shaders:');
+  console.dir({ vertexShader, fragmentShader });
 }
 
-function renderLiquid(gl: WebGL2RenderingContext, points: Float32Array, liquidProto: TFluidPrototypeComputed) {
-  const color = liquidProto[F.COLOR_VEC4] as TFourNumbers;
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
-  gl.vertexAttribPointer(a_position, 2, gl.FLOAT, false, 0, 0);
-  gl.uniform4f(u_color, ...color);
-  gl.drawArrays(gl.POINTS, 0, points.length / 2);
+let programInfo: ProgramInfo;
+let buffer: BufferInfo;
+
+export function init(gl: WebGL2RenderingContext, liquid: TLiquid) {
+  programInfo = createProgramInfo(gl, [vertexShader.sourceCode, fragmentShader.sourceCode], [ATTRIBUTES.position]);
+  buffer = createBufferInfoFromArrays(gl, {
+    [ATTRIBUTES.position]: { numComponents: 2, data: [] },
+  });
+}
+
+function renderFluid(gl: WebGL2RenderingContext, points: Float32Array, fluidProto: TFluidPrototypeComputed) {
+  const color = fluidProto[F.COLOR_VEC4] as TFourNumbers;
+  gl.useProgram(programInfo.program);
+  setUniforms(programInfo, { [UNIFORMS.color]: color });
+  setAttribInfoBufferFromArray(gl, buffer.attribs[ATTRIBUTES.position], points);
+  setBuffersAndAttributes(gl, programInfo, buffer);
+  drawBufferInfo(gl, buffer, gl.POINTS, points.length / 2);
 }
 
 export function update(liquid: TLiquid) {
@@ -56,11 +72,21 @@ export function update(liquid: TLiquid) {
 
   // Render
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+  // twgl.resizeCanvasToDisplaySize(render.canvas);
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.useProgram(program);
-  gl.uniform4f(u_renderBounds, bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y);
-  bufferList.forEach((buffer, ix) => renderLiquid(gl, buffer, liquid.l[ix]));
+  // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.useProgram(programInfo.program);
+
+  gl.enable(gl.BLEND);
+  gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+  setUniforms(programInfo, {
+    [UNIFORMS.camera]: [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y],
+  });
+  bufferList.forEach((buffer, ix) => renderFluid(gl, buffer, liquid.l[ix]));
 
   mainContext.drawImage(gl.canvas, bounds.min.x, bounds.min.y, boundsWidth, boundsHeight);
 }
