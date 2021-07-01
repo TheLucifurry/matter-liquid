@@ -1,6 +1,15 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable @typescript-eslint/dot-notation */
-import * as twgl from 'twgl.js';
+import {
+  ProgramInfo,
+  BufferInfo,
+  createProgramInfo,
+  createBufferInfoFromArrays,
+  setUniforms,
+  setAttribInfoBufferFromArray,
+  setBuffersAndAttributes,
+  drawBufferInfo,
+} from 'twgl.js';
 import { F } from '../constants';
 import vertexShader from './shaders/convert.vert';
 import fragmentShader from './shaders/draw.frag';
@@ -21,12 +30,12 @@ if (DEV) {
   console.dir({ vertexShader, fragmentShader });
 }
 
-let programInfo: twgl.ProgramInfo;
-let buffer: twgl.BufferInfo;
+let programInfo: ProgramInfo;
+let buffer: BufferInfo;
 
 export function init(gl: WebGL2RenderingContext, liquid: TLiquid) {
-  programInfo = twgl.createProgramInfo(gl, [vertexShader.sourceCode, fragmentShader.sourceCode], [ATTRIBUTES.position]);
-  buffer = twgl.createBufferInfoFromArrays(gl, {
+  programInfo = createProgramInfo(gl, [vertexShader.sourceCode, fragmentShader.sourceCode], [ATTRIBUTES.position]);
+  buffer = createBufferInfoFromArrays(gl, {
     [ATTRIBUTES.position]: { numComponents: 2, data: [] },
   });
 }
@@ -34,10 +43,10 @@ export function init(gl: WebGL2RenderingContext, liquid: TLiquid) {
 function renderFluid(gl: WebGL2RenderingContext, points: Float32Array, fluidProto: TFluidPrototypeComputed) {
   const color = fluidProto[F.COLOR_VEC4] as TFourNumbers;
   gl.useProgram(programInfo.program);
-  twgl.setUniforms(programInfo, { [UNIFORMS.color]: color });
-  twgl.setAttribInfoBufferFromArray(gl, buffer.attribs[ATTRIBUTES.position], points);
-  twgl.setBuffersAndAttributes(gl, programInfo, buffer);
-  twgl.drawBufferInfo(gl, buffer, gl.POINTS, points.length / 2);
+  setUniforms(programInfo, { [UNIFORMS.color]: color });
+  setAttribInfoBufferFromArray(gl, buffer.attribs[ATTRIBUTES.position], points);
+  setBuffersAndAttributes(gl, programInfo, buffer);
+  drawBufferInfo(gl, buffer, gl.POINTS, points.length / 2);
 }
 
 export function update(liquid: TLiquid) {
@@ -74,7 +83,7 @@ export function update(liquid: TLiquid) {
   gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-  twgl.setUniforms(programInfo, {
+  setUniforms(programInfo, {
     [UNIFORMS.camera]: [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y],
   });
   bufferList.forEach((buffer, ix) => renderFluid(gl, buffer, liquid.l[ix]));
