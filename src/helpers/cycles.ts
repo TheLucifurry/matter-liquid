@@ -22,12 +22,12 @@ export function foreachIds(particles: TParticle[], pids: number[], callback: (pa
   arrayEach(pids, (pid) => callback(particles[pid], pid));
 }
 export function getNeighbors(liquid: TLiquid, pid: number): number[] {
-  const part = liquid.particles[pid];
-  return liquid.spatialHash.getNearby(part[P.X], part[P.Y], liquid.particles);
+  const part = liquid._particles[pid];
+  return liquid._spatialHash.getNearby(part[P.X], part[P.Y], liquid._particles);
 }
 export function eachNeighbors(particles: TParticle[], neighbors: number[], cb: (neighborParticle: TParticle, neighborPid: number)=>void): void {
   arrayEach(neighbors, (pid) => cb(particles[pid], pid));
 }
 export function eachNeighborsOf(liquid: TLiquid, pid: number, cb: (neighborParticle: TParticle, neighborPid: number)=>void): void {
-  eachNeighbors(liquid.particles, getNeighbors(liquid, pid), cb);
+  eachNeighbors(liquid._particles, getNeighbors(liquid, pid), cb);
 }

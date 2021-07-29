@@ -2,14 +2,14 @@ import { mathMax } from '../helpers/utils';
 
 const Dripper = {
   drip(liquid: TLiquid, fid: number, x: number, y: number): void {
-    const pid = liquid.freeParticleIds.length === 0 ? liquid.particles.length : liquid.freeParticleIds.pop();
+    const pid = liquid._freeParticleIds.length === 0 ? liquid._particles.length : liquid._freeParticleIds.pop();
     const particle = new Float32Array([x, y, 0, 0]);
-    liquid.fluidByParticleId[pid] = liquid.fluids[fid];
-    liquid.particles[pid] = particle;
-    liquid.spatialHash.insert(pid, x, y);
-    liquid.statistics.particlesCountByFluidId[fid]++;
+    liquid._fluidByParticleId[pid] = liquid._fluids[fid];
+    liquid._particles[pid] = particle;
+    liquid._spatialHash.insert(pid, x, y);
+    liquid._statistics._particlesCountByFluidId[fid]++;
   },
-  rect(liquid: TLiquid, fluidKey: TFluidKey, zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, interval: number = liquid.h): void {
+  rect(liquid: TLiquid, fluidKey: TFluidKey, zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, interval: number = liquid._h): void {
     // @ts-ignore
     const fid = Matter.Liquid.getFluidId(liquid, fluidKey);
     const halfInterval = interval / 2;

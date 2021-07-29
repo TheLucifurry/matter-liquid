@@ -22,7 +22,7 @@ type TLiquidConfig = {
   // Dev-only
   isDebug?: boolean
 };
-type TLiquid = {
+type TLiquid = UPrefixed<'_', {
   readonly bounds: TBounds // World bounds
   readonly engine: Matter.Engine // Engine
   readonly render: Matter.Render // Render
@@ -49,23 +49,23 @@ type TLiquid = {
   renderBoundsPadding: number // RenderBoundsPadding
   activeBoundsPadding: number // ActiveBoundsPadding
   timeDelta: number // Delta time
-};
+}>;
 
-type TStats = {
+type TStats = UPrefixed<'_', {
   // c: number // Particles count
   particlesCountByFluidId: number[] // Particles count by liquid prototypes
-};
+}>;
 
 // Chemics
 type TChemicalReactionData = [number[][], number[][]];
 type TChemicalReactionCallback = (data: TChemicalReactionData) => void;
-type TChemicsStore = {
+type TChemicsStore = UPrefixed<'_', {
   iterStepByFid: number[], // Iteration step by fluid
   isReactableByFid: boolean[] // Is reactions enabled for fluid
   isReadyByFid: boolean[] // Is ready to compute reaction on current iteration
   data: Record<number, number[]>[], // Prepared collisions data
   callbackByFid: TChemicalReactionCallback[] // Callbacks list
-};
+}>;
 
 // Fluid & particle
 type TFluidPrototype = {

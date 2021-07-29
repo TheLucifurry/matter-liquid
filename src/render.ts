@@ -9,18 +9,18 @@ import VirtualCanvas from './helpers/virtualCanvas';
 import * as WebGL from './gpu/webgl';
 
 function renderGrid(liquid: TLiquid) {
-  const ctx = liquid.render.context;
-  const cs = liquid.h;
+  const ctx = liquid._render.context;
+  const cs = liquid._h;
   const csh = cs / 2;
 
-  const hashCells: Array<[string | TSHCellId, TSHItem[]]> = Object.entries(liquid.spatialHash.h);
+  const hashCells: Array<[string | TSHCellId, TSHItem[]]> = Object.entries(liquid._spatialHash.h);
 
   ctx.textAlign = 'center';
   ctx.lineWidth = 1;
   ctx.fillStyle = 'white';
   ctx.strokeStyle = 'green';
   for (const [cellid, cell] of hashCells) {
-    const [fX, fY] = liquid.spatialHash.getCoordsFromCellid(+cellid);
+    const [fX, fY] = liquid._spatialHash.getCoordsFromCellid(+cellid);
     ctx.fillText(`${cell.length}`, fX + csh, fY + csh);
     ctx.strokeRect(fX, fY, cs, cs);
   }
@@ -41,15 +41,15 @@ export function generateParticleTexture(color: string, radius: number): TVirtual
 }
 
 function drawParticles(liquid: TLiquid) {
-  const ctx = liquid.render.context;
-  const renderRect = getRectFromBoundsWithPadding(liquid.render.bounds, liquid.renderBoundsPadding);
-  const pids = liquid.spatialHash.getFromRect(renderRect);
+  const ctx = liquid._render.context;
+  const renderRect = getRectFromBoundsWithPadding(liquid._render.bounds, liquid._renderBoundsPadding);
+  const pids = liquid._spatialHash.getFromRect(renderRect);
   for (let i = 0; i < pids.length; i++) {
     const pid = pids[i];
-    const part = liquid.particles[pid];
+    const part = liquid._particles[pid];
     const x = Math.floor(part[P.X]);
     const y = Math.floor(part[P.Y]);
-    const particleTexture = liquid.fluidByParticleId[pid][F.TEXTURE] as OffscreenCanvas;
+    const particleTexture = liquid._fluidByParticleId[pid][F.TEXTURE] as OffscreenCanvas;
     const texSizeHalf = particleTexture.height / 2;
     ctx.drawImage(particleTexture, x - texSizeHalf, y - texSizeHalf);
   }
@@ -82,7 +82,7 @@ function drawLine(ctx: CanvasRenderingContext2D, from: Matter.Vector | TVector, 
 if (DEV) {
   // @ts-ignore
   window.DEV_SET_MOUSE_CONTROLLER = (mouseConstraint: Matter.MouseConstraint, liquid: TLiquid) => {
-    const world = liquid.world;
+    const world = liquid._world;
     const { mouse } = mouseConstraint;
     mouseController = mouseConstraint;
     Matter.Events.on(mouseConstraint, 'mousedown', () => {
@@ -98,11 +98,11 @@ if (DEV) {
   };
 }
 export function update(liquid: TLiquid): void {
-  const { context } = liquid.render;
+  const { context } = liquid._render;
   // Matter.Render.startViewTransform(liquid.r);
   // drawParticles(liquid);
   // @ts-ignore
-  Matter.Render.startViewTransform({ ...liquid.render, context });
+  Matter.Render.startViewTransform({ ...liquid._render, context });
   WebGL.update(liquid);
 
   if (DEV) {
@@ -160,14 +160,14 @@ export function update(liquid: TLiquid): void {
 }
 
 export function updateDebug(liquid: TLiquid): void {
-  const ctx = liquid.render.context;
+  const ctx = liquid._render.context;
 
   // @ts-ignore
-  Matter.Render.startViewTransform(liquid.render);
+  Matter.Render.startViewTransform(liquid._render);
 
-  const renderRect = getRectFromBoundsWithPadding(liquid.render.bounds, liquid.renderBoundsPadding);
-  const worldRect = getRectFromBoundsWithPadding(liquid.world.bounds);
-  const activeRect = getRectFromBoundsWithPadding(liquid.render.bounds, liquid.activeBoundsPadding);
+  const renderRect = getRectFromBoundsWithPadding(liquid._render.bounds, liquid._renderBoundsPadding);
+  const worldRect = getRectFromBoundsWithPadding(liquid._world.bounds);
+  const activeRect = getRectFromBoundsWithPadding(liquid._render.bounds, liquid._activeBoundsPadding);
 
   renderGrid(liquid);
 

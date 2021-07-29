@@ -60,57 +60,57 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
   let tick = 0;
 
   const liquid: TLiquid = {
-    fluidIdByParticleId: fnfid,
-    h: radius,
-    isWrappedX: isWrappedSides[0],
-    isWrappedY: isWrappedSides[1],
-    bounds: [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y, bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y],
-    engine: config.engine,
-    render: config.render,
-    world: config.engine.world,
-    renderContext: renderingContext,
-    isRegionalComputing: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
-    fluids: liquidPrototypes,
-    chemicsStore: config.fluids.reduce((accumulator: TChemicsStore, liquidProto: TFluidPrototype, ix) => {
-      accumulator.isReadyByFid[ix] = false;
-      accumulator.iterStepByFid[ix] = liquidProto.chemicsUS || CHEMICS_ITERATION_STEP;
-      accumulator.isReactableByFid[ix] = false;
+    _fluidIdByParticleId: fnfid,
+    _h: radius,
+    _isWrappedX: isWrappedSides[0],
+    _isWrappedY: isWrappedSides[1],
+    _bounds: [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y, bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y],
+    _engine: config.engine,
+    _render: config.render,
+    _world: config.engine.world,
+    _renderContext: renderingContext,
+    _isRegionalComputing: config.isRegionalComputing || IS_REGIONAL_COMPUTING,
+    _fluids: liquidPrototypes,
+    _chemicsStore: config.fluids.reduce((accumulator: TChemicsStore, liquidProto: TFluidPrototype, ix) => {
+      accumulator._isReadyByFid[ix] = false;
+      accumulator._iterStepByFid[ix] = liquidProto.chemicsUS || CHEMICS_ITERATION_STEP;
+      accumulator._isReactableByFid[ix] = false;
       return accumulator;
     }, {
-      isReadyByFid: [],
-      iterStepByFid: [],
-      isReactableByFid: [],
-      data: [],
-      callbackByFid: [],
+      _isReadyByFid: [],
+      _iterStepByFid: [],
+      _isReactableByFid: [],
+      _data: [],
+      _callbackByFid: [],
     } as TChemicsStore),
 
-    worldBordersBounce: config.bordersBounce || BORDERS_BOUNCE_VALUE,
-    isPaused: false,
-    gravityRatio: config.gravityRatio || GRAVITY_RATIO,
-    spatialHash: SpatialHash(radius, bounds),
-    renderBoundsPadding: 0,
-    activeBoundsPadding: 0,
-    particles: [],
-    freeParticleIds: [],
-    fluidByParticleId: {},
-    timeDelta: config.timeScale || TIME_SCALE,
+    _worldBordersBounce: config.bordersBounce || BORDERS_BOUNCE_VALUE,
+    _isPaused: false,
+    _gravityRatio: config.gravityRatio || GRAVITY_RATIO,
+    _spatialHash: SpatialHash(radius, bounds),
+    _renderBoundsPadding: 0,
+    _activeBoundsPadding: 0,
+    _particles: [],
+    _freeParticleIds: [],
+    _fluidByParticleId: {},
+    _timeDelta: config.timeScale || TIME_SCALE,
 
-    events: createEventsObject(),
-    statistics: {
-      particlesCountByFluidId: liquidPrototypes.map(() => 0),
+    _events: createEventsObject(),
+    _statistics: {
+      _particlesCountByFluidId: liquidPrototypes.map(() => 0),
     },
-    updateCompute: () => {
+    _updateCompute: () => {
       if (tick++ % updateStep === 0) {
         // Chemics update flags
         if (isChemicsEnabled) {
-          const readyList = liquid.chemicsStore.isReadyByFid;
+          const readyList = liquid._chemicsStore._isReadyByFid;
           for (let i = 0; i < readyList.length; i++) {
-            readyList[i] = (tick - i) % liquid.chemicsStore.iterStepByFid[i] === 0;
+            readyList[i] = (tick - i) % liquid._chemicsStore._iterStepByFid[i] === 0;
           }
         }
 
         // Call updater
-        computeUpdater(liquid, engineTiming.timeScale * liquid.timeDelta);
+        computeUpdater(liquid, engineTiming.timeScale * liquid._timeDelta);
       }
     },
   };

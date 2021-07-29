@@ -58,18 +58,18 @@ function limitVelocity(part: TParticle, maxValue: number) {
 }
 
 function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt: number) {
-  const mass = liquid.fluidByParticleId[iPid][F.MASS] as number;
-  const iFid = liquid.fluidByParticleId[iPid][F.ID] as number;
-  const p0 = liquid.h * 0.2; // rest density
+  const mass = liquid._fluidByParticleId[iPid][F.MASS] as number;
+  const iFid = liquid._fluidByParticleId[iPid][F.ID] as number;
+  const p0 = liquid._h * 0.2; // rest density
   const k = 0.3; // stiffness range[0..1]
-  const kNear = liquid.h * 0.3; // stiffness near (вроде, влияет на текучесть)
-  const maxStep = liquid.h * 0.8;
+  const kNear = liquid._h * 0.3; // stiffness near (вроде, влияет на текучесть)
+  const maxStep = liquid._h * 0.8;
 
   // Chemics
-  const chemics = liquid.chemicsStore;
-  const currentLiquidProto = liquid.fluidByParticleId[iPid];
-  const isRecordCollisions = chemics.isReactableByFid[iFid] && chemics.isReadyByFid[iFid];
-  if (isRecordCollisions) chemics.data[iFid][iPid] = [];
+  const chemics = liquid._chemicsStore;
+  const currentLiquidProto = liquid._fluidByParticleId[iPid];
+  const isRecordCollisions = chemics._isReactableByFid[iFid] && chemics._isReadyByFid[iFid];
+  if (isRecordCollisions) chemics._data[iFid][iPid] = [];
 
   let p = 0;
   let pNear = 0;
@@ -77,9 +77,9 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt
   const pairsDataList: [oneMinQ: number, jPid: number, r: TVector][] = Array(neighbors.length);
   for (let n = 0; n < neighbors.length; n++) {
     const jPid = neighbors[n];
-    const j = liquid.particles[jPid];
+    const j = liquid._particles[jPid];
     const r = getR(i, j);
-    const q = vectorLength(vectorDiv(r, liquid.h)); // q ← rij/h
+    const q = vectorLength(vectorDiv(r, liquid._h)); // q ← rij/h
     // if (q < 1) {...} - не нужен, т.к. в SH гарантирует этому условию true
     // const oneMinQ = 1 - q;
     const oneMinQ = mathMax(1 - q, 0.5); // { mathMax(..., 0.5) } Экспериментальный способ по стабилизации высокоплотных скоплений частиц
@@ -88,7 +88,7 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt
     pairsDataList[n] = [oneMinQ, jPid, r];
 
     // Chemics
-    if (isRecordCollisions && liquid.fluidByParticleId[jPid] !== currentLiquidProto) chemics.data[iFid][iPid].push(jPid);
+    if (isRecordCollisions && liquid._fluidByParticleId[jPid] !== currentLiquidProto) chemics._data[iFid][iPid].push(jPid);
   }
   // const P = k * (p - p0);
   const pBig = k * (p - p0) * mass; // { * mass } Экспериментальный способ учета массы при взаимодействии
@@ -96,17 +96,17 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt
   const dx: TVector = [0, 0];
   for (let n = 0; n < pairsDataList.length; n++) {
     const [oneMinQ, jPid, r] = pairsDataList[n];
-    const j = liquid.particles[jPid];
+    const j = liquid._particles[jPid];
     const rNormal = vectorNormal(r);
     const D = vectorMul(rNormal, dt ** 2 * (pBig * oneMinQ + PNear * oneMinQ ** 2));
     const halfD = vectorDiv(D, 2);
     dx[0] -= halfD[0];
     dx[1] -= halfD[1];
     partPosAdd(j, halfD, maxStep);
-    liquid.spatialHash.update(jPid, j[0], j[1]);
+    liquid._spatialHash.update(jPid, j[0], j[1]);
   }
   partPosAdd(i, dx, maxStep);
-  liquid.spatialHash.update(iPid, i[0], i[1]);
+  liquid._spatialHash.update(iPid, i[0], i[1]);
 }
 function applyI(part: TParticle, I: TVector) {
   part[P.VEL_X] -= I[0];
@@ -125,8 +125,8 @@ function findOutsidePos(body: Matter.Body, prevParticlePos: TVector, currentPart
 }
 
 function resolveCollisions(liquid: TLiquid, activeZone: TRect, worldBounds: TBounds, updatablePids: number[]) {
-  const { particles } = liquid;
-  const bodies = activeZone ? getBodiesInRect(liquid.world.bodies, activeZone) : liquid.world.bodies;
+  const { _particles: particles } = liquid;
+  const bodies = activeZone ? getBodiesInRect(liquid._world.bodies, activeZone) : liquid._world.bodies;
   const originalBodiesData: TOriginalBodyData[] = [];
   // const bodiesContainsParticleIds: number[][] = [];
   const processedBodies: Matter.Body[] = [];
@@ -163,7 +163,7 @@ function resolveCollisions(liquid: TLiquid, activeZone: TRect, worldBounds: TBou
   // resolve collisions and contacts between bodies
   // processedBodies.forEach(body=>{
   bodies.forEach((body) => {
-    const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, liquid.spatialHash, updatablePids);
+    const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, liquid._spatialHash, updatablePids);
     foreachIds(particles, particlesInBodyIds, (part) => { // foreach particle inside the body
       if (!checkPointInRect(part[P.X], part[P.Y], worldBounds)) return;
       const I = computeI(part, body); // compute collision impulse I
@@ -180,13 +180,13 @@ function resolveCollisions(liquid: TLiquid, activeZone: TRect, worldBounds: TBou
   });
 }
 function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, particlesPrevPositions: TSavedParticlesPositions) {
-  foreachIds(liquid.particles, updatedPids, (part, pid) => {
+  foreachIds(liquid._particles, updatedPids, (part, pid) => {
     // console.log(`part[${part.join(', ')}]\n`);
     computeNextVelocity(part, dt, particlesPrevPositions[pid]); // vi ← (xi − xi^prev )/∆t
 
-    const bounce = liquid.worldBordersBounce;
-    const b = liquid.bounds;
-    if (!liquid.isWrappedX) {
+    const bounce = liquid._worldBordersBounce;
+    const b = liquid._bounds;
+    if (!liquid._isWrappedX) {
       const oldX = part[P.X];
       part[P.X] = mathClamp(oldX, b[0], b[2]);
       if (oldX !== part[P.X]) {
@@ -196,7 +196,7 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
     } else {
       part[P.X] = mathWrap(part[P.X], b[0], b[2]);
     }
-    if (!liquid.isWrappedY) {
+    if (!liquid._isWrappedY) {
       const oldY = part[P.Y];
       part[P.Y] = mathClamp(oldY, b[1], b[3]);
       if (oldY !== part[P.Y]) {
@@ -207,19 +207,19 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
       part[P.Y] = mathWrap(part[P.Y], b[1], b[3]);
     }
 
-    liquid.spatialHash.update(pid, part[P.X], part[P.Y]);
+    liquid._spatialHash.update(pid, part[P.X], part[P.Y]);
   });
 
   // Chemics
-  const chemics = liquid.chemicsStore;
-  const protoLinks = liquid.fluidByParticleId;
-  for (let fid = 0; fid < chemics.data.length; fid++) {
-    if (!chemics.isReactableByFid[fid] || !chemics.isReadyByFid[fid]) continue;
+  const chemics = liquid._chemicsStore;
+  const protoLinks = liquid._fluidByParticleId;
+  for (let fid = 0; fid < chemics._data.length; fid++) {
+    if (!chemics._isReactableByFid[fid] || !chemics._isReadyByFid[fid]) continue;
 
-    const liquidCollisions = chemics.data[fid];
+    const liquidCollisions = chemics._data[fid];
     const owned: number[][] = [];
     const other: number[][] = [];
-    liquid.fluids.forEach((_, ix) => { owned[ix] = []; other[ix] = []; });
+    liquid._fluids.forEach((_, ix) => { owned[ix] = []; other[ix] = []; });
 
     const iPids = Object.keys(liquidCollisions);
     for (let i = 0; i < iPids.length; i++) {
@@ -234,7 +234,7 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
     }
 
     const collisionData: TChemicalReactionData = [owned, other];
-    chemics.callbackByFid[fid](collisionData);
+    chemics._callbackByFid[fid](collisionData);
   }
 }
 
@@ -244,22 +244,22 @@ export function simple(liquid: TLiquid, dt: number): void {
   // @ts-ignore
   const gravity = Matter.Liquid.getGravity(liquid);
   const particlesPrevPositions: TSavedParticlesPositions = {};
-  const activeRect: TRect = liquid.isRegionalComputing ? getRectFromBoundsWithPadding(liquid.render.bounds, liquid.activeBoundsPadding) : null;
-  const worldBounds: TBounds = liquid.bounds;
-  const limit = liquid.h * VELOCITY_LIMIT_FACTOR;
-  liquid.chemicsStore.data = liquid.fluids.map(() => ([]));
+  const activeRect: TRect = liquid._isRegionalComputing ? getRectFromBoundsWithPadding(liquid._render.bounds, liquid._activeBoundsPadding) : null;
+  const worldBounds: TBounds = liquid._bounds;
+  const limit = liquid._h * VELOCITY_LIMIT_FACTOR;
+  liquid._chemicsStore._data = liquid._fluids.map(() => ([]));
 
-  foreachActive(liquid, activeRect, liquid.particles, (part, pid) => {
+  foreachActive(liquid, activeRect, liquid._particles, (part, pid) => {
     updatedPids.push(pid);
-    applyGravity(part, dt, gravity, liquid.fluidByParticleId[pid][F.MASS] as number); // vi ← vi + ∆tg
+    applyGravity(part, dt, gravity, liquid._fluidByParticleId[pid][F.MASS] as number); // vi ← vi + ∆tg
     particlesPrevPositions[pid] = [part[P.X], part[P.Y]]; // Save previous position: xi^prev ← xi
 
     limitVelocity(part, limit);
 
     addParticlePositionByVelocity(part, dt); // Add Particle Position By Velocity: xi ← xi + ∆tvi
-    liquid.spatialHash.update(pid, part[P.X], part[P.Y]); // №2 Эксп. способ стабилизации
+    liquid._spatialHash.update(pid, part[P.X], part[P.Y]); // №2 Эксп. способ стабилизации
   });
-  foreachIds(liquid.particles, updatedPids, (part, pid) => {
+  foreachIds(liquid._particles, updatedPids, (part, pid) => {
     doubleDensityRelaxation(liquid, part, pid, dt);
   });
   resolveCollisions(liquid, activeRect, worldBounds, updatedPids);

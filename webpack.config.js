@@ -84,9 +84,13 @@ module.exports = {
     minimize: !isDevMode,
     minimizer: [
       new TerserPlugin({
-        parallel: true,
         terserOptions: {
           ecma: 2020,
+          mangle: {
+            properties: {
+              regex: /^_/
+            }
+          }
         },
       })
     ],

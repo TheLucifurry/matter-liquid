@@ -22,39 +22,39 @@ const GlobalLiquid = {
 
   setPause(liquid: TLiquid, isPause = true): void {
     if (isPause) {
-      Matter.Events.off(liquid.engine, 'afterUpdate', liquid.updateCompute);
+      Matter.Events.off(liquid._engine, 'afterUpdate', liquid._updateCompute);
     } else {
-      Matter.Events.on(liquid.engine, 'afterUpdate', liquid.updateCompute);
+      Matter.Events.on(liquid._engine, 'afterUpdate', liquid._updateCompute);
     }
-    liquid.isPaused = isPause;
-    liquid.events.pauseChange(isPause);
+    liquid._isPaused = isPause;
+    liquid._events.pauseChange(isPause);
   },
   setRenderBoundsPadding(liquid: TLiquid, padding: number): void {
-    liquid.renderBoundsPadding = padding;
+    liquid._renderBoundsPadding = padding;
   },
   setActiveBoundsPadding(liquid: TLiquid, padding: number): void {
-    liquid.activeBoundsPadding = padding;
+    liquid._activeBoundsPadding = padding;
   },
-  setGravityRatio(liquid: TLiquid, ratio: number = liquid.gravityRatio): void {
-    liquid.gravityRatio = ratio;
+  setGravityRatio(liquid: TLiquid, ratio: number = liquid._gravityRatio): void {
+    liquid._gravityRatio = ratio;
   },
-  setTimeScale(liquid: TLiquid, value: number = liquid.timeDelta): void {
-    liquid.timeDelta = value;
+  setTimeScale(liquid: TLiquid, value: number = liquid._timeDelta): void {
+    liquid._timeDelta = value;
   },
 
   getGravity(liquid: TLiquid): TVector {
-    return [liquid.world.gravity.x * liquid.gravityRatio, liquid.world.gravity.y * liquid.gravityRatio];
+    return [liquid._world.gravity.x * liquid._gravityRatio, liquid._world.gravity.y * liquid._gravityRatio];
   },
   getParticlesCount(liquid: TLiquid): number {
-    return liquid.particles.length - liquid.freeParticleIds.length;
+    return liquid._particles.length - liquid._freeParticleIds.length;
   },
   getFluidId(liquid: TLiquid, fluidKey: TFluidKey): number {
     if (DEV) {
-      if (typeof fluidKey === 'string' && liquid.fluidIdByParticleId[fluidKey] == null) {
+      if (typeof fluidKey === 'string' && liquid._fluidIdByParticleId[fluidKey] == null) {
         throw new Error(`MatterLiquid: liquid prototype named "${fluidKey}" does not exist`);
       }
     }
-    return typeof fluidKey === 'number' ? fluidKey : liquid.fluidIdByParticleId[fluidKey];
+    return typeof fluidKey === 'number' ? fluidKey : liquid._fluidIdByParticleId[fluidKey];
   },
 };
 
