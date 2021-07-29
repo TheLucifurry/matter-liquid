@@ -91,7 +91,6 @@ export default function createLiquid(config: TLiquidConfig): TLiquid {
     rbp: 0,
     abp: 0,
     p: [],
-    s: {},
     fpids: [],
     fpl: {},
     dt: config.timeScale || TIME_SCALE,

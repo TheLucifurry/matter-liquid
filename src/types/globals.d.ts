@@ -1,21 +1,4 @@
 declare const Matter: typeof import('matter-js');
-
-interface ShaderModule {
-  consts: any
-  sourceCode: string
-  uniforms: {
-    [name: string]: { variableName: string, variableType: string }
-  }
-}
-
-declare module '*.vert' {
-  const value: ShaderModule;
-  export default value;
-}
-declare module '*.frag' {
-  const value: ShaderModule;
-  export default value;
-}
 declare const DEV: boolean;
 
 // Core
@@ -57,7 +40,6 @@ type TLiquid = {
   readonly fpl: { [key: number]: TFluidPrototypeComputed }, // FluidPrototypeLink by pid key
   readonly fnfid: { [key: string]: number }, // FluidNamesToFid
   readonly fpids: number[] // FreeParticleIds
-  readonly s: TSpringList // Springs
   readonly ev: TEvents // Events store
   u: any // Compute update callback
 
@@ -112,10 +94,6 @@ type TSHItem = number;
 
 // Compute cache
 type TOriginalBodyData = { x: number, y: number, a: number };
-type TSpringList = {
-  [key: string]: TSpring
-};
-type TSpring = number;
 type TSavedParticlesPositions = {
   [key: number]: TVector
 };
