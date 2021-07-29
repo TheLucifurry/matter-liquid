@@ -31,7 +31,7 @@ export default function () {
 
   Tools.setDripper(render, liquid, mouseConstraint);
 
-  window.DEMO_LOADED(liquid);
+  window.DEMO_LOADED(liquid, engine);
   return {
     engine,
     runner,

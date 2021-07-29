@@ -2,12 +2,12 @@ import { mathMax } from '../helpers/utils';
 
 const Dripper = {
   drip(liquid: TLiquid, fid: number, x: number, y: number): void {
-    const pid = liquid.fpids.length === 0 ? liquid.p.length : liquid.fpids.pop();
+    const pid = liquid.freeParticleIds.length === 0 ? liquid.particles.length : liquid.freeParticleIds.pop();
     const particle = new Float32Array([x, y, 0, 0]);
-    liquid.fpl[pid] = liquid.l[fid];
-    liquid.p[pid] = particle;
-    liquid.sh.insert(pid, x, y);
-    liquid.st.cl[fid]++;
+    liquid.fluidByParticleId[pid] = liquid.fluids[fid];
+    liquid.particles[pid] = particle;
+    liquid.spatialHash.insert(pid, x, y);
+    liquid.statistics.particlesCountByFluidId[fid]++;
   },
   rect(liquid: TLiquid, fluidKey: TFluidKey, zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number, interval: number = liquid.h): void {
     // @ts-ignore

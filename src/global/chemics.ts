@@ -3,13 +3,13 @@ import { checkPointInRect } from '../helpers/utils';
 
 const Chemics = {
   trans(liquid: TLiquid, pids: number[], fid: number): void {
-    const linkList = liquid.fpl;
-    const nextFluidProto = liquid.l[fid];
+    const linkList = liquid.fluidByParticleId;
+    const nextFluidProto = liquid.fluids[fid];
     pids.forEach((pid) => {
-      const oldFluidProto = liquid.fpl[pid];
+      const oldFluidProto = liquid.fluidByParticleId[pid];
       linkList[pid] = nextFluidProto;
-      liquid.st.cl[oldFluidProto[F.ID] as number]--;
-      liquid.st.cl[nextFluidProto[F.ID] as number]++;
+      liquid.statistics.particlesCountByFluidId[oldFluidProto[F.ID] as number]--;
+      liquid.statistics.particlesCountByFluidId[nextFluidProto[F.ID] as number]++;
     });
   },
   transByName(liquid: TLiquid, pids: number[], fluidKey: TFluidKey): void {
@@ -21,7 +21,7 @@ const Chemics = {
     const fid = Matter.Liquid.getFluidId(liquid, tofluidKey);
     // TODO: Optimize particle finding by using SpatialHash
     const pids: number[] = [];
-    liquid.p.forEach((part, pid) => {
+    liquid.particles.forEach((part, pid) => {
       if (part !== null && checkPointInRect(part[P.X], part[P.Y], [zoneX, zoneY, zoneX + zoneWidth, zoneY + zoneHeight])) pids.push(pid);
     });
     Chemics.trans(liquid, pids, fid);
@@ -29,8 +29,8 @@ const Chemics = {
   reacts(liquid: TLiquid, fluidKey: TFluidKey, callback: TChemicalReactionCallback) {
     // @ts-ignore
     const fid = Matter.Liquid.getFluidId(liquid, fluidKey);
-    liquid.x.reacts[fid] = true;
-    liquid.x.cbl[fid] = callback;
+    liquid.chemicsStore.isReactableByFid[fid] = true;
+    liquid.chemicsStore.callbackByFid[fid] = callback;
   },
   // reactsBody
 };

@@ -60,7 +60,7 @@ export default function () {
 
   if (window.DEV_SET_MOUSE_CONTROLLER) window.DEV_SET_MOUSE_CONTROLLER(mouseConstraint, liquid)
   // For stats
-  window.DEMO_LOADED(liquid);
+  window.DEMO_LOADED(liquid, engine);
   // context for MatterTools.Demo
   return {
     engine,

@@ -23,48 +23,48 @@ type TLiquidConfig = {
   isDebug?: boolean
 };
 type TLiquid = {
-  readonly b: TBounds // World bounds
-  readonly e: Matter.Engine // Engine
-  readonly r: Matter.Render // Render
-  readonly w: Matter.World // World
-  readonly x: TChemicsStore // Chemics data storage
-  readonly st: TStats // Statistics
-  readonly c: WebGL2RenderingContext // Render context
+  readonly bounds: TBounds // World bounds
+  readonly engine: Matter.Engine // Engine
+  readonly render: Matter.Render // Render
+  readonly world: Matter.World // World
+  readonly chemicsStore: TChemicsStore // Chemics data storage
+  readonly statistics: TStats // Statistics
+  readonly renderContext: WebGL2RenderingContext // Render context
   readonly h: number // Interaction radius
-  readonly irc: boolean // isRegionalComputing
-  readonly iwx: boolean // isWrappedX
-  readonly iwy: boolean // isWrappedX
-  readonly l: TFluidPrototypeComputed[] // Fluids prototypes
-  readonly sh: TSpatialHash // SpatialHash
-  readonly p: TParticle[] // Particles
-  readonly fpl: { [key: number]: TFluidPrototypeComputed }, // FluidPrototypeLink by pid key
-  readonly fnfid: { [key: string]: number }, // FluidNamesToFid
-  readonly fpids: number[] // FreeParticleIds
-  readonly ev: TEvents // Events store
-  u: any // Compute update callback
+  readonly isRegionalComputing: boolean // isRegionalComputing
+  readonly isWrappedX: boolean // isWrappedX
+  readonly isWrappedY: boolean // isWrappedX
+  readonly fluids: TFluidPrototypeComputed[] // Fluids prototypes
+  readonly spatialHash: TSpatialHash // SpatialHash
+  readonly particles: TParticle[] // Particles
+  readonly fluidByParticleId: Record<number, TFluidPrototypeComputed>, // FluidPrototypeLink by pid key
+  readonly fluidIdByParticleId: Record<string, number>, // FluidNamesToFid
+  readonly freeParticleIds: number[] // FreeParticleIds
+  readonly events: TEvents // Events store
+  updateCompute: any // Compute update callback
 
-  bb: number // BordersBounce
-  ip: boolean // IsPaused
-  g: number // GravityRatio
-  rbp: number // RenderBoundsPadding
-  abp: number // ActiveBoundsPadding
-  dt: number // Delta time
+  worldBordersBounce: number // BordersBounce
+  isPaused: boolean // IsPaused
+  gravityRatio: number // GravityRatio
+  renderBoundsPadding: number // RenderBoundsPadding
+  activeBoundsPadding: number // ActiveBoundsPadding
+  timeDelta: number // Delta time
 };
 
 type TStats = {
   // c: number // Particles count
-  cl: number[] // Particles count by liquid prototypes
+  particlesCountByFluidId: number[] // Particles count by liquid prototypes
 };
 
 // Chemics
 type TChemicalReactionData = [number[][], number[][]];
 type TChemicalReactionCallback = (data: TChemicalReactionData) => void;
 type TChemicsStore = {
-  step: number[], // Iteration step
-  ready: boolean[] // true when it is an iteration for check collisions
-  data: { [key: number]: number[] }[], // Prepared collisions data
-  reacts: boolean[] // Possibility of reaction for every fluid id
-  cbl: TChemicalReactionCallback[] // Callbacks list
+  iterStepByFid: number[], // Iteration step by fluid
+  isReactableByFid: boolean[] // Is reactions enabled for fluid
+  isReadyByFid: boolean[] // Is ready to compute reaction on current iteration
+  data: Record<number, number[]>[], // Prepared collisions data
+  callbackByFid: TChemicalReactionCallback[] // Callbacks list
 };
 
 // Fluid & particle
@@ -94,9 +94,7 @@ type TSHItem = number;
 
 // Compute cache
 type TOriginalBodyData = { x: number, y: number, a: number };
-type TSavedParticlesPositions = {
-  [key: number]: TVector
-};
+type TSavedParticlesPositions = Record<number, TVector>;
 
 // Events
 type TEvents = {

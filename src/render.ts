@@ -1,9 +1,7 @@
 import { F, P } from './constants';
-import { arrayEach } from './helpers/cycles';
 import {
   getRectFromBoundsWithPadding, getBodySurfaceIntersectsWithRay, getBodySurfaceNormal, getLineIntersectionPoint,
 } from './helpers/tools';
-import { checkPointInRect } from './helpers/utils';
 import {
   getReflectVector, vectorAddVector, vectorEqualsVector, vectorFromTwo, vectorMul, vectorNormal,
 } from './helpers/vector';
@@ -11,18 +9,18 @@ import VirtualCanvas from './helpers/virtualCanvas';
 import * as WebGL from './gpu/webgl';
 
 function renderGrid(liquid: TLiquid) {
-  const ctx = liquid.r.context;
+  const ctx = liquid.render.context;
   const cs = liquid.h;
   const csh = cs / 2;
 
-  const hashCells: Array<[string | TSHCellId, TSHItem[]]> = Object.entries(liquid.sh.h);
+  const hashCells: Array<[string | TSHCellId, TSHItem[]]> = Object.entries(liquid.spatialHash.h);
 
   ctx.textAlign = 'center';
   ctx.lineWidth = 1;
   ctx.fillStyle = 'white';
   ctx.strokeStyle = 'green';
   for (const [cellid, cell] of hashCells) {
-    const [fX, fY] = liquid.sh.getCoordsFromCellid(+cellid);
+    const [fX, fY] = liquid.spatialHash.getCoordsFromCellid(+cellid);
     ctx.fillText(`${cell.length}`, fX + csh, fY + csh);
     ctx.strokeRect(fX, fY, cs, cs);
   }
@@ -43,15 +41,15 @@ export function generateParticleTexture(color: string, radius: number): TVirtual
 }
 
 function drawParticles(liquid: TLiquid) {
-  const ctx = liquid.r.context;
-  const renderRect = getRectFromBoundsWithPadding(liquid.r.bounds, liquid.rbp);
-  const pids = liquid.sh.getFromRect(renderRect);
+  const ctx = liquid.render.context;
+  const renderRect = getRectFromBoundsWithPadding(liquid.render.bounds, liquid.renderBoundsPadding);
+  const pids = liquid.spatialHash.getFromRect(renderRect);
   for (let i = 0; i < pids.length; i++) {
     const pid = pids[i];
-    const part = liquid.p[pid];
+    const part = liquid.particles[pid];
     const x = Math.floor(part[P.X]);
     const y = Math.floor(part[P.Y]);
-    const particleTexture = liquid.fpl[pid][F.TEXTURE] as OffscreenCanvas;
+    const particleTexture = liquid.fluidByParticleId[pid][F.TEXTURE] as OffscreenCanvas;
     const texSizeHalf = particleTexture.height / 2;
     ctx.drawImage(particleTexture, x - texSizeHalf, y - texSizeHalf);
   }
@@ -83,8 +81,8 @@ function drawLine(ctx: CanvasRenderingContext2D, from: Matter.Vector | TVector, 
 }
 if (DEV) {
   // @ts-ignore
-  window.DEV_SET_MOUSE_CONTROLLER = (mouseConstraint: Matter.MouseConstraint, store: TStore) => {
-    const world = store.w;
+  window.DEV_SET_MOUSE_CONTROLLER = (mouseConstraint: Matter.MouseConstraint, liquid: TLiquid) => {
+    const world = liquid.world;
     const { mouse } = mouseConstraint;
     mouseController = mouseConstraint;
     Matter.Events.on(mouseConstraint, 'mousedown', () => {
@@ -100,11 +98,11 @@ if (DEV) {
   };
 }
 export function update(liquid: TLiquid): void {
-  const { context } = liquid.r;
+  const { context } = liquid.render;
   // Matter.Render.startViewTransform(liquid.r);
   // drawParticles(liquid);
   // @ts-ignore
-  Matter.Render.startViewTransform({ ...liquid.r, context });
+  Matter.Render.startViewTransform({ ...liquid.render, context });
   WebGL.update(liquid);
 
   if (DEV) {
@@ -162,14 +160,14 @@ export function update(liquid: TLiquid): void {
 }
 
 export function updateDebug(liquid: TLiquid): void {
-  const ctx = liquid.r.context;
+  const ctx = liquid.render.context;
 
   // @ts-ignore
-  Matter.Render.startViewTransform(liquid.r);
+  Matter.Render.startViewTransform(liquid.render);
 
-  const renderRect = getRectFromBoundsWithPadding(liquid.r.bounds, liquid.rbp);
-  const worldRect = getRectFromBoundsWithPadding(liquid.w.bounds);
-  const activeRect = getRectFromBoundsWithPadding(liquid.r.bounds, liquid.abp);
+  const renderRect = getRectFromBoundsWithPadding(liquid.render.bounds, liquid.renderBoundsPadding);
+  const worldRect = getRectFromBoundsWithPadding(liquid.world.bounds);
+  const activeRect = getRectFromBoundsWithPadding(liquid.render.bounds, liquid.activeBoundsPadding);
 
   renderGrid(liquid);
 

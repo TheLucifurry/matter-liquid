@@ -29,7 +29,7 @@ export default function () {
 
   Tools.setDripper(render, liquid, mouseConstraint);
 
-  window.DEMO_LOADED(liquid, 'Arrow keys - direction | Space - disable')
+  window.DEMO_LOADED(liquid, engine, 'Arrow keys - direction | Space - disable')
   return {
     engine,
     runner,

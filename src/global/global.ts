@@ -22,39 +22,39 @@ const GlobalLiquid = {
 
   setPause(liquid: TLiquid, isPause = true): void {
     if (isPause) {
-      Matter.Events.off(liquid.e, 'afterUpdate', liquid.u);
+      Matter.Events.off(liquid.engine, 'afterUpdate', liquid.updateCompute);
     } else {
-      Matter.Events.on(liquid.e, 'afterUpdate', liquid.u);
+      Matter.Events.on(liquid.engine, 'afterUpdate', liquid.updateCompute);
     }
-    liquid.ip = isPause;
-    liquid.ev.pauseChange(isPause);
+    liquid.isPaused = isPause;
+    liquid.events.pauseChange(isPause);
   },
   setRenderBoundsPadding(liquid: TLiquid, padding: number): void {
-    liquid.rbp = padding;
+    liquid.renderBoundsPadding = padding;
   },
   setActiveBoundsPadding(liquid: TLiquid, padding: number): void {
-    liquid.abp = padding;
+    liquid.activeBoundsPadding = padding;
   },
-  setGravityRatio(liquid: TLiquid, ratio: number = liquid.g): void {
-    liquid.g = ratio;
+  setGravityRatio(liquid: TLiquid, ratio: number = liquid.gravityRatio): void {
+    liquid.gravityRatio = ratio;
   },
-  setTimeScale(liquid: TLiquid, value: number = liquid.dt): void {
-    liquid.dt = value;
+  setTimeScale(liquid: TLiquid, value: number = liquid.timeDelta): void {
+    liquid.timeDelta = value;
   },
 
   getGravity(liquid: TLiquid): TVector {
-    return [liquid.w.gravity.x * liquid.g, liquid.w.gravity.y * liquid.g];
+    return [liquid.world.gravity.x * liquid.gravityRatio, liquid.world.gravity.y * liquid.gravityRatio];
   },
   getParticlesCount(liquid: TLiquid): number {
-    return liquid.p.length - liquid.fpids.length;
+    return liquid.particles.length - liquid.freeParticleIds.length;
   },
   getFluidId(liquid: TLiquid, fluidKey: TFluidKey): number {
     if (DEV) {
-      if (typeof fluidKey === 'string' && liquid.fnfid[fluidKey] == null) {
+      if (typeof fluidKey === 'string' && liquid.fluidIdByParticleId[fluidKey] == null) {
         throw new Error(`MatterLiquid: liquid prototype named "${fluidKey}" does not exist`);
       }
     }
-    return typeof fluidKey === 'number' ? fluidKey : liquid.fnfid[fluidKey];
+    return typeof fluidKey === 'number' ? fluidKey : liquid.fluidIdByParticleId[fluidKey];
   },
 };
 

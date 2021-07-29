@@ -74,8 +74,7 @@
     statsContainer.prepend(stats.dom, counter);
     counter.onclick = () => stats.dom.click();
 
-    window.DEMO_LOADED = (liquid, info = '') => {
-      const engine = liquid.e;
+    window.DEMO_LOADED = (liquid, engine, info = '') => {
       Matter.Events.on(engine, 'beforeUpdate', stats.begin);
       Matter.Events.on(engine, 'afterUpdate', () => {
         stats.end();

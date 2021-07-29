@@ -50,20 +50,20 @@ function renderFluid(gl: WebGL2RenderingContext, points: Float32Array, fluidProt
 }
 
 export function update(liquid: TLiquid) {
-  const gl: WebGL2RenderingContext = liquid.c;
-  const render = liquid.r;
+  const gl: WebGL2RenderingContext = liquid.renderContext;
+  const render = liquid.render;
   const mainContext: CanvasRenderingContext2D = render.context;
   const bounds = render.bounds;
   const boundsWidth = bounds.max.x - bounds.min.x;
   const boundsHeight = bounds.max.y - bounds.min.y;
 
   // Prepare data
-  const bufferList: Float32Array[] = liquid.st.cl.map((partCount) => new Float32Array(partCount * 2));
+  const bufferList: Float32Array[] = liquid.statistics.particlesCountByFluidId.map((partCount) => new Float32Array(partCount * 2));
   const ixs: number[] = Array(bufferList.length).fill(0);
-  for (let pid = 0; pid < liquid.p.length; pid++) {
-    const part = liquid.p[pid];
+  for (let pid = 0; pid < liquid.particles.length; pid++) {
+    const part = liquid.particles[pid];
     if (part === null) continue;
-    const fid = liquid.fpl[pid][F.ID] as number;
+    const fid = liquid.fluidByParticleId[pid][F.ID] as number;
     const buffer = bufferList[fid];
     buffer[ixs[fid]] = part[0];
     buffer[ixs[fid] + 1] = part[1];
@@ -86,7 +86,7 @@ export function update(liquid: TLiquid) {
   setUniforms(programInfo, {
     [UNIFORMS.camera]: [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y],
   });
-  bufferList.forEach((buffer, ix) => renderFluid(gl, buffer, liquid.l[ix]));
+  bufferList.forEach((buffer, ix) => renderFluid(gl, buffer, liquid.fluids[ix]));
 
   mainContext.drawImage(gl.canvas, bounds.min.x, bounds.min.y, boundsWidth, boundsHeight);
 }

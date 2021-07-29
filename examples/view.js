@@ -30,7 +30,7 @@ export default function () {
 
   Tools.setDripper(render, liquid, mouseConstraint);
 
-  window.DEMO_LOADED(liquid, 'Mouse move - camera pos. | Wheel - camera scale');
+  window.DEMO_LOADED(liquid, engine, 'Mouse move - camera pos. | Wheel - camera scale');
   return {
     engine,
     runner,

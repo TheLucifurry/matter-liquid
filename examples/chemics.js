@@ -70,7 +70,7 @@ export default function () {
   setSyntesator(render, liquid, mouseConstraint, 'water');
 
   // For stats
-  window.DEMO_LOADED(liquid, 'Right mouse btn - change fluid to "water"');
+  window.DEMO_LOADED(liquid, engine, 'Right mouse btn - change fluid to "water"');
   // context for MatterTools.Demo
   return {
     engine,
