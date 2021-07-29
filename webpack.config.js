@@ -10,11 +10,6 @@ const name = pkg.name;
 const date = new Date().toISOString().slice(0, 10);
 const banner = `${name} ${pkg.version} by ${pkg.author} ${date}\n${pkg.homepage}\nLicense ${pkg.license}`;
 
-function copySync(src, dest) {
-  fs.writeFileSync(dest, fs.readFileSync(src));
-  console.info('\tCopied: ', path.basename(dest));
-};
-
 function afterBuildTask(compilation, callback) {
   replace.sync({
     files: ['index.js', 'index.html', 'examples/*.js'],
@@ -41,10 +36,8 @@ const afterBuildTaskPlugin = {
 const isDevMode = process.argv.includes('--mode=development');
 
 module.exports = {
-  mode: isDevMode ? 'development' : 'production',
   entry: {
     [name]: `./src/index.ts`,
-    // [name + '.min']: `./src/index.ts`
   },
   output: {
     path: path.resolve(__dirname, './build'),
@@ -81,7 +74,6 @@ module.exports = {
   },
   optimization: {
     usedExports: true,
-    minimize: !isDevMode,
     minimizer: [
       new TerserPlugin({
         terserOptions: {
