@@ -6,8 +6,9 @@
     "target": "es2020",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "allowUmdGlobalAccess": true,
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
   },
-  "exclude": ["assembly_script/**/*.ts", "build", "node_modules", "src/worker"]
+  "exclude": ["build", "node_modules"]
 }

@@ -15,18 +15,15 @@ function renderGrid(liquid: TLiquid) {
   const cs = liquid.h;
   const csh = cs / 2;
 
-  // @ts-ignore
-  const hashCells: Array<[TSHCellId, TSHItem[]]> = Object.entries(liquid.sh.h);
+  const hashCells: Array<[string | TSHCellId, TSHItem[]]> = Object.entries(liquid.sh.h);
 
   ctx.textAlign = 'center';
   ctx.lineWidth = 1;
   ctx.fillStyle = 'white';
   ctx.strokeStyle = 'green';
   for (const [cellid, cell] of hashCells) {
-    // @ts-ignore
-    const [fX, fY] = liquid.sh.getCoordsFromCellid(cellid);
-    // @ts-ignore
-    ctx.fillText(cell.length, fX + csh, fY + csh);
+    const [fX, fY] = liquid.sh.getCoordsFromCellid(+cellid);
+    ctx.fillText(`${cell.length}`, fX + csh, fY + csh);
     ctx.strokeRect(fX, fY, cs, cs);
   }
 }
@@ -90,16 +87,13 @@ if (DEV) {
     const world = store.w;
     const { mouse } = mouseConstraint;
     mouseController = mouseConstraint;
-    // @ts-ignore
     Matter.Events.on(mouseConstraint, 'mousedown', () => {
       if (mouse.button === 2) {
         point1 = mouse.mousedownPosition;
       }
     });
-    // @ts-ignore
     Matter.Events.on(mouseConstraint, 'mousemove', () => {
       point2 = mouse.position;
-      // @ts-ignore
       const itersectsBodies = Matter.Query.point(world.bodies, mouse.position);
       body = itersectsBodies.length !== 0 ? itersectsBodies[0] : null;
     });
@@ -107,7 +101,6 @@ if (DEV) {
 }
 export function update(liquid: TLiquid): void {
   const { context } = liquid.r;
-  // @ts-ignore
   // Matter.Render.startViewTransform(liquid.r);
   // drawParticles(liquid);
   // @ts-ignore

@@ -1,3 +1,5 @@
+declare const Matter: typeof import('matter-js');
+
 interface ShaderModule {
   consts: any
   sourceCode: string

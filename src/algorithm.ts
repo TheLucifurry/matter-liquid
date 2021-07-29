@@ -221,10 +221,9 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
     const other: number[][] = [];
     liquid.l.forEach((_, ix) => { owned[ix] = []; other[ix] = []; });
 
-    // @ts-ignore
-    const iPids: number[] = Object.keys(liquidCollisions);
+    const iPids = Object.keys(liquidCollisions);
     for (let i = 0; i < iPids.length; i++) {
-      const iPid = iPids[i];
+      const iPid: number = +iPids[i];
       const jPids = liquidCollisions[iPid];
       for (let j = 0; j < jPids.length; j++) {
         const jPid = jPids[j];
