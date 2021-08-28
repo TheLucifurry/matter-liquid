@@ -4,12 +4,12 @@
   "version": "0.0.1",
   "main": "src/index.js",
   "license": "",
-  "homepage": "https://github.com/Wexelus/matter-liquid",
-  "author": "Wexelus",
+  "homepage": "https://github.com/TheLucifurry/matter-liquid",
+  "author": "TheLucifurry",
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/Wexelus/matter-liquid.git"
+    "url": "https://github.com/TheLucifurry/matter-liquid.git"
   },
   "keywords": [
     "matter-js",

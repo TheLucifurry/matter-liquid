@@ -5,13 +5,13 @@
 This plugin allows you to make fluids that can collide with bodies and interact with each other
 
 ## Demos
-[Basic](https://wexelus.github.io/matter-liquid)  
-[View](https://wexelus.github.io/matter-liquid/#view)  
-[Gravity](https://wexelus.github.io/matter-liquid/#gravity)  
-[Wrap](https://wexelus.github.io/matter-liquid/#wrap)  
-[Bodies](https://wexelus.github.io/matter-liquid/#bodies)  
-[Multi Liquid](https://wexelus.github.io/matter-liquid/#multi_liquid)  
-[Chemics](https://wexelus.github.io/matter-liquid/#chemics)  
+[Basic](https://TheLucifurry.github.io/matter-liquid)  
+[View](https://TheLucifurry.github.io/matter-liquid/#view)  
+[Gravity](https://TheLucifurry.github.io/matter-liquid/#gravity)  
+[Wrap](https://TheLucifurry.github.io/matter-liquid/#wrap)  
+[Bodies](https://TheLucifurry.github.io/matter-liquid/#bodies)  
+[Multi Liquid](https://TheLucifurry.github.io/matter-liquid/#multi_liquid)  
+[Chemics](https://TheLucifurry.github.io/matter-liquid/#chemics)  
 
 **The plugin is currently in development!**
 <!-- ## Features
