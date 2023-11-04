@@ -4,6 +4,7 @@
     "module": "es6",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "types": ["vite-plugin-glsl/ext"],
     "allowUmdGlobalAccess": true,
     "allowJs": true,
     "noImplicitAny": true,

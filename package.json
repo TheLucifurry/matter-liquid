@@ -1,5 +1,6 @@
 {
   "name": "matter-liquid",
+  "type": "module",
   "version": "0.0.1",
   "description": "",
   "author": "TheLucifurry",
@@ -21,11 +22,19 @@
     "js",
     "javascript"
   ],
-  "sideEffects": false,
-  "main": "src/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "module": "./dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "dev": "webpack serve --mode=development",
-    "build": "webpack",
+    "dev": "vite --open",
+    "build": "vite build",
+    "_dev": "webpack serve --mode=development",
+    "_build": "webpack",
     "lint": "eslint .",
     "format": "eslint . --fix"
   },
@@ -35,19 +44,10 @@
   "devDependencies": {
     "@antfu/eslint-config": "^1.1.0",
     "@types/matter-js": "^0.17.5",
-    "@typescript-eslint/eslint-plugin": "^4.29.0",
-    "@typescript-eslint/parser": "^4.29.0",
-    "@webpack-cli/serve": "^1.5.1",
     "eslint": "^8.53.0",
-    "loader-utils": "^2.0.0",
-    "replace-in-file": "^6.2.0",
-    "terser-webpack-plugin": "^5.1.4",
-    "ts-loader": "^9.2.4",
-    "typescript": "^4.3.5",
-    "webpack": "^5.48.0",
-    "webpack-bundle-analyzer": "^4.4.2",
-    "webpack-cli": "^4.7.2",
-    "webpack-dev-server": "^3.11.2",
-    "webpack-glsl-minify": "^1.4.2"
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0",
+    "vite-plugin-externals": "^0.6.2",
+    "vite-plugin-glsl": "^1.1.2"
   }
 }

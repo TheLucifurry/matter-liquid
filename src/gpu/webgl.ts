@@ -14,19 +14,11 @@ import { F } from '../constants'
 import vertexShader from './shaders/convert.vert'
 import fragmentShader from './shaders/draw.frag'
 
-// import fragment2Shader from './shaders/texturate.frag';
-// import fragmentShader from './shaders/draw_old.frag';
-// import { createShader, createProgram } from './utils';
-
-const enum UNIFORM {
+const enum UNIFORMS {
   CAMERA = 'u_camera',
   COLOR = 'u_color',
 }
 
-const UNIFORMS = {
-  camera: vertexShader.uniforms[UNIFORM.CAMERA].variableName,
-  color: fragmentShader.uniforms[UNIFORM.COLOR].variableName,
-}
 const ATTRIBUTES = {
   position: 'a_position',
 }
@@ -40,7 +32,7 @@ let programInfo: ProgramInfo
 let buffer: BufferInfo
 
 export function init(gl: WebGL2RenderingContext) {
-  programInfo = createProgramInfo(gl, [vertexShader.sourceCode, fragmentShader.sourceCode], [ATTRIBUTES.position])
+  programInfo = createProgramInfo(gl, [vertexShader, fragmentShader], [ATTRIBUTES.position])
   buffer = createBufferInfoFromArrays(gl, {
     [ATTRIBUTES.position]: { numComponents: 2, data: [] },
   })
@@ -49,7 +41,7 @@ export function init(gl: WebGL2RenderingContext) {
 function renderFluid(gl: WebGL2RenderingContext, points: Float32Array, fluidProto: TFluidPrototypeComputed) {
   const color = fluidProto[F.COLOR_VEC4] as TFourNumbers
   gl.useProgram(programInfo.program)
-  setUniforms(programInfo, { [UNIFORMS.color]: color })
+  setUniforms(programInfo, { [UNIFORMS.COLOR]: color })
   setAttribInfoBufferFromArray(gl, buffer.attribs[ATTRIBUTES.position], points)
   setBuffersAndAttributes(gl, programInfo, buffer)
   drawBufferInfo(gl, buffer, gl.POINTS, points.length / 2)
@@ -91,7 +83,7 @@ export function update(liquid: TLiquid) {
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
   setUniforms(programInfo, {
-    [UNIFORMS.camera]: [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y],
+    [UNIFORMS.CAMERA]: [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y],
   })
   bufferList.forEach((buffer, ix) => renderFluid(gl, buffer, liquid._fluids[ix]))
 

@@ -1,8 +1,7 @@
-const antfu = require('@antfu/eslint-config').default
+import antfu from '@antfu/eslint-config'
 
-module.exports = antfu({
+export default antfu({
   vue: false,
-  ignores: ['./build'],
 }, {
   rules: {
     'no-restricted-syntax': 'warn',
@@ -10,8 +9,3 @@ module.exports = antfu({
     'unused-imports/no-unused-vars': 'warn',
   },
 })
-
-// TODO: Use it, after migrate to package.json:type=module
-// import antfu from '@antfu/eslint-config'
-
-// export default antfu()
