@@ -26,16 +26,16 @@
   "scripts": {
     "dev": "webpack serve --mode=development",
     "build": "webpack",
-    "lint": "eslint . --ext .js,.ts"
+    "lint": "eslint .",
+    "format": "eslint . --fix"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^1.1.0",
     "@types/matter-js": "^0.17.5",
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",
     "@webpack-cli/serve": "^1.5.1",
-    "eslint": "^7.32.0",
-    "eslint-config-airbnb-base-ts": "^14.1.1",
-    "eslint-plugin-compat": "^3.11.1",
+    "eslint": "^8.53.0",
     "loader-utils": "^2.0.0",
     "replace-in-file": "^6.2.0",
     "terser-webpack-plugin": "^5.1.4",
