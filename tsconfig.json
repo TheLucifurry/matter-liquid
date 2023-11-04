@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
-    "outDir": "./build",
-    "noImplicitAny": true,
-    "module": "es6",
     "target": "es2020",
+    "module": "es6",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "allowUmdGlobalAccess": true,
-    "allowSyntheticDefaultImports": true,
     "allowJs": true,
+    "noImplicitAny": true,
+    "outDir": "./build",
+    "allowSyntheticDefaultImports": true
   },
   "exclude": ["build", "node_modules"]
 }
