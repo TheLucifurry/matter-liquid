@@ -1,8 +1,8 @@
-declare const Matter: typeof import('matter-js');
-declare const DEV: boolean;
+declare const Matter: typeof import('matter-js')
+declare const DEV: boolean
 
 // Core
-type TLiquidConfig = {
+interface TLiquidConfig {
   bounds: Matter.Bounds
   engine: Matter.Engine
   render: Matter.Render
@@ -21,7 +21,7 @@ type TLiquidConfig = {
 
   // Dev-only
   isDebug?: boolean
-};
+}
 type TLiquid = UPrefixed<'_', {
   readonly bounds: TBounds // World bounds
   readonly engine: Matter.Engine // Engine
@@ -37,8 +37,8 @@ type TLiquid = UPrefixed<'_', {
   readonly fluids: TFluidPrototypeComputed[] // Fluids prototypes
   readonly spatialHash: TSpatialHash // SpatialHash
   readonly particles: TParticle[] // Particles
-  readonly fluidByParticleId: Record<number, TFluidPrototypeComputed>, // FluidPrototypeLink by pid key
-  readonly fluidIdByParticleId: Record<string, number>, // FluidNamesToFid
+  readonly fluidByParticleId: Record<number, TFluidPrototypeComputed> // FluidPrototypeLink by pid key
+  readonly fluidIdByParticleId: Record<string, number> // FluidNamesToFid
   readonly freeParticleIds: number[] // FreeParticleIds
   readonly events: TEvents // Events store
   updateCompute: any // Compute update callback
@@ -49,62 +49,62 @@ type TLiquid = UPrefixed<'_', {
   renderBoundsPadding: number // RenderBoundsPadding
   activeBoundsPadding: number // ActiveBoundsPadding
   timeDelta: number // Delta time
-}>;
+}>
 
 type TStats = UPrefixed<'_', {
   // c: number // Particles count
   particlesCountByFluidId: number[] // Particles count by liquid prototypes
-}>;
+}>
 
 // Chemics
-type TChemicalReactionData = [number[][], number[][]];
-type TChemicalReactionCallback = (data: TChemicalReactionData) => void;
+type TChemicalReactionData = [number[][], number[][]]
+type TChemicalReactionCallback = (data: TChemicalReactionData) => void
 type TChemicsStore = UPrefixed<'_', {
-  iterStepByFid: number[], // Iteration step by fluid
+  iterStepByFid: number[] // Iteration step by fluid
   isReactableByFid: boolean[] // Is reactions enabled for fluid
   isReadyByFid: boolean[] // Is ready to compute reaction on current iteration
-  data: Record<number, number[]>[], // Prepared collisions data
+  data: Record<number, number[]>[] // Prepared collisions data
   callbackByFid: TChemicalReactionCallback[] // Callbacks list
-}>;
+}>
 
 // Fluid & particle
-type TFluidPrototype = {
+interface TFluidPrototype {
   name?: string
   color?: string
   texture?: TVirtualCanvas
-  mass?: number,
+  mass?: number
   chemicsUS?: number // Chemics update step
   // plasticity?: number // a
   // stiffness?: number // k
-};
+}
 type TFluidPrototypeComputed = [
   number, // Fluid id
   string, // Color
   TFourNumbers, // Vec4 color
   TVirtualCanvas, // Texture
   number, // Mass
-];
-type TFluidKey = string | number;
-type TParticle = Float32Array;
-type TParticleId = number;
+]
+type TFluidKey = string | number
+type TParticle = Float32Array
+type TParticleId = number
 
 // Spatial hash
-type TSHCellId = number;
-type TSHItem = number;
+type TSHCellId = number
+type TSHItem = number
 
 // Compute cache
-type TOriginalBodyData = { x: number, y: number, a: number };
-type TSavedParticlesPositions = Record<number, TVector>;
+interface TOriginalBodyData { x: number; y: number; a: number }
+type TSavedParticlesPositions = Record<number, TVector>
 
 // Events
-type TEvents = {
-  pauseChange: (isPaused: boolean)=>void
-  particleRemove: (particle: TParticle, particleId: number, liquid: TFluidPrototypeComputed)=>void
-};
+interface TEvents {
+  pauseChange: (isPaused: boolean) => void
+  particleRemove: (particle: TParticle, particleId: number, liquid: TFluidPrototypeComputed) => void
+}
 
 // Basic
-type TRect = [ x1: number, y1: number, x2: number, y2: number ];
-type TBounds = [x: number, y: number, x2: number, y2: number, w: number, h: number];
-type TVector = [number, number];
-type TFourNumbers = [ number, number, number, number ];
-type TVirtualCanvas = OffscreenCanvas | HTMLCanvasElement;
+type TRect = [ x1: number, y1: number, x2: number, y2: number ]
+type TBounds = [x: number, y: number, x2: number, y2: number, w: number, h: number]
+type TVector = [number, number]
+type TFourNumbers = [ number, number, number, number ]
+type TVirtualCanvas = OffscreenCanvas | HTMLCanvasElement

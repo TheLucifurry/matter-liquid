@@ -1,24 +1,27 @@
-import Tools from './lib/fragments.js';
-import Colors from './lib/colors.js';
+import Tools from './lib/fragments.js'
+import Colors from './lib/colors.js'
 
 export default function () {
-  const { Liquid } = Matter;
+  const { Liquid } = Matter
   const {
-    engine, world, render, runner,
-  } = Tools.init();
+    engine,
+    world,
+    render,
+    runner,
+  } = Tools.init()
 
-  const color = Colors.getPalette();
-  const worldSize = 1024;
-  const worldOffset = -worldSize / 2;
-  const bounds = Tools.createBounds(worldOffset, worldOffset, worldSize, worldSize);
+  const color = Colors.getPalette()
+  const worldSize = 1024
+  const worldOffset = -worldSize / 2
+  const bounds = Tools.createBounds(worldOffset, worldOffset, worldSize, worldSize)
 
-  window.ENGINE = engine;
-  window.WORLD = world;
+  window.ENGINE = engine
+  window.WORLD = world
 
-  Tools.drawWorldBackground(render, color.background);
-  Tools.drawWorldBorders(render, bounds, color.particle);
-  Tools.cameraLookAt(render, bounds);
-  const { mouseConstraint } = Tools.initMouse(render);
+  Tools.drawWorldBackground(render, color.background)
+  Tools.drawWorldBorders(render, bounds, color.particle)
+  Tools.cameraLookAt(render, bounds)
+  const { mouseConstraint } = Tools.initMouse(render)
 
   const liquid = Liquid.create({
     bounds,
@@ -27,19 +30,25 @@ export default function () {
     fluids: [{ color: color.particle }], // Define one liquid
     updateStep: 1, // Set max 60 FPS
     // isPaused: true,
-  });
+  })
   const {
-    minX, maxX, minY, maxY, width, height,
-  } = Tools.getBoundsParams(bounds);
-  const liquidCyanId = 0;
-  const seaHeight = height / 2;
-  Liquid.drip.rect(liquid, liquidCyanId, minX, maxY - seaHeight, width, seaHeight);
+    minX,
+    maxX,
+    minY,
+    maxY,
+    width,
+    height,
+  } = Tools.getBoundsParams(bounds)
+  const liquidCyanId = 0
+  const seaHeight = height / 2
+  Liquid.drip.rect(liquid, liquidCyanId, minX, maxY - seaHeight, width, seaHeight)
 
-  Tools.setDripper(render, liquid, mouseConstraint);
+  Tools.setDripper(render, liquid, mouseConstraint)
 
-  if (window.DEV_SET_MOUSE_CONTROLLER) window.DEV_SET_MOUSE_CONTROLLER(mouseConstraint, liquid);
+  if (window.DEV_SET_MOUSE_CONTROLLER)
+    window.DEV_SET_MOUSE_CONTROLLER(mouseConstraint, liquid)
   // For stats
-  window.DEMO_LOADED(liquid, engine, 'Right mouse btn - drip | Left mouse btn - dry');
+  window.DEMO_LOADED(liquid, engine, 'Right mouse btn - drip | Left mouse btn - dry')
   // context for MatterTools.Demo
   return {
     engine,
@@ -47,8 +56,8 @@ export default function () {
     render,
     canvas: render.canvas,
     stop() {
-      Matter.Render.stop(render);
-      Matter.Runner.stop(runner);
+      Matter.Render.stop(render)
+      Matter.Runner.stop(runner)
     },
-  };
+  }
 }

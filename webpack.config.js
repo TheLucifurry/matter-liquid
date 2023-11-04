@@ -1,14 +1,14 @@
-const webpack = require('webpack');
-const fs = require('fs');
-const path = require('path');
-const replace = require('replace-in-file');
-const pkg = require('./package.json');
-const TerserPlugin = require('terser-webpack-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const fs = require('node:fs')
+const path = require('node:path')
+const webpack = require('webpack')
+const replace = require('replace-in-file')
+const pkg = require('./package.json')
+const TerserPlugin = require('terser-webpack-plugin')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
-const name = pkg.name;
-const date = new Date().toISOString().slice(0, 10);
-const banner = `${name} ${pkg.version} by ${pkg.author} ${date}\n${pkg.homepage}\nLicense ${pkg.license}`;
+const name = pkg.name
+const date = new Date().toISOString().slice(0, 10)
+const banner = `${name} ${pkg.version} by ${pkg.author} ${date}\n${pkg.homepage}\nLicense ${pkg.license}`
 
 function afterBuildTask(compilation, callback) {
   replace.sync({
@@ -19,21 +19,21 @@ function afterBuildTask(compilation, callback) {
       /(['"])(.*)(['"][;,\s]*\/\/\s*PLUGIN_REPO_URL)/g,
     ],
     to: [
-      "$1" + name + "$3",
-      "$1" + pkg.version + "$3",
-      "$1" + pkg.repository.url.replace('.git', '') + "$3",
-    ]
-  });
-  callback();
+      `$1${name}$3`,
+      `$1${pkg.version}$3`,
+      `$1${pkg.repository.url.replace('.git', '')}$3`,
+    ],
+  })
+  callback()
 }
 
 const afterBuildTaskPlugin = {
   apply(compiler) {
-    compiler.hooks.emit.tapAsync('afterBuildTaskPlugin', afterBuildTask);
-  }
-};
+    compiler.hooks.emit.tapAsync('afterBuildTaskPlugin', afterBuildTask)
+  },
+}
 
-const isDevMode = process.argv.includes('--mode=development');
+const isDevMode = process.argv.includes('--mode=development')
 
 module.exports = {
   entry: {
@@ -51,8 +51,8 @@ module.exports = {
       commonjs: 'matter-js',
       commonjs2: 'matter-js',
       amd: 'matter-js',
-      root: 'Matter'
-    }
+      root: 'Matter',
+    },
   },
   module: {
     rules: [
@@ -62,7 +62,7 @@ module.exports = {
           loader: 'webpack-glsl-minify',
           options: {
             preserveAll: true,
-          }
+          },
         },
       },
       {
@@ -80,11 +80,11 @@ module.exports = {
           ecma: 2020,
           mangle: {
             properties: {
-              regex: /^_/
-            }
-          }
+              regex: /^_/,
+            },
+          },
         },
-      })
+      }),
     ],
   },
   resolve: {
@@ -104,4 +104,4 @@ module.exports = {
     open: true,
     allowedHosts: ['cdn.jsdelivr.net'],
   },
-};
+}

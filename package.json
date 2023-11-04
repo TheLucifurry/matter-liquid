@@ -1,12 +1,10 @@
 {
   "name": "matter-liquid",
-  "description": "",
   "version": "0.0.1",
-  "main": "src/index.js",
+  "description": "",
+  "author": "TheLucifurry",
   "license": "",
   "homepage": "https://github.com/TheLucifurry/matter-liquid",
-  "author": "TheLucifurry",
-  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/TheLucifurry/matter-liquid.git"
@@ -23,11 +21,16 @@
     "js",
     "javascript"
   ],
+  "sideEffects": false,
+  "main": "src/index.js",
   "scripts": {
     "dev": "webpack serve --mode=development",
     "build": "webpack",
     "lint": "eslint .",
     "format": "eslint . --fix"
+  },
+  "dependencies": {
+    "twgl.js": "^4.19.2"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^1.1.0",
@@ -46,8 +49,5 @@
     "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^3.11.2",
     "webpack-glsl-minify": "^1.4.2"
-  },
-  "dependencies": {
-    "twgl.js": "^4.19.2"
   }
 }

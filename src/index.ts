@@ -1,5 +1,5 @@
-import Package from '../package.json';
-import GlobalLiquid from './global/global';
+import Package from '../package.json'
+import GlobalLiquid from './global/global'
 
 const MatterLiquid = {
   name: Package.name,
@@ -10,9 +10,9 @@ const MatterLiquid = {
   //   something: true,
   // },
   install(matter: any) {
-    matter.Liquid = GlobalLiquid;
+    matter.Liquid = GlobalLiquid
   },
-};
+}
 
-// @ts-ignore
-Matter.Plugin.register(MatterLiquid);
+// @ts-expect-error Hard type flow
+Matter.Plugin.register(MatterLiquid)
