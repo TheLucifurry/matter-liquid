@@ -1,4 +1,4 @@
-import { P } from '../constants'
+import { X, Y } from '../constants'
 import { checkPointInRect } from './utils'
 
 export function arrayEach<T>(array: T[], iteratee: (element: T, index: number) => void): void { // From lodash
@@ -8,7 +8,7 @@ export function arrayEach<T>(array: T[], iteratee: (element: T, index: number) =
 }
 export function foreachActive(liquid: TLiquid, activeRect: TRect, arr: TParticle[], callback: (particle: TParticle, particleid: number) => void): void {
   arrayEach(arr, (part, id) => {
-    if (part === null || (activeRect && !checkPointInRect(part[P.X], part[P.Y], activeRect)))
+    if (part === null || (activeRect && !checkPointInRect(part[X], part[Y], activeRect)))
       return // Ignore static or inactive particles
     callback(part, id)
   })
@@ -25,7 +25,7 @@ export function foreachIds(particles: TParticle[], pids: number[], callback: (pa
 }
 export function getNeighbors(liquid: TLiquid, pid: number): number[] {
   const part = liquid._particles[pid]
-  return liquid._spatialHash.getNearby(part[P.X], part[P.Y], liquid._particles)
+  return liquid._spatialHash.getNearby(part[X], part[Y], liquid._particles)
 }
 export function eachNeighbors(particles: TParticle[], neighbors: number[], cb: (neighborParticle: TParticle, neighborPid: number) => void): void {
   arrayEach(neighbors, pid => cb(particles[pid], pid))

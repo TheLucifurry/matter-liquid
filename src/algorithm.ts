@@ -1,4 +1,4 @@
-import { F, P, VELOCITY_LIMIT_FACTOR } from './constants'
+import { F_ID, F_MASS, VELOCITY_LIMIT_FACTOR, VEL_X, VEL_Y, X, Y } from './constants'
 import {
   vectorAddVector,
   vectorClampMaxLength,
@@ -39,11 +39,11 @@ const kSpring = 0.001 // (в доке по дефолту 0.3)
 const alpha = 0.03 // α - константа пластичности
 
 function getR(a: TParticle, b: TParticle): TVector {
-  return vectorFromTwo([a[P.X], a[P.Y]], [b[P.X], b[P.Y]])
+  return vectorFromTwo([a[X], a[Y]], [b[X], b[Y]])
 }
 function computeI(part: TParticle, body: Matter.Body): TVector {
   const bodyVelVector: TVector = [body.velocity.x, body.velocity.y]
-  const v_ = vectorSubVector([part[P.VEL_X], part[P.VEL_Y]], bodyVelVector) // vi − vp
+  const v_ = vectorSubVector([part[VEL_X], part[VEL_Y]], bodyVelVector) // vi − vp
   // const n_ = vectorNormal([body.position.x, body.position.y]);
   // const vNormal = vectorMulVector(vectorMulVector(v_, n_), n_); // = (v¯ * nˆ)nˆ
   const vNormal = vectorNormal(v_) // = (v¯ * nˆ)nˆ
@@ -53,30 +53,30 @@ function computeI(part: TParticle, body: Matter.Body): TVector {
 function partPosAdd(part: TParticle, vec: TVector, maxLength: number) {
   // const limited: TVector = vectorClampMaxLength(vec, maxLength);
   const limited: TVector = vec
-  part[P.X] += limited[0]
-  part[P.Y] += limited[1]
+  part[X] += limited[0]
+  part[Y] += limited[1]
 }
 function applyGravity(part: TParticle, dt: number, gravity: TVector, mass: number) {
-  part[P.VEL_X] += dt * mass * gravity[0]
-  part[P.VEL_Y] += dt * mass * gravity[1]
+  part[VEL_X] += dt * mass * gravity[0]
+  part[VEL_Y] += dt * mass * gravity[1]
 }
 function addParticlePositionByVelocity(part: TParticle, dt: number) {
-  part[P.X] += dt * part[P.VEL_X]
-  part[P.Y] += dt * part[P.VEL_Y]
+  part[X] += dt * part[VEL_X]
+  part[Y] += dt * part[VEL_Y]
 }
 function computeNextVelocity(part: TParticle, dt: number, prevPositions: TVector) {
-  part[P.VEL_X] = (part[P.X] - prevPositions[0]) / dt
-  part[P.VEL_Y] = (part[P.Y] - prevPositions[1]) / dt
+  part[VEL_X] = (part[X] - prevPositions[0]) / dt
+  part[VEL_Y] = (part[Y] - prevPositions[1]) / dt
 }
 function limitVelocity(part: TParticle, maxValue: number) {
-  const [limX, limY]: TVector = vectorClampMaxLength([part[P.VEL_X], part[P.VEL_Y]], maxValue)
-  part[P.VEL_X] = limX
-  part[P.VEL_Y] = limY
+  const [limX, limY]: TVector = vectorClampMaxLength([part[VEL_X], part[VEL_Y]], maxValue)
+  part[VEL_X] = limX
+  part[VEL_Y] = limY
 }
 
 function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt: number) {
-  const mass = liquid._fluidByParticleId[iPid][F.MASS] as number
-  const iFid = liquid._fluidByParticleId[iPid][F.ID] as number
+  const mass = liquid._fluidByParticleId[iPid][F_MASS] as number
+  const iFid = liquid._fluidByParticleId[iPid][F_ID] as number
   const p0 = liquid._h * 0.2 // rest density
   const k = 0.3 // stiffness range[0..1]
   const kNear = liquid._h * 0.3 // stiffness near (вроде, влияет на текучесть)
@@ -128,8 +128,8 @@ function doubleDensityRelaxation(liquid: TLiquid, i: TParticle, iPid: number, dt
   liquid._spatialHash.update(iPid, i[0], i[1])
 }
 function applyI(part: TParticle, I: TVector) {
-  part[P.VEL_X] -= I[0]
-  part[P.VEL_Y] -= I[1]
+  part[VEL_X] -= I[0]
+  part[VEL_Y] -= I[1]
 }
 function findOutsidePos(body: Matter.Body, prevParticlePos: TVector, currentParticlePos: TVector): TVector {
   const bodyPos: TVector = [body.position.x, body.position.y]
@@ -184,17 +184,17 @@ function resolveCollisions(liquid: TLiquid, activeZone: TRect, worldBounds: TBou
   bodies.forEach((body) => {
     const particlesInBodyIds = getParticlesInsideBodyIds(particles, body, liquid._spatialHash, updatablePids)
     foreachIds(particles, particlesInBodyIds, (part) => { // foreach particle inside the body
-      if (!checkPointInRect(part[P.X], part[P.Y], worldBounds))
+      if (!checkPointInRect(part[X], part[Y], worldBounds))
         return
       const I = computeI(part, body) // compute collision impulse I
       // console.log(`I: [${I.join(', ')}]`);
-      const prevPos: TVector = [part[P.X], part[P.Y]]
+      const prevPos: TVector = [part[X], part[Y]]
       applyI(part, I) // apply I to the particle
-      if (checkBodyContainsPoint(body, part[P.X], part[P.Y])) {
+      if (checkBodyContainsPoint(body, part[X], part[Y])) {
         // extract the particle if still inside the body
-        const outsidePos: TVector = findOutsidePos(body, prevPos, [part[P.X], part[P.Y]])
-        part[P.X] = outsidePos[0]
-        part[P.Y] = outsidePos[1]
+        const outsidePos: TVector = findOutsidePos(body, prevPos, [part[X], part[Y]])
+        part[X] = outsidePos[0]
+        part[Y] = outsidePos[1]
       }
     })
   })
@@ -207,29 +207,29 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
     const bounce = liquid._worldBordersBounce
     const b = liquid._bounds
     if (!liquid._isWrappedX) {
-      const oldX = part[P.X]
-      part[P.X] = mathClamp(oldX, b[0], b[2])
-      if (oldX !== part[P.X]) {
-        part[P.VEL_X] *= -bounce
-        part[P.VEL_Y] *= bounce
+      const oldX = part[X]
+      part[X] = mathClamp(oldX, b[0], b[2])
+      if (oldX !== part[X]) {
+        part[VEL_X] *= -bounce
+        part[VEL_Y] *= bounce
       }
     }
     else {
-      part[P.X] = mathWrap(part[P.X], b[0], b[2])
+      part[X] = mathWrap(part[X], b[0], b[2])
     }
     if (!liquid._isWrappedY) {
-      const oldY = part[P.Y]
-      part[P.Y] = mathClamp(oldY, b[1], b[3])
-      if (oldY !== part[P.Y]) {
-        part[P.VEL_X] *= bounce
-        part[P.VEL_Y] *= -bounce
+      const oldY = part[Y]
+      part[Y] = mathClamp(oldY, b[1], b[3])
+      if (oldY !== part[Y]) {
+        part[VEL_X] *= bounce
+        part[VEL_Y] *= -bounce
       }
     }
     else {
-      part[P.Y] = mathWrap(part[P.Y], b[1], b[3])
+      part[Y] = mathWrap(part[Y], b[1], b[3])
     }
 
-    liquid._spatialHash.update(pid, part[P.X], part[P.Y])
+    liquid._spatialHash.update(pid, part[X], part[Y])
   })
 
   // Chemics
@@ -250,7 +250,7 @@ function endComputing(liquid: TLiquid, updatedPids: number[], dt: number, partic
       const jPids = liquidCollisions[iPid]
       for (let j = 0; j < jPids.length; j++) {
         const jPid = jPids[j]
-        const jFid = protoLinks[jPid][F.ID] as number
+        const jFid = protoLinks[jPid][F_ID] as number
         owned[jFid].push(iPid)
         other[jFid].push(jPid)
       }
@@ -273,13 +273,13 @@ export function simple(liquid: TLiquid, dt: number): void {
 
   foreachActive(liquid, activeRect, liquid._particles, (part, pid) => {
     updatedPids.push(pid)
-    applyGravity(part, dt, gravity, liquid._fluidByParticleId[pid][F.MASS] as number) // vi ← vi + ∆tg
-    particlesPrevPositions[pid] = [part[P.X], part[P.Y]] // Save previous position: xi^prev ← xi
+    applyGravity(part, dt, gravity, liquid._fluidByParticleId[pid][F_MASS] as number) // vi ← vi + ∆tg
+    particlesPrevPositions[pid] = [part[X], part[Y]] // Save previous position: xi^prev ← xi
 
     limitVelocity(part, limit)
 
     addParticlePositionByVelocity(part, dt) // Add Particle Position By Velocity: xi ← xi + ∆tvi
-    liquid._spatialHash.update(pid, part[P.X], part[P.Y]) // №2 Эксп. способ стабилизации
+    liquid._spatialHash.update(pid, part[X], part[Y]) // №2 Эксп. способ стабилизации
   })
   foreachIds(liquid._particles, updatedPids, (part, pid) => {
     doubleDensityRelaxation(liquid, part, pid, dt)

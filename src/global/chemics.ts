@@ -1,4 +1,4 @@
-import { F, P } from '../constants'
+import { F_ID, X, Y } from '../constants'
 import { checkPointInRect } from '../helpers/utils'
 
 const Chemics = {
@@ -8,8 +8,8 @@ const Chemics = {
     pids.forEach((pid) => {
       const oldFluidProto = liquid._fluidByParticleId[pid]
       linkList[pid] = nextFluidProto
-      liquid._statistics._particlesCountByFluidId[oldFluidProto[F.ID] as number]--
-      liquid._statistics._particlesCountByFluidId[nextFluidProto[F.ID] as number]++
+      liquid._statistics._particlesCountByFluidId[oldFluidProto[F_ID] as number]--
+      liquid._statistics._particlesCountByFluidId[nextFluidProto[F_ID] as number]++
     })
   },
   transByName(liquid: TLiquid, pids: number[], fluidKey: TFluidKey): void {
@@ -22,7 +22,7 @@ const Chemics = {
     // TODO: Optimize particle finding by using SpatialHash
     const pids: number[] = []
     liquid._particles.forEach((part, pid) => {
-      if (part !== null && checkPointInRect(part[P.X], part[P.Y], [zoneX, zoneY, zoneX + zoneWidth, zoneY + zoneHeight]))
+      if (part !== null && checkPointInRect(part[X], part[Y], [zoneX, zoneY, zoneX + zoneWidth, zoneY + zoneHeight]))
         pids.push(pid)
     })
     Chemics.trans(liquid, pids, fid)

@@ -10,7 +10,7 @@ import {
   setBuffersAndAttributes,
   setUniforms,
 } from 'twgl.js'
-import { F } from '../constants'
+import { F_COLOR_VEC4, F_ID } from '../constants'
 import vertexShader from './shaders/convert.vert'
 import fragmentShader from './shaders/draw.frag'
 
@@ -39,7 +39,7 @@ export function init(gl: WebGL2RenderingContext) {
 }
 
 function renderFluid(gl: WebGL2RenderingContext, points: Float32Array, fluidProto: TFluidPrototypeComputed) {
-  const color = fluidProto[F.COLOR_VEC4] as TFourNumbers
+  const color = fluidProto[F_COLOR_VEC4] as TFourNumbers
   gl.useProgram(programInfo.program)
   setUniforms(programInfo, { [UNIFORMS.COLOR]: color })
   setAttribInfoBufferFromArray(gl, buffer.attribs[ATTRIBUTES.position], points)
@@ -62,7 +62,7 @@ export function update(liquid: TLiquid) {
     const part = liquid._particles[pid]
     if (part === null)
       continue
-    const fid = liquid._fluidByParticleId[pid][F.ID] as number
+    const fid = liquid._fluidByParticleId[pid][F_ID] as number
     const buffer = bufferList[fid]
     buffer[ixs[fid]] = part[0]
     buffer[ixs[fid] + 1] = part[1]

@@ -13,16 +13,18 @@ export const CHEMICS_ITERATION_STEP = 10 // every 10 frame (6 FPS for 60 FPS of 
 
 // Constants
 export const VELOCITY_LIMIT_FACTOR = 0.75
-export const P = {
-  X: 0,
-  Y: 1,
-  VEL_X: 2,
-  VEL_Y: 3,
-}
-export const F = {
-  ID: 0,
-  COLOR: 1,
-  COLOR_VEC4: 2,
-  TEXTURE: 3,
-  MASS: 4,
-}
+
+/** Particle structure pointer to value of X position */
+export const X = 0
+/** Particle structure pointer to value of Y position */
+export const Y = 1
+/** Particle structure pointer to value of X velocity */
+export const VEL_X = 2
+/** Particle structure pointer to value of Y velocity */
+export const VEL_Y = 3
+
+export const F_ID = 0
+export const F_COLOR = 1
+export const F_COLOR_VEC4 = 2
+export const F_TEXTURE = 3
+export const F_MASS = 4

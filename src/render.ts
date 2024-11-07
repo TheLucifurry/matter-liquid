@@ -1,4 +1,4 @@
-import { F, P } from './constants'
+import { F_TEXTURE, X, Y } from './constants'
 import {
   getBodySurfaceIntersectsWithRay,
   getBodySurfaceNormal,
@@ -55,9 +55,9 @@ function drawParticles(liquid: TLiquid) {
   for (let i = 0; i < pids.length; i++) {
     const pid = pids[i]
     const part = liquid._particles[pid]
-    const x = Math.floor(part[P.X])
-    const y = Math.floor(part[P.Y])
-    const particleTexture = liquid._fluidByParticleId[pid][F.TEXTURE] as OffscreenCanvas
+    const x = Math.floor(part[X])
+    const y = Math.floor(part[Y])
+    const particleTexture = liquid._fluidByParticleId[pid][F_TEXTURE] as OffscreenCanvas
     const texSizeHalf = particleTexture.height / 2
     ctx.drawImage(particleTexture, x - texSizeHalf, y - texSizeHalf)
   }
@@ -124,7 +124,7 @@ export function update(liquid: TLiquid): void {
     // const nearbyParts = liquid.sh.getNearby(point2.x, point2.y, liquid.p);
     // nearbyParts.forEach((pid) => {
     //   const part = liquid.p[pid];
-    //   drawPoint(ctx, [part[P.X], part[P.Y]], 'red', 18);
+    //   drawPoint(ctx, [part[X], part[Y]], 'red', 18);
     // });
 
     if (ENABLED && body) {

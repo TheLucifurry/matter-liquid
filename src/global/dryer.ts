@@ -1,4 +1,4 @@
-import { F, P } from '../constants'
+import { F_ID, X, Y } from '../constants'
 import { arrayEach } from '../helpers/cycles'
 import { checkPointInRect } from '../helpers/utils'
 
@@ -12,13 +12,13 @@ const Dryer = {
     if (!liquid._freeParticleIds.includes(pid))
       liquid._freeParticleIds.unshift(pid)
 
-    liquid._statistics._particlesCountByFluidId[prototype[F.ID] as number]--
+    liquid._statistics._particlesCountByFluidId[prototype[F_ID] as number]--
   },
   rect(liquid: TLiquid, zoneX: number, zoneY: number, zoneWidth: number, zoneHeight: number): void {
     const inboundsParticles = liquid._spatialHash.getFromRect([zoneX, zoneY, zoneX + zoneWidth, zoneY + zoneHeight])
     arrayEach<TParticleId>(inboundsParticles, (pid) => {
       const part = liquid._particles[pid]
-      if (part !== null && checkPointInRect(part[P.X], part[P.Y], [zoneX, zoneY, zoneX + zoneWidth, zoneY + zoneHeight]))
+      if (part !== null && checkPointInRect(part[X], part[Y], [zoneX, zoneY, zoneX + zoneWidth, zoneY + zoneHeight]))
         Dryer.dry(liquid, pid)
     })
   },

@@ -1,5 +1,5 @@
 import Matter from 'matter-js'
-import { P } from '../constants'
+import { X, Y } from '../constants'
 import { vectorFromTwo, vectorNormal } from './vector'
 
 // Matter dependant
@@ -29,8 +29,8 @@ export function getParticlesInsideBodyIds(particles: TParticle[], body: Matter.B
   for (let i = 0; i < nearParticlesIds.length; i++) {
     const pid = nearParticlesIds[i]
     const part = particles[pid]
-    const x = part[P.X]
-    const y = part[P.Y]
+    const x = part[X]
+    const y = part[Y]
     if (checkBodyContainsPoint(body, x, y))
       res.push(pid)
   }
