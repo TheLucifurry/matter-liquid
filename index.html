@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,minimal-ui">
   <meta name="theme-color" content="#00ffff">
   <meta name="msapplication-navbutton-color" content="#00ffff">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-status-bar-style" content="black-translucent">
   <title>Liquid simulation JS</title>
   <style type="text/css">
     body { margin: 0; }
@@ -49,7 +49,11 @@
   <!-- Plugin loading -->
   <!-- <script src="./build/matter-liquid.js"></script> -->
   <script type="module">
-    import './src/index.ts'
+    if(window.location.host.includes('localhost'))
+      await import('./src/index.ts')
+    else
+      await import('./dist/matter-liquid.js')
+
     import examBasic from './examples/basic.js';
     import examView from './examples/view.js';
     import examGravity from './examples/gravity.js';
