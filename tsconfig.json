@@ -11,5 +11,5 @@
     "outDir": "./build",
     "allowSyntheticDefaultImports": true
   },
-  "exclude": ["build", "node_modules"]
+  "exclude": ["dist", "node_modules"]
 }

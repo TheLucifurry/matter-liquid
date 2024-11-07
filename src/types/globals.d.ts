@@ -1,4 +1,3 @@
-declare const Matter: typeof import('matter-js')
 declare const DEV: boolean
 declare const PKG_NAME: string
 declare const PKG_VERSION: string

@@ -6,6 +6,6 @@ export default antfu({
   rules: {
     'no-restricted-syntax': 'warn',
     'no-console': 'warn',
-    'unused-imports/no-unused-vars': 'warn',
+    'unused-imports/no-unused-vars': 'off',
   },
 })

@@ -33,8 +33,6 @@
   "scripts": {
     "dev": "vite --open",
     "build": "vite build",
-    "_dev": "webpack serve --mode=development",
-    "_build": "webpack",
     "lint": "eslint .",
     "format": "eslint . --fix"
   },
